@@ -1,0 +1,54 @@
+from datetime import datetime, timezone
+
+from sqlalchemy import DateTime, ForeignKey, Integer, String, Text
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+from app.database import Base
+
+
+class Interview(Base):
+    __tablename__ = "interviews"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    feedback_level: Mapped[str] = mapped_column(String(50), nullable=False)
+    score: Mapped[int] = mapped_column(Integer, nullable=False)
+    summary: Mapped[str] = mapped_column(Text, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc),
+        nullable=False,
+    )
+
+    # Relationships
+    responses: Mapped[list["QuestionAnswer"]] = relationship(
+        "QuestionAnswer", back_populates="interview", cascade="all, delete-orphan"
+    )
+    skills: Mapped[list["Skill"]] = relationship(
+        "Skill", back_populates="interview", cascade="all, delete-orphan"
+    )
+
+
+class QuestionAnswer(Base):
+    __tablename__ = "question_answers"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    interview_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("interviews.id", ondelete="CASCADE"), nullable=False
+    )
+    question: Mapped[str] = mapped_column(Text, nullable=False)
+    answer: Mapped[str] = mapped_column(Text, nullable=False)
+    category: Mapped[str] = mapped_column(String(100), nullable=False)
+
+    interview: Mapped["Interview"] = relationship("Interview", back_populates="responses")
+
+
+class Skill(Base):
+    __tablename__ = "skills"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    interview_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("interviews.id", ondelete="CASCADE"), nullable=False
+    )
+    skill_name: Mapped[str] = mapped_column(String(150), nullable=False)
+
+    interview: Mapped["Interview"] = relationship("Interview", back_populates="skills")

@@ -48,6 +48,25 @@ class ReportsFragment : BaseFragment<FragmentReportsBinding, ReportsViewModel>(
             holder.binding.tvScore.text = "Score: ${item.score}/100"
             holder.binding.tvStatus.text = item.status
             
+            when (item.status.lowercase()) {
+                "good" -> {
+                    holder.binding.tvStatus.setBackgroundResource(R.drawable.bg_badge_green)
+                    holder.binding.tvStatus.setTextColor(android.graphics.Color.parseColor("#2E7D32"))
+                }
+                "average" -> {
+                    holder.binding.tvStatus.setBackgroundResource(R.drawable.bg_badge_yellow)
+                    holder.binding.tvStatus.setTextColor(android.graphics.Color.parseColor("#F57F17"))
+                }
+                "needs improvement" -> {
+                    holder.binding.tvStatus.setBackgroundResource(R.drawable.bg_badge_red)
+                    holder.binding.tvStatus.setTextColor(android.graphics.Color.parseColor("#C62828"))
+                }
+                else -> {
+                    holder.binding.tvStatus.setBackgroundResource(R.drawable.bg_badge_yellow)
+                    holder.binding.tvStatus.setTextColor(android.graphics.Color.parseColor("#F57F17"))
+                }
+            }
+            
             holder.itemView.setOnClickListener { onClick(item.id) }
         }
 

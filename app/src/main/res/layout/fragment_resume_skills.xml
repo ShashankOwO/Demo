@@ -86,6 +86,169 @@
             </androidx.constraintlayout.widget.ConstraintLayout>
         </androidx.cardview.widget.CardView>
 
+        <!-- Experience Overview -->
+        <androidx.cardview.widget.CardView
+            android:id="@+id/card_experience"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="0dp"
+            app:cardBackgroundColor="#FFFFFF"
+            app:layout_constraintTop_toBottomOf="@+id/card_verification">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="24dp">
+                
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+                    
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Experience Overview"
+                        android:textColor="#1A1C1E"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+                        
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_edit"
+                        app:tint="#BDBDBD"/>
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="Detected from resume"
+                    android:textColor="#9E9E9E"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="Experience Years"
+                    android:textColor="#757575"
+                    android:textSize="12sp" />
+                    
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="bottom"
+                    android:layout_marginTop="4dp">
+                    
+                    <EditText
+                        android:id="@+id/et_experience_years"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="3"
+                        android:textColor="#1A1C1E"
+                        android:textSize="24sp"
+                        android:textStyle="bold"
+                        android:background="@null"
+                        android:inputType="number"
+                        android:minWidth="30dp"/>
+                        
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:layout_marginBottom="4dp"
+                        android:text="years"
+                        android:textColor="#757575"
+                        android:textSize="14sp" />
+                        
+                    <ImageView
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginBottom="4dp"
+                        android:src="@drawable/ic_edit"
+                        app:tint="#E0E0E0"/>
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="Experience Level"
+                    android:textColor="#757575"
+                    android:textSize="12sp" />
+                    
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    app:boxCornerRadiusTopStart="12dp"
+                    app:boxCornerRadiusTopEnd="12dp"
+                    app:boxCornerRadiusBottomStart="12dp"
+                    app:boxCornerRadiusBottomEnd="12dp"
+                    app:boxStrokeColor="#E0E0E0"
+                    app:boxStrokeWidth="1dp"
+                    app:hintEnabled="false">
+
+                    <AutoCompleteTextView
+                        android:id="@+id/dropdown_experience_level"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="none"
+                        android:text="Mid-Level"
+                        android:textColor="#1A1C1E"
+                        android:paddingVertical="12dp"
+                        android:background="@null"/>
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="Previous Role"
+                    android:textColor="#757575"
+                    android:textSize="12sp" />
+                    
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginTop="8dp">
+
+                    <EditText
+                        android:id="@+id/et_previous_role"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:text="Software Engineer"
+                        android:textColor="#1A1C1E"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:background="@null"
+                        android:inputType="text"/>
+                        
+                    <ImageView
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:layout_marginStart="8dp"
+                        android:src="@drawable/ic_edit"
+                        app:tint="#E0E0E0"/>
+                </LinearLayout>
+
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- Technical Skills -->
         <androidx.cardview.widget.CardView
             android:id="@+id/card_tech_skills"
             android:layout_width="match_parent"
@@ -94,7 +257,7 @@
             app:cardCornerRadius="16dp"
             app:cardElevation="0dp"
             app:cardBackgroundColor="#FFFFFF"
-            app:layout_constraintTop_toBottomOf="@+id/card_verification">
+            app:layout_constraintTop_toBottomOf="@+id/card_experience">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -130,10 +293,49 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp" />
+                    
+                <TextView
+                    android:id="@+id/btn_add_tech_skill"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="+ Add Skill"
+                    android:textColor="#4285F4"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:paddingVertical="8dp"/>
+                    
+                <LinearLayout
+                    android:id="@+id/layout_add_tech_skill"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:visibility="gone"
+                    android:layout_marginTop="8dp">
+                    
+                    <EditText
+                        android:id="@+id/et_new_tech_skill"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:hint="Type skill..."
+                        android:textSize="14sp"
+                        android:background="@drawable/bg_bottom_sheet_handle"
+                        android:padding="12dp"/>
+                        
+                    <Button
+                        android:id="@+id/btn_save_tech_skill"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:text="Add"
+                        app:cornerRadius="8dp"/>
+                </LinearLayout>
 
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
+        <!-- Soft Skills -->
         <androidx.cardview.widget.CardView
             android:id="@+id/card_soft_skills"
             android:layout_width="match_parent"
@@ -178,10 +380,49 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp" />
+                    
+                <TextView
+                    android:id="@+id/btn_add_soft_skill"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="+ Add Skill"
+                    android:textColor="#4285F4"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:paddingVertical="8dp"/>
+                    
+                <LinearLayout
+                    android:id="@+id/layout_add_soft_skill"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:visibility="gone"
+                    android:layout_marginTop="8dp">
+                    
+                    <EditText
+                        android:id="@+id/et_new_soft_skill"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:hint="Type custom soft skill..."
+                        android:textSize="14sp"
+                        android:background="@drawable/bg_bottom_sheet_handle"
+                        android:padding="12dp"/>
+                        
+                    <Button
+                        android:id="@+id/btn_save_soft_skill"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:text="Add"
+                        app:cornerRadius="8dp"/>
+                </LinearLayout>
 
             </LinearLayout>
         </androidx.cardview.widget.CardView>
         
+        <!-- Tools & Frameworks -->
         <androidx.cardview.widget.CardView
             android:id="@+id/card_tools"
             android:layout_width="match_parent"
@@ -226,6 +467,123 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp" />
+                    
+                <TextView
+                    android:id="@+id/btn_add_tool_skill"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="+ Add Technology"
+                    android:textColor="#4285F4"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:paddingVertical="8dp"/>
+                    
+                <LinearLayout
+                    android:id="@+id/layout_add_tool_skill"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:visibility="gone"
+                    android:layout_marginTop="8dp">
+                    
+                    <EditText
+                        android:id="@+id/et_new_tool_skill"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:hint="Type tool or framework..."
+                        android:textSize="14sp"
+                        android:background="@drawable/bg_bottom_sheet_handle"
+                        android:padding="12dp"/>
+                        
+                    <Button
+                        android:id="@+id/btn_save_tool_skill"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:text="Add"
+                        app:cornerRadius="8dp"/>
+                </LinearLayout>
+
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+        
+        <!-- Target Role -->
+        <androidx.cardview.widget.CardView
+            android:id="@+id/card_target_role"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="0dp"
+            app:cardBackgroundColor="#FFFFFF"
+            app:layout_constraintTop_toBottomOf="@+id/card_tools">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="24dp">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:background="@drawable/bg_icon_blue_light"
+                        android:padding="4dp"
+                        android:src="@drawable/ic_target"
+                        app:tint="#4285F4"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="12dp"
+                        android:text="Role You're Preparing For"
+                        android:textColor="#1A1C1E"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    app:boxCornerRadiusTopStart="12dp"
+                    app:boxCornerRadiusTopEnd="12dp"
+                    app:boxCornerRadiusBottomStart="12dp"
+                    app:boxCornerRadiusBottomEnd="12dp"
+                    app:boxStrokeColor="#E0E0E0"
+                    app:boxStrokeWidth="1dp"
+                    app:hintEnabled="false">
+
+                    <AutoCompleteTextView
+                        android:id="@+id/dropdown_target_role"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="none"
+                        android:text="Backend Developer"
+                        android:textColor="#1A1C1E"
+                        android:paddingVertical="12dp"
+                        android:background="@null"/>
+                </com.google.android.material.textfield.TextInputLayout>
+                
+                <EditText
+                    android:id="@+id/et_custom_role"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:hint="Enter your target role..."
+                    android:textSize="14sp"
+                    android:textColor="#1A1C1E"
+                    android:background="@drawable/bg_outlined_box"
+                    android:padding="12dp"
+                    android:visibility="gone"/>
 
             </LinearLayout>
         </androidx.cardview.widget.CardView>
@@ -233,7 +591,7 @@
         <Space
             android:layout_width="match_parent"
             android:layout_height="80dp"
-            app:layout_constraintTop_toBottomOf="@+id/card_tools"
+            app:layout_constraintTop_toBottomOf="@+id/card_target_role"
             app:layout_constraintBottom_toBottomOf="parent"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>

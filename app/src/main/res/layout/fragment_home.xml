@@ -105,11 +105,25 @@
                     android:layout_marginTop="8dp"
                     android:layout_marginEnd="24dp"
                     android:text="Upload your resume to generate personalized interview questions."
-                    android:textColor="#757575"
+                    android:textColor="#1A1C1E"
                     android:textSize="14sp"
                     app:layout_constraintEnd_toStartOf="@+id/iv_arrow"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/tv_resume_title" />
+                    
+                <TextView
+                    android:id="@+id/tv_last_updated"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginEnd="24dp"
+                    android:text="Last updated: 2/11/2026"
+                    android:textColor="#9E9E9E"
+                    android:textSize="12sp"
+                    android:visibility="gone"
+                    app:layout_constraintEnd_toStartOf="@+id/iv_arrow"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/tv_resume_status" />
 
                 <ImageView
                     android:id="@+id/iv_arrow"
@@ -342,12 +356,14 @@
                     android:padding="16dp">
 
                     <ImageView
+                        android:id="@+id/iv_start_interview_icon"
                         android:layout_width="32dp"
                         android:layout_height="32dp"
                         android:src="@drawable/ic_mic"
                         app:tint="#9E9E9E" />
 
                     <TextView
+                        android:id="@+id/tv_start_interview"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"

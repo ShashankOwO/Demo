@@ -26,20 +26,29 @@ class MainActivity : AppCompatActivity() {
 
         binding.bottomNavigation.setupWithNavController(navController)
 
-        // Hide bottom nav on auth screens
+        // Hide bottom nav on auth/sub-page screens that have their own back button
+        val hiddenDestinations = setOf(
+            R.id.splashFragment,
+            R.id.loginFragment,
+            R.id.signupFragment,
+            R.id.forgotPasswordFragment,
+            R.id.resetPasswordFragment,
+            R.id.interviewFragment,
+            R.id.uploadResumeFragment,
+            R.id.resumeSkillsFragment,
+            R.id.editProfileFragment,
+            R.id.reportDetailFragment
+        )
+
         navController.addOnDestinationChangedListener { _, destination, _ ->
-            when (destination.id) {
-                R.id.splashFragment,
-                R.id.loginFragment,
-                R.id.signupFragment,
-                R.id.forgotPasswordFragment,
-                R.id.resetPasswordFragment,
-                R.id.interviewFragment -> {
-                    binding.bottomNavigation.visibility = View.GONE
-                }
-                else -> {
-                    binding.bottomNavigation.visibility = View.VISIBLE
-                }
+            val nav = binding.bottomNavigation
+            if (destination.id in hiddenDestinations) {
+                nav.animate().translationY(nav.height.toFloat()).setDuration(200).withEndAction {
+                    nav.visibility = View.GONE
+                }.start()
+            } else {
+                nav.visibility = View.VISIBLE
+                nav.animate().translationY(0f).setDuration(250).start()
             }
         }
     }

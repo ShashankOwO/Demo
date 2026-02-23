@@ -8,10 +8,12 @@ import javax.inject.Inject
 
 data class HomeUiData(
     val userName: String,
-    val resumeStatus: String, // "Active" or "Action Needed"
+    val resumeStatus: String,
     val interviewSessionCount: Int,
     val latestScore: Int,
-    val focusAreas: List<String>
+    val focusAreas: List<String>,
+    val extractedSkills: Int = 12,
+    val isResumeActive: Boolean = false
 )
 
 @HiltViewModel
@@ -23,15 +25,17 @@ class HomeViewModel @Inject constructor(
         loadHomeData()
     }
 
-    private fun loadHomeData() {
+    fun loadHomeData() {
         launchDataLoad {
             delay(500)
+            val isUploaded = HomeStaticState.isResumeUploaded
             HomeUiData(
                 userName = "Alex",
-                resumeStatus = "Action Needed",
-                interviewSessionCount = 5,
-                latestScore = 85,
-                focusAreas = listOf("System design scalability", "Edge case handling")
+                resumeStatus = if (isUploaded) "Active" else "Action Needed",
+                interviewSessionCount = if (isUploaded) 6 else 5,
+                latestScore = if (isUploaded) 82 else 85,
+                focusAreas = if (isUploaded) listOf("System scalability", "Edge case handling") else listOf("System design scalability", "Edge case handling"),
+                isResumeActive = isUploaded
             )
         }
     }

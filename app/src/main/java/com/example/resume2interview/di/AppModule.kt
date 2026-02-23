@@ -14,7 +14,6 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object AppModule {
 
-    // Placeholders for Retrofit, Room, etc.
 
     @Provides
     @Singleton
