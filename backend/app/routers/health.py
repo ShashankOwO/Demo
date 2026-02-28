@@ -1,14 +1,8 @@
-from fastapi import APIRouter
-from pydantic import BaseModel
+from flask import Blueprint, jsonify
 
-router = APIRouter()
+bp = Blueprint('health', __name__)
 
-
-class HealthResponse(BaseModel):
-    status: str
-
-
-@router.get("/health", response_model=HealthResponse)
-def health_check() -> HealthResponse:
+@bp.route("/health", methods=["GET"])
+def health_check():
     """Returns a simple running status — useful for load-balancer and Android app checks."""
-    return HealthResponse(status="running")
+    return jsonify({"status": "running"})

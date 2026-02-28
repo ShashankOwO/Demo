@@ -1,33 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<!-- Premium light splash screen -->
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#4A90E2">
+    android:background="@color/bg_page">
+
+    <!-- Logo background bubble -->
+    <View
+        android:id="@+id/v_logo_bg"
+        android:layout_width="130dp"
+        android:layout_height="130dp"
+        android:background="@drawable/bg_gradient_button"
+        android:alpha="0.12"
+        app:layout_constraintBottom_toTopOf="@+id/iv_logo"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.42"
+        app:layout_constraintVertical_chainStyle="packed" />
 
     <ImageView
         android:id="@+id/iv_logo"
-        android:layout_width="120dp"
-        android:layout_height="120dp"
-        android:background="@drawable/circle_white_bg"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:background="@drawable/bg_card_glass"
         android:padding="24dp"
         android:src="@drawable/ic_mic_blue"
+        android:elevation="4dp"
+        app:tint="@color/accent_indigo"
         app:layout_constraintBottom_toTopOf="@+id/tv_app_name"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.42"
         app:layout_constraintVertical_chainStyle="packed" />
 
     <TextView
         android:id="@+id/tv_app_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:fontFamily="sans-serif-medium"
+        android:layout_marginTop="28dp"
         android:text="Resume2Interview"
-        android:textColor="#FFFFFF"
-        android:textSize="28sp"
+        android:textColor="@color/text_primary"
+        android:textSize="30sp"
         android:textStyle="bold"
+        android:letterSpacing="-0.02"
         app:layout_constraintBottom_toTopOf="@+id/tv_tagline"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -37,44 +56,35 @@
         android:id="@+id/tv_tagline"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:letterSpacing="0.05"
-        android:text="ACE YOUR INTERVIEW"
-        android:textColor="#E0E0E0"
-        android:textSize="14sp"
+        android:layout_marginTop="10dp"
+        android:letterSpacing="0.12"
+        android:text="ACE YOUR NEXT INTERVIEW"
+        android:textColor="@color/accent_indigo"
+        android:textSize="11sp"
+        android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tv_app_name" />
 
+    <!-- Dot indicators -->
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
+        android:layout_marginBottom="52dp"
+        android:gravity="center_vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tv_tagline"
-        app:layout_constraintVertical_bias="0.8">
-
-        <View
-            android:layout_width="8dp"
-            android:layout_height="8dp"
-            android:layout_marginEnd="8dp"
+        app:layout_constraintStart_toStartOf="parent">
+        <!-- Active pill -->
+        <View android:layout_width="28dp" android:layout_height="7dp"
+            android:layout_marginEnd="6dp" android:background="@drawable/bg_gradient_button" />
+        <!-- Inactive dots -->
+        <View android:layout_width="7dp" android:layout_height="7dp"
+            android:layout_marginEnd="6dp" android:background="@drawable/circle_white_dot" />
+        <View android:layout_width="7dp" android:layout_height="7dp"
             android:background="@drawable/circle_white_dot" />
-        
-        <View
-            android:layout_width="8dp"
-            android:layout_height="8dp"
-            android:layout_marginEnd="8dp"
-            android:background="@drawable/circle_white_dot"
-            android:alpha="0.5"/>
-
-        <View
-            android:layout_width="8dp"
-            android:layout_height="8dp"
-            android:background="@drawable/circle_white_dot"
-            android:alpha="0.5"/>
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

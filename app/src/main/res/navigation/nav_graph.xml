@@ -130,6 +130,13 @@
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
             app:popExitAnim="@anim/slide_out_right" />
+        <action
+            android:id="@+id/action_homeFragment_to_interviewProgressFragment"
+            app:destination="@id/interviewProgressFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
     </fragment>
 
     <fragment
@@ -191,11 +198,52 @@
             app:popUpToInclusive="true"
             app:enterAnim="@anim/fade_in"
             app:exitAnim="@anim/fade_out" />
+        <action
+            android:id="@+id/action_profileFragment_to_notificationsFragment"
+            app:destination="@id/notificationsFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+        <action
+            android:id="@+id/action_profileFragment_to_preferencesFragment"
+            app:destination="@id/preferencesFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+        <action
+            android:id="@+id/action_profileFragment_to_privacyPolicyFragment"
+            app:destination="@id/privacyPolicyFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
     </fragment>
 
     <fragment
         android:id="@+id/editProfileFragment"
         android:name="com.example.resume2interview.ui.profile.EditProfileFragment"
         tools:layout="@layout/fragment_edit_profile" />
+
+    <fragment
+        android:id="@+id/interviewProgressFragment"
+        android:name="com.example.resume2interview.ui.home.InterviewProgressFragment"
+        tools:layout="@layout/fragment_interview_progress" />
+
+    <fragment
+        android:id="@+id/notificationsFragment"
+        android:name="com.example.resume2interview.ui.profile.NotificationsFragment"
+        tools:layout="@layout/fragment_notifications" />
+
+    <fragment
+        android:id="@+id/preferencesFragment"
+        android:name="com.example.resume2interview.ui.profile.PreferencesFragment"
+        tools:layout="@layout/fragment_preferences" />
+
+    <fragment
+        android:id="@+id/privacyPolicyFragment"
+        android:name="com.example.resume2interview.ui.profile.PrivacyPolicyFragment"
+        tools:layout="@layout/fragment_privacy_policy" />
 
 </navigation>

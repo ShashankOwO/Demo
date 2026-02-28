@@ -17,17 +17,27 @@ class ProfileFragment : BaseFragment<FragmentProfileBinding, ProfileViewModel>(
         binding.btnEditProfile.setOnClickListener {
             findNavController().navigate(R.id.action_profileFragment_to_editProfileFragment)
         }
-        
+
         binding.btnSignOut.setOnClickListener {
-            // Clear session and navigate to splash/login
-            // For now just back to login directly or via nav graph
             findNavController().navigate(R.id.action_profileFragment_to_loginFragment)
+        }
+
+        binding.tvNotifications.setOnClickListener {
+            findNavController().navigate(R.id.action_profileFragment_to_notificationsFragment)
+        }
+
+        binding.tvPreferences.setOnClickListener {
+            findNavController().navigate(R.id.action_profileFragment_to_preferencesFragment)
+        }
+
+        binding.tvPrivacyPolicy.setOnClickListener {
+            findNavController().navigate(R.id.action_profileFragment_to_privacyPolicyFragment)
         }
     }
 
     override fun showContent(data: Any?) {
         val user = data as? UserProfile ?: return
-        
+
         binding.tvName.text = user.name
         binding.tvEmail.text = user.email
         binding.tvStatInterviews.text = user.interviewsCompleted.toString()

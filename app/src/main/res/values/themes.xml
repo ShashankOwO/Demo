@@ -1,9 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
+    <!-- Premium light theme -->
     <style name="Base.Theme.Resume2Interview" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <item name="colorPrimary">@color/accent_indigo</item>
+        <item name="colorPrimaryVariant">@color/accent_indigo_dark</item>
+        <item name="colorSecondary">@color/accent_violet</item>
+        <item name="android:colorBackground">@color/bg_page</item>
+        <item name="colorSurface">@color/bg_white</item>
+        <item name="colorOnPrimary">@color/text_on_accent</item>
+        <item name="colorOnBackground">@color/text_primary</item>
+        <item name="colorOnSurface">@color/text_primary</item>
+        <!-- Light status bar with dark icons -->
+        <item name="android:statusBarColor" tools:targetApi="21">@color/bg_page</item>
+        <item name="android:windowLightStatusBar" tools:targetApi="23">true</item>
+        <item name="android:navigationBarColor" tools:targetApi="21">@color/bg_white</item>
+        <!-- Input accent -->
+        <item name="colorControlActivated">@color/accent_indigo</item>
+        <item name="colorControlHighlight">#1A5C6BC0</item>
     </style>
 
     <style name="Theme.Resume2Interview" parent="Base.Theme.Resume2Interview" />
+
+    <!-- Custom Bottom Navigation Text -->
+    <style name="App.Custom.BottomNavTextActive" parent="TextAppearance.Material3.LabelSmall">
+        <item name="android:textSize">11sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="App.Custom.BottomNavTextInactive" parent="TextAppearance.Material3.LabelSmall">
+        <item name="android:textSize">10sp</item>
+    </style>
+
+    <!-- Custom Bottom Navigation Indicator -->
+    <style name="App.Custom.Indicator" parent="Widget.Material3.BottomNavigationView.ActiveIndicator">
+        <item name="android:color">@color/accent_indigo_light</item>
+        <item name="android:width">44dp</item>
+        <item name="android:height">28dp</item>
+    </style>
 </resources>

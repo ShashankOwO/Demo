@@ -32,10 +32,9 @@ class HomeFragment : BaseFragment<FragmentHomeBinding, HomeViewModel>(
 
         // Card status click listener is now set in showContent() based on state
 
-        // ── Interview Progress card → show premium bottom sheet ──
+        // ── Interview Progress card → navigate to new fragment ──
         binding.cardProgress.setOnClickListener {
-            InterviewHistoryBottomSheet()
-                .show(parentFragmentManager, InterviewHistoryBottomSheet.TAG)
+            findNavController().navigate(R.id.action_homeFragment_to_interviewProgressFragment)
         }
 
         // ── Quick action buttons ──
@@ -50,18 +49,18 @@ class HomeFragment : BaseFragment<FragmentHomeBinding, HomeViewModel>(
 
     override fun showContent(data: Any?) {
         val uiData = data as? HomeUiData ?: return
-        binding.tvWelcome.text = "Hello, ${uiData.userName}"
+        binding.tvWelcome.text = "Hello, ${uiData.userName} \uD83D\uDC4B"
         binding.tvAvatar.text = uiData.userName.firstOrNull()?.uppercaseChar()?.toString() ?: "A"
+
+        // "Start Interview" always darker blue accent
+        binding.cardStartInterview.setCardBackgroundColor(Color.parseColor("#1976D2"))
+        binding.ivStartInterviewIcon.setColorFilter(Color.WHITE)
+        binding.tvStartInterview.setTextColor(Color.WHITE)
         
         if (uiData.isResumeActive) {
             binding.cardResumeStatus.setOnClickListener {
                 findNavController().navigate(R.id.action_homeFragment_to_resumeSkillsFragment)
             }
-            
-            // "Start Interview" darker blue accent
-            binding.cardStartInterview.setCardBackgroundColor(Color.parseColor("#1976D2")) // Darker Blue Accent
-            binding.ivStartInterviewIcon.setColorFilter(Color.WHITE)
-            binding.tvStartInterview.setTextColor(Color.WHITE)
             
             binding.tvStatusBadge.text = "✓ Active"
             binding.tvStatusBadge.setTextColor(Color.parseColor("#1B5E20")) // dark green
@@ -81,15 +80,11 @@ class HomeFragment : BaseFragment<FragmentHomeBinding, HomeViewModel>(
                 findNavController().navigate(R.id.action_homeFragment_to_uploadResumeFragment)
             }
             
-            // "Start Interview" default grey
-            binding.cardStartInterview.setCardBackgroundColor(Color.parseColor("#F5F5F5"))
-            binding.ivStartInterviewIcon.setColorFilter(Color.parseColor("#9E9E9E"))
-            binding.tvStartInterview.setTextColor(Color.parseColor("#9E9E9E"))
-            
-            binding.tvStatusBadge.text = "! Action Needed"
+            // Restore default orange styling
+            binding.tvStatusBadge.text = "⚠ Action Needed"
             binding.tvStatusBadge.setTextColor(Color.parseColor("#E65100")) // dark orange
             binding.tvStatusBadge.setBackgroundResource(R.drawable.bg_badge_orange)
-            binding.cardResumeStatus.setCardBackgroundColor(Color.parseColor("#FFF8E1"))
+            binding.cardResumeStatus.setCardBackgroundColor(Color.parseColor("#FFF8E1")) // Light yellow/orange
             
             binding.tvResumeStatus.text = "Upload your resume to generate personalized interview questions."
             binding.tvResumeStatus.setTextColor(Color.parseColor("#757575"))

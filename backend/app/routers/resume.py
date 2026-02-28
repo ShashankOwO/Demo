@@ -1,49 +1,28 @@
-from fastapi import APIRouter, Depends, File, UploadFile, status
-from fastapi.responses import JSONResponse
+from flask import Blueprint, request, jsonify
 
+from app.schemas.resume import ResumeAnalysisOutSchema
 from app.services import resume_service
 
-router = APIRouter()
+bp = Blueprint('resume', __name__)
+resume_analysis_schema = ResumeAnalysisOutSchema()
 
-
-@router.post(
-    "/upload",
-    status_code=status.HTTP_200_OK,
-    summary="Upload a PDF resume",
-    response_description="Extracted skills and generated interview questions",
-    responses={
-        200: {
-            "description": "Skills and questions extracted successfully",
-            "content": {
-                "application/json": {
-                    "example": {
-                        "extracted_skills": ["Python", "SQL"],
-                        "questions": [
-                            {
-                                "question": "Explain your experience with Python and the projects you have built using it.",
-                                "category": "Python",
-                            }
-                        ],
-                    }
-                }
-            },
-        },
-        400: {"description": "Invalid file type"},
-        413: {"description": "File too large (> 5 MB)"},
-        422: {"description": "Unable to parse PDF"},
-    },
-)
-async def upload_resume(
-    file: UploadFile = File(..., description="PDF resume file (max 5 MB)"),
-):
+@bp.route("/upload", methods=["POST"])
+def upload_resume():
     """
-    Upload a PDF resume. The backend will:
-    - Validate the file type and size (max 5 MB)
-    - Extract text using pdfplumber
-    - Detect skills from a predefined keyword list
-    - Generate up to 10 structured interview questions
-
-    Use the returned **questions** to drive the interview flow (POST /interviews/).
+    Upload a PDF resume. The service will:
+    - Validate file type and size (max 5 MB)
+    - Extract text with pdfplumber
+    - Match skills against a categorised keyword database (regex, no AI)
+    - Generate up to 10 interview questions from technical skills only
+    
+    Returns a structured ResumeAnalysisOut response.
     """
-    result = await resume_service.process_resume(file)
-    return result
+    if 'file' not in request.files:
+        return jsonify({"detail": "No file part"}), 400
+    
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({"detail": "No selected file"}), 400
+        
+    result = resume_service.process_resume(file)
+    return jsonify(resume_analysis_schema.dump(result))

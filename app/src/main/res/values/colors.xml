@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- ── Legacy (kept for compat) ── -->
     <color name="purple_200">#FFBB86FC</color>
     <color name="purple_500">#FF6200EE</color>
     <color name="purple_700">#FF3700B3</color>
@@ -7,7 +8,41 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    
-    <color name="green_dark">#2E7D32</color>
-    <color name="red_dark">#C62828</color>
+
+    <!-- ── Premium Light Backgrounds ── -->
+    <color name="bg_page">#F4F6FB</color>
+    <color name="bg_white">#FFFFFF</color>
+    <color name="bg_surface">#FFFFFF</color>
+    <color name="bg_surface_alt">#F8F9FF</color>
+
+    <!-- ── Brand Indigo Accent ── -->
+    <color name="accent_indigo">#5C6BC0</color>
+    <color name="accent_indigo_dark">#3949AB</color>
+    <color name="accent_indigo_light">#E8EAF6</color>
+    <color name="accent_violet">#7C4DFF</color>
+    <color name="gradient_start">#5C6BC0</color>
+    <color name="gradient_end">#7C4DFF</color>
+
+    <!-- ── Status Colours ── -->
+    <color name="accent_emerald">#00897B</color>
+    <color name="accent_emerald_bg">#E0F2F1</color>
+    <color name="accent_amber">#FB8C00</color>
+    <color name="accent_amber_bg">#FFF3E0</color>
+    <color name="accent_rose">#E53935</color>
+    <color name="accent_rose_bg">#FFEBEE</color>
+
+    <!-- ── Text Colors ── -->
+    <color name="text_primary">#1A1D2E</color>
+    <color name="text_secondary">#5A6376</color>
+    <color name="text_muted">#9AA3B5</color>
+    <color name="text_on_accent">#FFFFFF</color>
+    <color name="text_link">#5C6BC0</color>
+
+    <!-- ── Borders ── -->
+    <color name="border_default">#E4E7F0</color>
+    <color name="border_focused">#5C6BC0</color>
+
+    <!-- ── Legacy status ── -->
+    <color name="green_dark">#00897B</color>
+    <color name="red_dark">#E53935</color>
 </resources>

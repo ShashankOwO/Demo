@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Tab container — light grey pill background -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="rectangle">
-    <corners android:radius="8dp" />
-    <solid android:color="#F5F5F5" />
+    <solid android:color="#ECEEF6" />
+    <corners android:radius="14dp" />
 </shape>

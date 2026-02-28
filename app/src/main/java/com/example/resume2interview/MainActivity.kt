@@ -26,6 +26,11 @@ class MainActivity : AppCompatActivity() {
 
         binding.bottomNavigation.setupWithNavController(navController)
 
+        // Prevent reloading the same fragment when clicking the active tab again
+        binding.bottomNavigation.setOnItemReselectedListener {
+            // Do nothing
+        }
+
         // Hide bottom nav on auth/sub-page screens that have their own back button
         val hiddenDestinations = setOf(
             R.id.splashFragment,
@@ -37,7 +42,11 @@ class MainActivity : AppCompatActivity() {
             R.id.uploadResumeFragment,
             R.id.resumeSkillsFragment,
             R.id.editProfileFragment,
-            R.id.reportDetailFragment
+            R.id.reportDetailFragment,
+            R.id.interviewProgressFragment,
+            R.id.notificationsFragment,
+            R.id.preferencesFragment,
+            R.id.privacyPolicyFragment
         )
 
         navController.addOnDestinationChangedListener { _, destination, _ ->

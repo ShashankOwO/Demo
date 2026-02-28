@@ -1,45 +1,43 @@
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
+from flask import Flask
+from flask_cors import CORS
 
 from app.core.config import get_settings
-from app.database import init_db
-from app.routers import health, interview, resume
+from app.database import db
+
+# Import blueprints
+from app.routers.health import bp as health_bp
+from app.routers.interview import bp as interview_bp
+from app.routers.resume import bp as resume_bp
 
 settings = get_settings()
 
-app = FastAPI(
-    title=settings.app_name,
-    version=settings.app_version,
-    debug=settings.debug,
-    docs_url="/docs",
-    redoc_url="/redoc",
-)
+def create_app():
+    app = Flask(__name__)
+    
+    # Configure app
+    app.config['SECRET_KEY'] = settings.secret_key
+    app.config['SQLALCHEMY_DATABASE_URI'] = settings.database_url
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# ---------------------------------------------------------------------------
-# CORS — allow Android emulator (10.0.2.2) and any other configured origins
-# ---------------------------------------------------------------------------
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=settings.origins_list,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+    # CORS
+    CORS(app, resources={r"/*": {"origins": settings.origins_list}}, supports_credentials=True)
 
-# ---------------------------------------------------------------------------
-# Routers
-# ---------------------------------------------------------------------------
-app.include_router(health.router, tags=["Health"])
-app.include_router(interview.router, prefix="/interviews", tags=["Interviews"])
-app.include_router(resume.router, prefix="/resume", tags=["Resume"])
-# Future routers go here, e.g.:
-# app.include_router(auth.router, prefix="/auth", tags=["Auth"])
+    # Initialize extensions
+    db.init_app(app)
 
+    # Note: We create tables inside the app context when running directly, 
+    # but in a production setup you'd use migrations.
+    with app.app_context():
+        from app import models  # Ensure models are known to SQLAlchemy
+        db.create_all()
 
-# ---------------------------------------------------------------------------
-# Startup event
-# ---------------------------------------------------------------------------
-@app.on_event("startup")
-def on_startup() -> None:
-    """Initialise DB tables when the server starts."""
-    init_db()
+    # Register blueprints
+    app.register_blueprint(health_bp)
+    app.register_blueprint(interview_bp, url_prefix="/interviews")
+    app.register_blueprint(resume_bp, url_prefix="/resume")
+
+    return app
+
+if __name__ == "__main__":
+    app = create_app()
+    app.run(debug=settings.debug, host="0.0.0.0", port=5000)

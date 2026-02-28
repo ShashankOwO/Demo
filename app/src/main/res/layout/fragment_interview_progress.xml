@@ -1,0 +1,565 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F5F7FA"
+    android:fillViewport="true">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="24dp">
+
+        <ImageView
+            android:id="@+id/btn_back"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:padding="8dp"
+            android:src="@drawable/ic_arrow_back"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tv_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:text="Interview Progress"
+            android:textColor="#1A1C1E"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="@+id/btn_back"
+            app:layout_constraintStart_toEndOf="@+id/btn_back"
+            app:layout_constraintTop_toTopOf="@+id/btn_back" />
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/card_performance"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            app:cardBackgroundColor="#FFFFFF"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="0dp"
+            app:layout_constraintTop_toBottomOf="@+id/tv_title">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="24dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Interview Performance"
+                    android:textColor="#1A1C1E"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="Last 5 Interview sessions"
+                    android:textColor="#9E9E9E"
+                    android:textSize="12sp" />
+
+                <!-- Placeholder for Chart -->
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="220dp"
+                    android:layout_marginTop="24dp">
+
+                    <!-- Y Axis Labels -->
+                    <TextView
+                        android:id="@+id/tv_y100"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="100"
+                        android:textColor="#B0BEC5"
+                        android:textSize="10sp"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:id="@+id/tv_y75"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="75"
+                        android:textColor="#B0BEC5"
+                        android:textSize="10sp"
+                        app:layout_constraintBottom_toTopOf="@+id/tv_y50"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/tv_y100" />
+
+                    <TextView
+                        android:id="@+id/tv_y50"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="50"
+                        android:textColor="#B0BEC5"
+                        android:textSize="10sp"
+                        app:layout_constraintBottom_toTopOf="@+id/tv_y25"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/tv_y75" />
+
+                    <TextView
+                        android:id="@+id/tv_y25"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="25"
+                        android:textColor="#B0BEC5"
+                        android:textSize="10sp"
+                        app:layout_constraintBottom_toTopOf="@+id/tv_y0"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/tv_y50" />
+
+                    <TextView
+                        android:id="@+id/tv_y0"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0"
+                        android:textColor="#B0BEC5"
+                        android:textSize="10sp"
+                        app:layout_constraintBottom_toTopOf="@+id/barrier_x_axis"
+                        app:layout_constraintStart_toStartOf="parent" />
+
+                    <androidx.constraintlayout.widget.Barrier
+                        android:id="@+id/barrier_y_axis"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:barrierDirection="end"
+                        app:constraint_referenced_ids="tv_y100,tv_y75,tv_y50,tv_y25,tv_y0" />
+
+                    <androidx.constraintlayout.widget.Barrier
+                        android:id="@+id/barrier_x_axis"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:barrierDirection="top"
+                        app:constraint_referenced_ids="tv_x1,tv_x2,tv_x3,tv_x4,tv_x5" />
+
+                    <!-- Grid Lines -->
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="1dp"
+                        android:layout_marginStart="8dp"
+                        android:background="@drawable/bg_dashed_line"
+                        app:layout_constraintBottom_toBottomOf="@+id/tv_y100"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@+id/barrier_y_axis"
+                        app:layout_constraintTop_toTopOf="@+id/tv_y100" />
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="1dp"
+                        android:layout_marginStart="8dp"
+                        android:background="@drawable/bg_dashed_line"
+                        app:layout_constraintBottom_toBottomOf="@+id/tv_y75"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@+id/barrier_y_axis"
+                        app:layout_constraintTop_toTopOf="@+id/tv_y75" />
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="1dp"
+                        android:layout_marginStart="8dp"
+                        android:background="@drawable/bg_dashed_line"
+                        app:layout_constraintBottom_toBottomOf="@+id/tv_y50"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@+id/barrier_y_axis"
+                        app:layout_constraintTop_toTopOf="@+id/tv_y50" />
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="1dp"
+                        android:layout_marginStart="8dp"
+                        android:background="@drawable/bg_dashed_line"
+                        app:layout_constraintBottom_toBottomOf="@+id/tv_y25"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@+id/barrier_y_axis"
+                        app:layout_constraintTop_toTopOf="@+id/tv_y25" />
+
+                    <!-- X Axis Labels -->
+                    <TextView
+                        android:id="@+id/tv_x1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Jan 5"
+                        android:textColor="#B0BEC5"
+                        android:textSize="10sp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toStartOf="@+id/tv_x2"
+                        app:layout_constraintStart_toEndOf="@+id/barrier_y_axis" />
+
+                    <TextView
+                        android:id="@+id/tv_x2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Jan 12"
+                        android:textColor="#B0BEC5"
+                        android:textSize="10sp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toStartOf="@+id/tv_x3"
+                        app:layout_constraintStart_toEndOf="@+id/tv_x1" />
+
+                    <TextView
+                        android:id="@+id/tv_x3"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Jan 19"
+                        android:textColor="#B0BEC5"
+                        android:textSize="10sp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toStartOf="@+id/tv_x4"
+                        app:layout_constraintStart_toEndOf="@+id/tv_x2" />
+
+                    <TextView
+                        android:id="@+id/tv_x4"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Jan 26"
+                        android:textColor="#B0BEC5"
+                        android:textSize="10sp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toStartOf="@+id/tv_x5"
+                        app:layout_constraintStart_toEndOf="@+id/tv_x3" />
+
+                    <TextView
+                        android:id="@+id/tv_x5"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Feb 2"
+                        android:textColor="#B0BEC5"
+                        android:textSize="10sp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@+id/tv_x4" />
+
+                    <!-- Bars (Bottom constrained to X axis, height based on percentage) -->
+                    <!-- Bar 1 (65) -->
+                    <View
+                        android:id="@+id/bar1"
+                        android:layout_width="16dp"
+                        android:layout_height="0dp"
+                        android:background="@drawable/bg_bar_blue"
+                        app:layout_constraintBottom_toTopOf="@+id/barrier_x_axis"
+                        app:layout_constraintEnd_toEndOf="@+id/tv_x1"
+                        app:layout_constraintStart_toStartOf="@+id/tv_x1"
+                        app:layout_constraintHeight_percent="0.65"
+                        android:layout_marginBottom="8dp"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="65"
+                        android:textColor="#1A1C1E"
+                        android:textSize="10sp"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="4dp"
+                        app:layout_constraintBottom_toTopOf="@+id/bar1"
+                        app:layout_constraintEnd_toEndOf="@+id/bar1"
+                        app:layout_constraintStart_toStartOf="@+id/bar1" />
+
+                    <!-- Bar 2 (72) -->
+                    <View
+                        android:id="@+id/bar2"
+                        android:layout_width="16dp"
+                        android:layout_height="0dp"
+                        android:background="@drawable/bg_bar_blue"
+                        app:layout_constraintBottom_toTopOf="@+id/barrier_x_axis"
+                        app:layout_constraintEnd_toEndOf="@+id/tv_x2"
+                        app:layout_constraintStart_toStartOf="@+id/tv_x2"
+                        app:layout_constraintHeight_percent="0.72"
+                        android:layout_marginBottom="8dp"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="72"
+                        android:textColor="#1A1C1E"
+                        android:textSize="10sp"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="4dp"
+                        app:layout_constraintBottom_toTopOf="@+id/bar2"
+                        app:layout_constraintEnd_toEndOf="@+id/bar2"
+                        app:layout_constraintStart_toStartOf="@+id/bar2" />
+
+                    <!-- Bar 3 (45, Lowest) -->
+                    <View
+                        android:id="@+id/bar3"
+                        android:layout_width="16dp"
+                        android:layout_height="0dp"
+                        android:background="@drawable/bg_bar_red"
+                        app:layout_constraintBottom_toTopOf="@+id/barrier_x_axis"
+                        app:layout_constraintEnd_toEndOf="@+id/tv_x3"
+                        app:layout_constraintStart_toStartOf="@+id/tv_x3"
+                        app:layout_constraintHeight_percent="0.45"
+                        android:layout_marginBottom="8dp"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="45"
+                        android:textColor="#1A1C1E"
+                        android:textSize="10sp"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="4dp"
+                        app:layout_constraintBottom_toTopOf="@+id/bar3"
+                        app:layout_constraintEnd_toEndOf="@+id/bar3"
+                        app:layout_constraintStart_toStartOf="@+id/bar3" />
+
+                    <!-- Bar 4 (85, Highest) -->
+                    <View
+                        android:id="@+id/bar4"
+                        android:layout_width="16dp"
+                        android:layout_height="0dp"
+                        android:background="@drawable/bg_bar_green"
+                        app:layout_constraintBottom_toTopOf="@+id/barrier_x_axis"
+                        app:layout_constraintEnd_toEndOf="@+id/tv_x4"
+                        app:layout_constraintStart_toStartOf="@+id/tv_x4"
+                        app:layout_constraintHeight_percent="0.85"
+                        android:layout_marginBottom="8dp"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="85"
+                        android:textColor="#1A1C1E"
+                        android:textSize="10sp"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="4dp"
+                        app:layout_constraintBottom_toTopOf="@+id/bar4"
+                        app:layout_constraintEnd_toEndOf="@+id/bar4"
+                        app:layout_constraintStart_toStartOf="@+id/bar4" />
+
+                    <!-- Bar 5 (82) -->
+                    <View
+                        android:id="@+id/bar5"
+                        android:layout_width="16dp"
+                        android:layout_height="0dp"
+                        android:background="@drawable/bg_bar_blue"
+                        app:layout_constraintBottom_toTopOf="@+id/barrier_x_axis"
+                        app:layout_constraintEnd_toEndOf="@+id/tv_x5"
+                        app:layout_constraintStart_toStartOf="@+id/tv_x5"
+                        app:layout_constraintHeight_percent="0.82"
+                        android:layout_marginBottom="8dp"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="82"
+                        android:textColor="#1A1C1E"
+                        android:textSize="10sp"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="4dp"
+                        app:layout_constraintBottom_toTopOf="@+id/bar5"
+                        app:layout_constraintEnd_toEndOf="@+id/bar5"
+                        app:layout_constraintStart_toStartOf="@+id/bar5" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <!-- Legend -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="16dp">
+
+                    <ImageView
+                        android:layout_width="8dp"
+                        android:layout_height="8dp"
+                        android:layout_gravity="center_vertical"
+                        android:src="@drawable/circle_blue" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:text="Score"
+                        android:textColor="#757575"
+                        android:textSize="10sp" />
+
+                    <ImageView
+                        android:layout_width="8dp"
+                        android:layout_height="8dp"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginStart="16dp"
+                        android:src="@drawable/circle_green" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:text="Highest"
+                        android:textColor="#757575"
+                        android:textSize="10sp" />
+
+                    <ImageView
+                        android:layout_width="8dp"
+                        android:layout_height="8dp"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginStart="16dp"
+                        android:src="@drawable/circle_red" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:text="Lowest"
+                        android:textColor="#757575"
+                        android:textSize="10sp" />
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="#F0F0F0"
+                    android:layout_marginTop="24dp"
+                    android:layout_marginBottom="16dp" />
+
+                <!-- Average Score Section -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Average Score"
+                            android:textColor="#757575"
+                            android:textSize="12sp" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="78%"
+                            android:textColor="#1A1C1E"
+                            android:textSize="24sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:gravity="end">
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <ImageView
+                                android:layout_width="16dp"
+                                android:layout_height="16dp"
+                                android:src="@drawable/ic_trending_up"
+                                app:tint="#2E7D32" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="4dp"
+                                android:text="+5%"
+                                android:textColor="#2E7D32"
+                                android:textSize="14sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="from previous session"
+                            android:textColor="#9E9E9E"
+                            android:textSize="10sp" />
+                    </LinearLayout>
+                </LinearLayout>
+
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- Skills Practiced Card -->
+        <androidx.cardview.widget.CardView
+            android:id="@+id/card_skills"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            app:cardBackgroundColor="#FFFFFF"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="0dp"
+            app:layout_constraintTop_toBottomOf="@+id/card_performance"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginBottom="32dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="24dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Skills Practiced"
+                    android:textColor="#1A1C1E"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="Based on Interview question categories"
+                    android:textColor="#9E9E9E"
+                    android:textSize="12sp"
+                    android:layout_marginBottom="24dp" />
+
+                <!-- Communication -->
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginBottom="16dp">
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="6dp">
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Communication" android:textColor="#1A1C1E" android:textSize="12sp" android:textStyle="bold" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="6 sessions" android:textColor="#9E9E9E" android:textSize="10sp" />
+                    </LinearLayout>
+                    <ProgressBar android:id="@+id/pb_communication" style="@style/Widget.AppCompat.ProgressBar.Horizontal" android:layout_width="match_parent" android:layout_height="6dp" android:max="10" android:progress="6" android:progressTint="#4285F4" android:progressBackgroundTint="#F0F0F0" />
+                </LinearLayout>
+
+                <!-- Problem Solving -->
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginBottom="16dp">
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="6dp">
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Problem Solving" android:textColor="#1A1C1E" android:textSize="12sp" android:textStyle="bold" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="5 sessions" android:textColor="#9E9E9E" android:textSize="10sp" />
+                    </LinearLayout>
+                    <ProgressBar android:id="@+id/pb_problem_solving" style="@style/Widget.AppCompat.ProgressBar.Horizontal" android:layout_width="match_parent" android:layout_height="6dp" android:max="10" android:progress="5" android:progressTint="#4285F4" android:progressBackgroundTint="#F0F0F0" />
+                </LinearLayout>
+
+                <!-- System Design -->
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginBottom="16dp">
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="6dp">
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="System Design" android:textColor="#1A1C1E" android:textSize="12sp" android:textStyle="bold" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="4 sessions" android:textColor="#9E9E9E" android:textSize="10sp" />
+                    </LinearLayout>
+                    <ProgressBar android:id="@+id/pb_system_design" style="@style/Widget.AppCompat.ProgressBar.Horizontal" android:layout_width="match_parent" android:layout_height="6dp" android:max="10" android:progress="4" android:progressTint="#4285F4" android:progressBackgroundTint="#F0F0F0" />
+                </LinearLayout>
+
+                <!-- Technical Depth -->
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginBottom="16dp">
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="6dp">
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Technical Depth" android:textColor="#1A1C1E" android:textSize="12sp" android:textStyle="bold" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="3 sessions" android:textColor="#9E9E9E" android:textSize="10sp" />
+                    </LinearLayout>
+                    <ProgressBar android:id="@+id/pb_technical" style="@style/Widget.AppCompat.ProgressBar.Horizontal" android:layout_width="match_parent" android:layout_height="6dp" android:max="10" android:progress="3" android:progressTint="#4285F4" android:progressBackgroundTint="#F0F0F0" />
+                </LinearLayout>
+
+                <!-- Behavioral -->
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="6dp">
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Behavioral" android:textColor="#1A1C1E" android:textSize="12sp" android:textStyle="bold" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="2 sessions" android:textColor="#9E9E9E" android:textSize="10sp" />
+                    </LinearLayout>
+                    <ProgressBar android:id="@+id/pb_behavioral" style="@style/Widget.AppCompat.ProgressBar.Horizontal" android:layout_width="match_parent" android:layout_height="6dp" android:max="10" android:progress="2" android:progressTint="#4285F4" android:progressBackgroundTint="#F0F0F0" />
+                </LinearLayout>
+
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.core.widget.NestedScrollView>

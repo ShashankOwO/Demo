@@ -3,10 +3,10 @@ from datetime import datetime, timezone
 from sqlalchemy import DateTime, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.database import Base
+from app.database import db
 
 
-class Interview(Base):
+class Interview(db.Model):
     __tablename__ = "interviews"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
@@ -28,7 +28,7 @@ class Interview(Base):
     )
 
 
-class QuestionAnswer(Base):
+class QuestionAnswer(db.Model):
     __tablename__ = "question_answers"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
@@ -42,7 +42,7 @@ class QuestionAnswer(Base):
     interview: Mapped["Interview"] = relationship("Interview", back_populates="responses")
 
 
-class Skill(Base):
+class Skill(db.Model):
     __tablename__ = "skills"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)

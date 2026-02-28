@@ -1,41 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<!-- Premium light Report list item -->
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="16dp"
+    android:layout_marginBottom="12dp"
     app:cardCornerRadius="16dp"
-    app:cardElevation="0dp"
-    app:cardBackgroundColor="#FFFFFF">
+    app:cardElevation="2dp"
+    app:cardBackgroundColor="@color/bg_white">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="24dp">
+        android:padding="20dp">
+
+        <!-- Left indigo accent bar -->
+        <View
+            android:id="@+id/v_accent"
+            android:layout_width="4dp"
+            android:layout_height="0dp"
+            android:background="@drawable/bg_gradient_button"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/tv_id_badge"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="#F5F5F5"
-            android:paddingHorizontal="8dp"
+            android:layout_marginStart="16dp"
+            android:background="@drawable/bg_accent_badge"
+            android:paddingHorizontal="10dp"
             android:paddingVertical="4dp"
             android:text="#1"
-            android:textColor="#9E9E9E"
+            android:textColor="@color/accent_indigo"
             android:textStyle="bold"
             android:textSize="12sp"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/v_accent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/tv_date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
+            android:layout_marginStart="10dp"
             android:text="1/6/2026"
-            android:textColor="#757575"
+            android:textColor="@color/text_muted"
             android:textSize="12sp"
             app:drawableStartCompat="@drawable/ic_calendar"
+            app:drawableTint="@color/text_muted"
             android:drawablePadding="4dp"
             app:layout_constraintBottom_toBottomOf="@+id/tv_id_badge"
             app:layout_constraintStart_toEndOf="@+id/tv_id_badge"
@@ -49,7 +63,7 @@
             android:paddingHorizontal="12dp"
             android:paddingVertical="4dp"
             android:text="Average"
-            android:textColor="#F57F17"
+            android:textColor="#E65100"
             android:textSize="12sp"
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
@@ -59,31 +73,34 @@
             android:id="@+id/tv_title"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="14dp"
+            android:layout_marginStart="16dp"
             android:text="Technical Communication"
-            android:textColor="#1A1C1E"
+            android:textColor="@color/text_primary"
             android:textSize="16sp"
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/v_accent"
             app:layout_constraintTop_toBottomOf="@+id/tv_id_badge" />
 
         <TextView
             android:id="@+id/tv_score"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="6dp"
+            android:layout_marginStart="16dp"
             android:text="Score: 67/100"
-            android:textColor="#757575"
+            android:textColor="@color/text_secondary"
             android:textStyle="bold"
-            app:layout_constraintStart_toStartOf="parent"
+            android:textSize="13sp"
+            app:layout_constraintStart_toEndOf="@+id/v_accent"
             app:layout_constraintTop_toBottomOf="@+id/tv_title" />
 
         <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
             android:src="@drawable/ic_arrow_right"
-            app:tint="#BDBDBD"
+            app:tint="@color/text_muted"
             app:layout_constraintBottom_toBottomOf="@+id/tv_score"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@+id/tv_score" />

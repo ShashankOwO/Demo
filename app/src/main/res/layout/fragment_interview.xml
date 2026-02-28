@@ -1,50 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<!-- Premium light Interview screen -->
+<androidx.core.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F5F7FA"
+    android:background="@color/bg_page"
     android:fillViewport="true">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="24dp">
+        android:paddingHorizontal="20dp"
+        android:paddingTop="20dp"
+        android:paddingBottom="24dp">
 
-        <!-- Header: Title + Close button -->
+        <!-- Header row -->
         <TextView
             android:id="@+id/tv_title"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="8dp"
             android:text="Mock Interview"
-            android:textColor="#1A1C1E"
-            android:textSize="20sp"
+            android:textColor="@color/text_primary"
+            android:textSize="22sp"
             android:textStyle="bold"
+            android:letterSpacing="-0.02"
             app:layout_constraintEnd_toStartOf="@+id/btn_close"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
             android:id="@+id/btn_close"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:background="@drawable/bg_accent_badge"
             android:padding="8dp"
             android:src="@drawable/ic_close"
-            app:tint="#757575"
+            app:tint="@color/text_secondary"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@+id/tv_title"
             app:layout_constraintBottom_toBottomOf="@+id/tv_title" />
 
-        <!-- Question counter e.g. "Question 3 of 10" -->
+        <!-- Question counter -->
         <TextView
             android:id="@+id/tv_question_counter"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
             android:text="Question 1 of 10"
-            android:textColor="#4285F4"
+            android:textColor="@color/accent_indigo"
             android:textSize="13sp"
+            android:textStyle="bold"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tv_title" />
 
@@ -53,12 +60,12 @@
             android:id="@+id/progress_bar"
             style="?android:attr/progressBarStyleHorizontal"
             android:layout_width="match_parent"
-            android:layout_height="8dp"
+            android:layout_height="6dp"
             android:layout_marginTop="10dp"
             android:max="10"
             android:progress="1"
-            android:progressTint="#4285F4"
-            android:progressBackgroundTint="#D0D9F4"
+            android:progressTint="@color/accent_indigo"
+            android:progressBackgroundTint="@color/accent_indigo_light"
             app:layout_constraintTop_toBottomOf="@+id/tv_question_counter" />
 
         <!-- Question card -->
@@ -67,9 +74,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
-            app:cardCornerRadius="16dp"
+            app:cardCornerRadius="20dp"
             app:cardElevation="2dp"
-            app:cardBackgroundColor="#FFFFFF"
+            app:cardBackgroundColor="@color/bg_white"
             app:layout_constraintTop_toBottomOf="@+id/progress_bar">
 
             <LinearLayout
@@ -77,11 +84,9 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
 
-                <!-- Blue accent bar on the left -->
-                <View
-                    android:layout_width="5dp"
-                    android:layout_height="match_parent"
-                    android:background="#4285F4" />
+                <!-- Indigo left accent bar -->
+                <View android:layout_width="5dp" android:layout_height="match_parent"
+                    android:background="@drawable/bg_gradient_button" />
 
                 <TextView
                     android:id="@+id/tv_question"
@@ -89,19 +94,20 @@
                     android:layout_height="wrap_content"
                     android:padding="20dp"
                     android:text="&quot; Tell me about a time you had to handle a difficult conflict with a coworker. How did you resolve it? &quot;"
-                    android:textColor="#1A1C1E"
-                    android:textSize="17sp"
-                    android:lineSpacingMultiplier="1.4" />
+                    android:textColor="@color/text_primary"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:lineSpacingMultiplier="1.5" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <!-- Mic button (centered) -->
+        <!-- Mic button -->
         <ImageView
             android:id="@+id/btn_mic"
             android:layout_width="80dp"
             android:layout_height="80dp"
-            android:layout_marginTop="28dp"
-            android:background="@drawable/circle_blue_solid"
+            android:layout_marginTop="24dp"
+            android:background="@drawable/bg_gradient_button"
             android:padding="20dp"
             android:src="@drawable/ic_mic"
             android:elevation="4dp"
@@ -110,15 +116,15 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/card_question" />
 
-        <!-- "Tap microphone to start" hint below mic -->
         <TextView
             android:id="@+id/tv_mic_hint"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:text="Tap microphone to speak your answer"
-            android:textColor="#9E9E9E"
-            android:textSize="12sp"
+            android:textColor="@color/text_muted"
+            android:textSize="13sp"
+            android:gravity="center"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/btn_mic" />
@@ -129,25 +135,26 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:background="#EBEBEB"
-            android:paddingHorizontal="16dp"
-            android:paddingVertical="6dp"
+            android:background="@drawable/bg_accent_badge"
+            android:paddingHorizontal="18dp"
+            android:paddingVertical="7dp"
             android:text="00:00"
-            android:textColor="#555555"
+            android:textColor="@color/accent_indigo"
             android:textSize="13sp"
+            android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tv_mic_hint" />
 
-        <!-- Answer text box -->
+        <!-- Answer box -->
         <androidx.cardview.widget.CardView
             android:id="@+id/card_answer"
             android:layout_width="match_parent"
-            android:layout_height="140dp"
-            android:layout_marginTop="20dp"
-            app:cardCornerRadius="12dp"
+            android:layout_height="130dp"
+            android:layout_marginTop="18dp"
+            app:cardCornerRadius="16dp"
             app:cardElevation="1dp"
-            app:cardBackgroundColor="#FFFFFF"
+            app:cardBackgroundColor="@color/bg_white"
             app:layout_constraintTop_toBottomOf="@+id/tv_timer">
 
             <EditText
@@ -158,8 +165,8 @@
                 android:padding="16dp"
                 android:gravity="top"
                 android:hint="Your transcribed answer will appear here, or type manually..."
-                android:textColorHint="#BDBDBD"
-                android:textColor="#1A1C1E"
+                android:textColorHint="@color/text_muted"
+                android:textColor="@color/text_primary"
                 android:textSize="14sp"
                 android:inputType="textMultiLine"
                 android:scrollbars="vertical" />
@@ -169,19 +176,22 @@
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_next"
             android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:layout_marginTop="20dp"
-            android:layout_marginBottom="24dp"
-            android:backgroundTint="#4285F4"
+            android:layout_height="54dp"
+            android:layout_marginTop="18dp"
+            android:layout_marginBottom="8dp"
+            android:background="@drawable/bg_gradient_button"
             android:text="Next Question"
             android:textAllCaps="false"
+            android:textColor="@color/text_on_accent"
             android:textSize="16sp"
-            app:cornerRadius="12dp"
+            android:textStyle="bold"
+            app:backgroundTint="@null"
+            app:cornerRadius="14dp"
             app:icon="@drawable/ic_arrow_right"
             app:iconGravity="textEnd"
+            app:iconTint="@color/text_on_accent"
             app:layout_constraintTop_toBottomOf="@+id/card_answer"
             app:layout_constraintBottom_toBottomOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
-
 </androidx.core.widget.NestedScrollView>

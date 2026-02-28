@@ -43,6 +43,7 @@ class ReportsFragment : BaseFragment<FragmentReportsBinding, ReportsViewModel>(
 
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
             val item = items[position]
+            holder.binding.tvIdBadge.text = "#${position + 1}"
             holder.binding.tvTitle.text = item.title
             holder.binding.tvDate.text = item.date
             holder.binding.tvScore.text = "Score: ${item.score}/100"
