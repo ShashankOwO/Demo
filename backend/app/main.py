@@ -8,6 +8,7 @@ from app.database import db
 from app.routers.health import bp as health_bp
 from app.routers.interview import bp as interview_bp
 from app.routers.resume import bp as resume_bp
+from app.routers.auth import bp as auth_bp
 
 settings = get_settings()
 
@@ -35,6 +36,7 @@ def create_app():
     app.register_blueprint(health_bp)
     app.register_blueprint(interview_bp, url_prefix="/interviews")
     app.register_blueprint(resume_bp, url_prefix="/resume")
+    app.register_blueprint(auth_bp, url_prefix="/auth")
 
     return app
 

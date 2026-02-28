@@ -10,6 +10,9 @@ class Interview(db.Model):
     __tablename__ = "interviews"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    user_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
     feedback_level: Mapped[str] = mapped_column(String(50), nullable=False)
     score: Mapped[int] = mapped_column(Integer, nullable=False)
     summary: Mapped[str] = mapped_column(Text, nullable=False)
@@ -20,6 +23,7 @@ class Interview(db.Model):
     )
 
     # Relationships
+    user: Mapped["User"] = relationship("User", back_populates="interviews")
     responses: Mapped[list["QuestionAnswer"]] = relationship(
         "QuestionAnswer", back_populates="interview", cascade="all, delete-orphan"
     )

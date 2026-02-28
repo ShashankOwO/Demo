@@ -36,7 +36,7 @@ def _build_summary(score: int, level: str, categories: list[str]) -> str:
 # Public service functions
 # ---------------------------------------------------------------------------
 
-def create_interview(interview_data: dict) -> Interview:
+def create_interview(interview_data: dict, user_id: int) -> Interview:
     """
     Score the interview, determine feedback level, persist the interview,
     all question-answer pairs, and auto-extracted skill/category records.
@@ -51,6 +51,7 @@ def create_interview(interview_data: dict) -> Interview:
 
     # Persist Interview
     interview = Interview(
+        user_id=user_id,
         feedback_level=level,
         score=score,
         summary=summary,
@@ -76,9 +77,9 @@ def create_interview(interview_data: dict) -> Interview:
     return interview
 
 
-def get_all_interviews() -> list[Interview]:
-    return db.session.query(Interview).order_by(Interview.created_at.desc()).all()
+def get_all_interviews(user_id: int) -> list[Interview]:
+    return db.session.query(Interview).filter(Interview.user_id == user_id).order_by(Interview.created_at.desc()).all()
 
 
-def get_interview_by_id(interview_id: int) -> Interview | None:
-    return db.session.query(Interview).filter(Interview.id == interview_id).first()
+def get_interview_by_id(interview_id: int, user_id: int) -> Interview | None:
+    return db.session.query(Interview).filter(Interview.id == interview_id, Interview.user_id == user_id).first()

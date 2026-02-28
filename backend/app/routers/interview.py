@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify, abort
 
 from app.schemas.interview import InterviewCreateSchema, InterviewSchema
 from app.services import interview_service
+from app.core.security import get_current_user
 
 bp = Blueprint('interview', __name__)
 
@@ -24,21 +25,24 @@ def create_interview():
     if errors:
         return jsonify(errors), 422
     
-    interview = interview_service.create_interview(json_data)
+    current_user = get_current_user()
+    interview = interview_service.create_interview(json_data, current_user.id)
     return jsonify(interview_schema.dump(interview)), 201
 
 
 @bp.route("/", methods=["GET"])
 def list_interviews():
-    """Return all interviews, newest first, with nested Q&A and skills."""
-    interviews = interview_service.get_all_interviews()
+    """Return all interviews for current user, newest first, with nested Q&A and skills."""
+    current_user = get_current_user()
+    interviews = interview_service.get_all_interviews(current_user.id)
     return jsonify(interviews_schema.dump(interviews))
 
 
 @bp.route("/<int:interview_id>", methods=["GET"])
 def get_interview(interview_id):
-    """Return a single interview by ID, or 404 if not found."""
-    interview = interview_service.get_interview_by_id(interview_id)
+    """Return a single interview by ID for current user, or 404 if not found."""
+    current_user = get_current_user()
+    interview = interview_service.get_interview_by_id(interview_id, current_user.id)
     if interview is None:
         abort(404, description=f"Interview {interview_id} not found")
     return jsonify(interview_schema.dump(interview))

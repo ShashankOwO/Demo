@@ -11,6 +11,7 @@ class Settings:
         self.database_url = os.getenv("DATABASE_URL", "sqlite:///./resume2interview.db")
         self.allowed_origins = os.getenv("ALLOWED_ORIGINS", "http://localhost,http://10.0.2.2")
         self.secret_key = os.getenv("SECRET_KEY", "changeme-super-secret-key")
+        self.jwt_secret_key = os.getenv("JWT_SECRET_KEY", "jwt-changeme-secret-key")
 
     @property
     def origins_list(self) -> list[str]:
