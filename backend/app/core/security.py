@@ -10,14 +10,17 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 ALGORITHM = "HS256"
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    if len(plain_password) > 72:
-        plain_password = plain_password[:72]
+    # bcrypt limitation: password cannot exceed 72 bytes
+    password_bytes = plain_password.encode('utf-8')
+    if len(password_bytes) > 72:
+        plain_password = password_bytes[:72].decode('utf-8', 'ignore')
     return pwd_context.verify(plain_password, hashed_password)
 
 def get_password_hash(password: str) -> str:
     # bcrypt limitation: password cannot exceed 72 bytes
-    if len(password) > 72:
-        password = password[:72]
+    password_bytes = password.encode('utf-8')
+    if len(password_bytes) > 72:
+        password = password_bytes[:72].decode('utf-8', 'ignore')
     return pwd_context.hash(password)
 
 def create_access_token(data: dict, expires_delta: timedelta | None = None) -> str:
