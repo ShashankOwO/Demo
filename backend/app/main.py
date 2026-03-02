@@ -1,14 +1,19 @@
 from flask import Flask
 from flask_cors import CORS
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 
 from app.core.config import get_settings
 from app.database import db
+from app.core.errors import register_error_handlers
 
 # Import blueprints
 from app.routers.health import bp as health_bp
 from app.routers.interview import bp as interview_bp
 from app.routers.resume import bp as resume_bp
 from app.routers.auth import bp as auth_bp
+from app.routers.analytics import bp as analytics_bp
+from app.routers.roles import bp as roles_bp
 
 settings = get_settings()
 
@@ -23,20 +28,32 @@ def create_app():
     # CORS
     CORS(app, resources={r"/*": {"origins": settings.origins_list}}, supports_credentials=True)
 
+    # Rate Limiting (200 requests per minute by default globally)
+    # Exclude static files if needed, but for an API this is solid protection.
+    limiter = Limiter(
+        get_remote_address,
+        app=app,
+        default_limits=["200 per minute"],
+        storage_uri="memory://" # Can swap to redis:// in larger horizontally scaled deploys
+    )
+
+    # Exception Handling - Catch all unexpected errors and HTTP errors to JSON format
+    register_error_handlers(app)
+
     # Initialize extensions
     db.init_app(app)
 
-    # Note: We create tables inside the app context when running directly, 
-    # but in a production setup you'd use migrations.
+    # Database migrations will be handled by Alembic instead of create_all()
     with app.app_context():
-        from app import models  # Ensure models are known to SQLAlchemy
-        db.create_all()
+        from app import models
 
     # Register blueprints
     app.register_blueprint(health_bp)
     app.register_blueprint(interview_bp, url_prefix="/interviews")
     app.register_blueprint(resume_bp, url_prefix="/resume")
     app.register_blueprint(auth_bp, url_prefix="/auth")
+    app.register_blueprint(analytics_bp, url_prefix="/analytics")
+    app.register_blueprint(roles_bp, url_prefix="/roles")
 
     return app
 

@@ -13,9 +13,11 @@ class LoginViewModel @Inject constructor(
 
     fun login(email: String, pass: String) {
         launchDataLoad {
-            delay(1000) // Simulate network call
-            // Return true for success
-            true
+            val success = authRepository.login(email, pass)
+            if (!success) {
+                throw Exception("Invalid credentials or server error")
+            }
+            success
         }
     }
 }

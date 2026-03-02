@@ -12,6 +12,18 @@ import retrofit2.http.*
 
 interface ApiService {
 
+    // ── Auth ──────────────────────────────────────────────────────────────
+    
+    @POST("auth/register")
+    suspend fun register(
+        @Body request: com.example.resume2interview.data.model.AuthRequest
+    ): Response<com.example.resume2interview.data.model.AuthResponse>
+
+    @POST("auth/login")
+    suspend fun login(
+        @Body request: com.example.resume2interview.data.model.AuthRequest
+    ): Response<com.example.resume2interview.data.model.AuthResponse>
+
     // ── Health ────────────────────────────────────────────────────────────
 
     @GET("health")

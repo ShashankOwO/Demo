@@ -19,6 +19,7 @@ class ProfileFragment : BaseFragment<FragmentProfileBinding, ProfileViewModel>(
         }
 
         binding.btnSignOut.setOnClickListener {
+            viewModel.logout()
             findNavController().navigate(R.id.action_profileFragment_to_loginFragment)
         }
 

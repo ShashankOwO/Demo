@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 
-from sqlalchemy import DateTime, ForeignKey, Integer, String, Text
+from sqlalchemy import DateTime, ForeignKey, Integer, String, Text, Index, desc
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import db
@@ -8,6 +8,9 @@ from app.database import db
 
 class Interview(db.Model):
     __tablename__ = "interviews"
+    __table_args__ = (
+        Index("idx_user_created_at", "user_id", desc("created_at")),
+    )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     user_id: Mapped[int] = mapped_column(
@@ -21,6 +24,8 @@ class Interview(db.Model):
         default=lambda: datetime.now(timezone.utc),
         nullable=False,
     )
+    total_questions: Mapped[int] = mapped_column(Integer, nullable=True, default=0)
+    role_applied_for: Mapped[str] = mapped_column(String(100), nullable=True)
 
     # Relationships
     user: Mapped["User"] = relationship("User", back_populates="interviews")
@@ -42,6 +47,9 @@ class QuestionAnswer(db.Model):
     question: Mapped[str] = mapped_column(Text, nullable=False)
     answer: Mapped[str] = mapped_column(Text, nullable=False)
     category: Mapped[str] = mapped_column(String(100), nullable=False)
+    score: Mapped[int] = mapped_column(Integer, nullable=True) # made nullable for backwards compatibility
+    strengths: Mapped[str] = mapped_column(Text, nullable=True) # store as JSON string
+    improvements: Mapped[str] = mapped_column(Text, nullable=True) # store as JSON string
 
     interview: Mapped["Interview"] = relationship("Interview", back_populates="responses")
 
@@ -54,5 +62,7 @@ class Skill(db.Model):
         Integer, ForeignKey("interviews.id", ondelete="CASCADE"), nullable=False
     )
     skill_name: Mapped[str] = mapped_column(String(150), nullable=False)
+    category_score: Mapped[int] = mapped_column(Integer, nullable=True)
+    total_questions_per_category: Mapped[int] = mapped_column(Integer, nullable=True, default=0)
 
     interview: Mapped["Interview"] = relationship("Interview", back_populates="skills")

@@ -31,6 +31,17 @@ class SignupFragment : BaseFragment<FragmentSignupBinding, SignupViewModel>(
             val name  = binding.etFullName.text.toString()
             val email = binding.etEmail.text.toString()
             val pass  = binding.etPassword.text.toString()
+
+            if (pass.length < 6) {
+                binding.etPassword.error = "Password must be at least 6 characters"
+                return@setOnClickListener
+            }
+
+            if (email.isEmpty() || name.isEmpty()) {
+                binding.etEmail.error = "All fields are required"
+                return@setOnClickListener
+            }
+
             viewModel.signup(name, email, pass)
         }
     }

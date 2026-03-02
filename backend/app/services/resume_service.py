@@ -21,6 +21,11 @@ import pdfplumber
 from werkzeug.exceptions import BadRequest, RequestEntityTooLarge, UnprocessableEntity
 
 # ---------------------------------------------------------------------------
+from app.core.logger import get_logger
+
+logger = get_logger(__name__)
+
+# ---------------------------------------------------------------------------
 # Constants
 # ---------------------------------------------------------------------------
 MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024  # 5 MB
@@ -233,6 +238,27 @@ _SOFT_PATTERNS: dict[str, re.Pattern] = {
 _HEADER_RE = re.compile(r"^\s*([\w][\w\s&,/*-]{0,60}?)\s*:?\s*$")
 
 # ---------------------------------------------------------------------------
+# Role Inference Constants
+# ---------------------------------------------------------------------------
+ROLE_KEYWORDS = {
+    "Backend Engineer": ["backend", "api", "django", "spring", "fastapi"],
+    "Frontend Engineer": ["react", "angular", "vue", "frontend"],
+    "Full Stack Developer": ["frontend", "backend"],
+    "Data Scientist": ["machine learning", "data analysis", "pandas", "deep learning"],
+    "Mobile Developer": ["android", "kotlin", "swift", "flutter", "react native"],
+    "DevOps Engineer": ["aws", "azure", "docker", "kubernetes", "ci/cd", "devops"]
+}
+
+ROLE_PRIORITIES = {
+    "Backend Engineer": ["backend", "database", "languages", "architecture", "frontend"],
+    "Frontend Engineer": ["frontend", "languages", "backend", "architecture"],
+    "Full Stack Developer": ["backend", "frontend", "languages", "database", "architecture"],
+    "Data Scientist": ["ai", "languages", "database", "architecture"],
+    "Mobile Developer": ["mobile", "languages", "architecture", "backend"],
+    "DevOps Engineer": ["devops", "architecture", "languages", "database"]
+}
+
+# ---------------------------------------------------------------------------
 # ❶  Dynamic Section Detection
 # ---------------------------------------------------------------------------
 
@@ -419,9 +445,23 @@ def _detect_experience_years(text: str) -> Optional[int]:
 # ❺  Question Generation
 # ---------------------------------------------------------------------------
 
-def _generate_questions(tech_skills: dict[str, list[str]]) -> list[dict]:
+def _generate_questions(tech_skills: dict[str, list[str]], applied_role: Optional[str] = None) -> list[dict]:
     questions: list[dict] = []
-    for category in QUESTION_ELIGIBLE_CATEGORIES:
+    
+    # Prioritise based on role if known, else fallback to standard eligible
+    base_categories = list(QUESTION_ELIGIBLE_CATEGORIES)
+    if applied_role and applied_role in ROLE_PRIORITIES:
+        priority_orders = ROLE_PRIORITIES[applied_role]
+        ordered_cats = []
+        for p in priority_orders:
+            if p in base_categories:
+                ordered_cats.append(p)
+                base_categories.remove(p)
+        categories_to_query = ordered_cats + base_categories
+    else:
+        categories_to_query = base_categories
+        
+    for category in categories_to_query:
         for skill in tech_skills.get(category, []):
             for q_text in QUESTION_BANK.get(skill, []):
                 if len(questions) >= MAX_QUESTIONS:
@@ -429,9 +469,42 @@ def _generate_questions(tech_skills: dict[str, list[str]]) -> list[dict]:
                 questions.append({"question": q_text, "category": skill})
     return questions
 
+# ---------------------------------------------------------------------------
+# ❻  Role Extraction
+# ---------------------------------------------------------------------------
+
+def _extract_roles(full_text: str, technical_skills: dict[str, list[str]]) -> tuple[Optional[str], Optional[str]]:
+    """
+    Scans the top 30% for explicit target titles, and the whole resume for inference.
+    Returns (previous_role, inferred_target_role).
+    """
+    lines = full_text.splitlines()
+    search_cutoff = max(int(len(lines) * 0.3), 10)
+    top_text = "\n".join(lines[:search_cutoff]).lower()
+    
+    previous_role = None
+    inferred_target_role = None
+    
+    # Direct keyword sweep for explicit mapping
+    for role, _ in ROLE_KEYWORDS.items():
+        if role.lower() in top_text:
+            previous_role = role
+            break
+            
+    # Inference by skill density matching
+    if not previous_role:
+        best_score = 0
+        all_skill_strings = [s.lower() for cats in technical_skills.values() for s in cats]
+        for role, keywords in ROLE_KEYWORDS.items():
+            score = sum(1 for kw in keywords if kw.lower() in all_skill_strings or kw.lower() in full_text.lower())
+            if score > best_score:
+                best_score = score
+                inferred_target_role = role
+                
+    return previous_role, inferred_target_role
 
 # ---------------------------------------------------------------------------
-# ❻  File Validation & PDF Extraction
+# ❼  File Validation & PDF Extraction
 # ---------------------------------------------------------------------------
 
 def _validate_file(file, raw: bytes) -> None:
@@ -457,7 +530,7 @@ def _extract_text(raw: bytes) -> str:
 
 
 # ---------------------------------------------------------------------------
-# ❼  Public Service Function
+# ❽  Public Service Function
 # ---------------------------------------------------------------------------
 
 def process_resume(file) -> dict:
@@ -474,7 +547,7 @@ def process_resume(file) -> dict:
 
     # ── Step 1: Dynamic section detection ────────────────────────────────────
     sections = detect_sections_dynamic(full_text)
-    print(f"[ResumeParser] Detected sections: {list(sections.keys())}")
+    logger.info(f"[ResumeParser] Detected sections: {list(sections.keys())}")
 
     # ── Step 2: Resolve the best text corpus for skill matching ──────────────
     #
@@ -484,21 +557,21 @@ def process_resume(file) -> dict:
     #   c) Nothing found at all                    → scan entire resume
 
     skills_section_text: str = sections.get("skills", "")
-    print(f"[ResumeParser] Skills section length: {len(skills_section_text)} chars")
+    logger.info(f"[ResumeParser] Skills section length: {len(skills_section_text)} chars")
 
     if not skills_section_text.strip():
         # Fallback heuristic — look for inline skill indicators
         skills_section_text = _extract_skills_section_fallback(lines)
         if skills_section_text.strip():
-            print("[ResumeParser] Skills section obtained via fallback heuristic.")
+            logger.info("[ResumeParser] Skills section obtained via fallback heuristic.")
         else:
             # Last resort — scan entire document
             skills_section_text = full_text
-            print("[ResumeParser] No skills section detected — scanning entire document.")
+            logger.info("[ResumeParser] No skills section detected — scanning entire document.")
 
     # ── Step 3: Experience section corpus for experience heuristic ───────────
     experience_section_text = sections.get("experience", full_text)
-    print(f"[ResumeParser] Experience section length: {len(experience_section_text)} chars")
+    logger.info(f"[ResumeParser] Experience section length: {len(experience_section_text)} chars")
 
     # ── Step 4: Match skills ─────────────────────────────────────────────────
     tech_skills = _match_skills_in_text(skills_section_text)
@@ -515,19 +588,9 @@ def process_resume(file) -> dict:
         experience = _detect_experience_years(full_text)
     experience = experience or 0   # coerce None → 0
 
-    # ── Step 6: Question generation ──────────────────────────────────────────
-    questions = _generate_questions(tech_skills)
-
-    # ── Step 7: tools_frameworks (web + devops + testing, flat, deduped) ─────
-    tools_set: list[str] = []
-    seen_tools: set[str] = set()
-    for cat in ("web", "devops", "testing"):
-        for skill in tech_skills.get(cat, []):
-            if skill.lower() not in seen_tools:
-                seen_tools.add(skill.lower())
-                tools_set.append(skill)
-
-    # ── Step 8: Build structured technical_skills dict ───────────────────────
+    # ── Step 6: Question generation + Role Extraction ────────────────────────
+    
+    # Build structured technical_skills dict first
     technical_skills = {
         "languages":    tech_skills.get("languages",    []),
         "backend":      tech_skills.get("backend",      []),
@@ -539,17 +602,32 @@ def process_resume(file) -> dict:
         "architecture": tech_skills.get("architecture", []),
         "testing":      tech_skills.get("testing",      []),
     }
+    
+    previous_role, inferred_target_role = _extract_roles(full_text, technical_skills)
+    fallback_role = previous_role or inferred_target_role
+    questions = _generate_questions(tech_skills, applied_role=fallback_role)
 
-    print(f"[ResumeParser] Tech skills found: "
+    # ── Step 7: tools_frameworks (web + devops + testing, flat, deduped) ─────
+    tools_set: list[str] = []
+    seen_tools: set[str] = set()
+    for cat in ("web", "devops", "testing"):
+        for skill in tech_skills.get(cat, []):
+            if skill.lower() not in seen_tools:
+                seen_tools.add(skill.lower())
+                tools_set.append(skill)
+
+    logger.info(f"[ResumeParser] Tech skills found: "
           f"{ {k: len(v) for k, v in technical_skills.items() if v} }")
-    print(f"[ResumeParser] Soft skills found: {all_soft}")
-    print(f"[ResumeParser] Experience years : {experience}")
-    print(f"[ResumeParser] Questions generated: {len(questions)}")
+    logger.info(f"[ResumeParser] Soft skills found: {all_soft}")
+    logger.info(f"[ResumeParser] Experience years : {experience}")
+    logger.info(f"[ResumeParser] Questions generated: {len(questions)}")
 
     return {
         "technical_skills":          technical_skills,
         "tools_frameworks":          tools_set,
         "soft_skills":               all_soft,
         "detected_experience_years": experience,
+        "previous_role":             previous_role,
+        "inferred_target_role":      inferred_target_role,
         "generated_questions":       questions,
     }

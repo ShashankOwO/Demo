@@ -22,3 +22,6 @@ class User(db.Model):
     interviews: Mapped[list["Interview"]] = relationship(
         "Interview", back_populates="user", cascade="all, delete-orphan"
     )
+    profile: Mapped["UserProfile"] = relationship(
+        "UserProfile", back_populates="user", uselist=False, cascade="all, delete-orphan"
+    )

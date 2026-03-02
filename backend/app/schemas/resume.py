@@ -29,4 +29,6 @@ class ResumeAnalysisOutSchema(Schema):
     tools_frameworks = fields.List(fields.String(), missing=list)
     soft_skills = fields.List(fields.String(), missing=list)
     detected_experience_years = fields.Integer(missing=0)
+    inferred_target_role = fields.String(missing=None)
+    previous_role = fields.String(missing=None)
     generated_questions = fields.List(fields.Nested(InterviewQuestionSchema), missing=list)

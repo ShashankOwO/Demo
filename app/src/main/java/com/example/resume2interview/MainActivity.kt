@@ -3,14 +3,23 @@ package com.example.resume2interview
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.example.resume2interview.databinding.ActivityMainBinding
+import com.example.resume2interview.utils.TokenManager
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
+
+    @Inject
+    lateinit var tokenManager: TokenManager
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var navController: NavController
@@ -58,6 +67,24 @@ class MainActivity : AppCompatActivity() {
             } else {
                 nav.visibility = View.VISIBLE
                 nav.animate().translationY(0f).setDuration(250).start()
+            }
+        }
+
+        // Listen for 401 Unauthorized events and force logout
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                tokenManager.unauthorizedEvent.collect {
+                    // Current destination must not be login already
+                    if (navController.currentDestination?.id != R.id.loginFragment) {
+                        navController.navigate(
+                            R.id.loginFragment,
+                            null,
+                            androidx.navigation.NavOptions.Builder()
+                                .setPopUpTo(R.id.homeFragment, true)
+                                .build()
+                        )
+                    }
+                }
             }
         }
     }
