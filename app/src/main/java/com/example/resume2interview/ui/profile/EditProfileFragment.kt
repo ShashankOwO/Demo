@@ -1,6 +1,8 @@
 package com.example.resume2interview.ui.profile
 
-import androidx.activity.result.PickVisualMediaRequest
+import android.app.Activity
+import android.content.Intent
+import android.net.Uri
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -19,41 +21,43 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding, EditProfile
 ) {
     override val viewModel: EditProfileViewModel by viewModels()
 
-    // Photo picker launcher (Android 13+ Photo Picker API — no permission needed)
-    private val photoPickerLauncher =
-        registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
-            uri?.let {
-                // Show selected photo immediately in the UI
-                Glide.with(this)
-                    .load(it)
-                    .circleCrop()
-                    .into(binding.ivAvatar)
+    // Standard gallery image picker — works on all Android versions (minSdk 24+)
+    private val imagePickerLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                val uri: Uri? = result.data?.data
+                uri?.let {
+                    // Immediately show the selected image in UI
+                    Glide.with(this)
+                        .load(it)
+                        .circleCrop()
+                        .placeholder(R.drawable.ic_user)
+                        .into(binding.ivAvatar)
 
-                // Upload to backend
-                viewModel.uploadPhoto(it, requireContext())
+                    // Upload to backend
+                    viewModel.uploadPhoto(it, requireContext())
+                }
             }
         }
 
     override fun setupUI() {
         viewModel.fetchProfile()
 
-        // Pre-populate fields from the shared cached profile (includes signup name)
+        // Pre-populate fields from cached profile (includes signup name)
         viewLifecycleOwner.lifecycleScope.launchWhenStarted {
             viewModel.profileData.collectLatest { profile ->
                 profile?.let {
-                    // Only set if field is currently empty (don't overwrite user edits)
-                    if (binding.etName.text.isNullOrEmpty()) binding.etName.setText(it.name)
-                    if (binding.etEmail.text.isNullOrEmpty()) binding.etEmail.setText(it.email)
+                    if (binding.etName.text.isNullOrEmpty())     binding.etName.setText(it.name)
+                    if (binding.etEmail.text.isNullOrEmpty())    binding.etEmail.setText(it.email)
                     if (binding.etJobTitle.text.isNullOrEmpty()) binding.etJobTitle.setText(it.title)
                     if (binding.etLocation.text.isNullOrEmpty()) binding.etLocation.setText(it.location)
-                    if (binding.etBio.text.isNullOrEmpty()) binding.etBio.setText(it.bio)
+                    if (binding.etBio.text.isNullOrEmpty())      binding.etBio.setText(it.bio)
 
                     // Load existing profile photo
                     val photoUrl = it.profilePhotoUrl
                     if (!photoUrl.isNullOrBlank()) {
-                        val fullUrl = "${ApiClient.BASE_URL.trimEnd('/')}$photoUrl"
                         Glide.with(this@EditProfileFragment)
-                            .load(fullUrl)
+                            .load("${ApiClient.BASE_URL.trimEnd('/')}$photoUrl")
                             .circleCrop()
                             .placeholder(R.drawable.ic_user)
                             .error(R.drawable.ic_user)
@@ -63,11 +67,12 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding, EditProfile
             }
         }
 
-        // "Change Photo" tapped → open system photo picker
+        // "Change Photo" tap → open device gallery
         binding.tvChangePhoto.setOnClickListener {
-            photoPickerLauncher.launch(
-                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-            )
+            val intent = Intent(Intent.ACTION_PICK).apply {
+                type = "image/*"
+            }
+            imagePickerLauncher.launch(intent)
         }
 
         binding.btnBack.setOnClickListener {
