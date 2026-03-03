@@ -24,13 +24,10 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding, EditProfile
 ) {
     override val viewModel: EditProfileViewModel by viewModels()
 
-    // Step 1: Pick image from gallery
+    // Step 1: Pick image from gallery using modern contract
     private val imagePickerLauncher =
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == Activity.RESULT_OK) {
-                val sourceUri: Uri? = result.data?.data
-                sourceUri?.let { launchCrop(it) }
-            }
+        registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+            uri?.let { launchCrop(it) }
         }
 
     // Step 2: Receive cropped image from uCrop
@@ -48,6 +45,9 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding, EditProfile
                     // Upload to backend
                     viewModel.uploadPhoto(uri, requireContext())
                 }
+            } else if (result.resultCode == UCrop.RESULT_ERROR) {
+                val cropError = UCrop.getError(result.data!!)
+                android.util.Log.e("EditProfileFragment", "uCrop error: ", cropError)
             }
         }
 
@@ -108,10 +108,7 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding, EditProfile
 
         // "Change Photo" → open gallery → uCrop → upload
         binding.tvChangePhoto.setOnClickListener {
-            val intent = Intent(Intent.ACTION_PICK).apply {
-                type = "image/*"
-            }
-            imagePickerLauncher.launch(intent)
+            imagePickerLauncher.launch("image/*")
         }
 
         binding.btnBack.setOnClickListener {
