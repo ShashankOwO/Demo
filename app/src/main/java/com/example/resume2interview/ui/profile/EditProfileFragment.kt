@@ -54,13 +54,9 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding, EditProfile
     private fun launchCrop(sourceUri: Uri) {
         val destFile = File(requireContext().cacheDir, "cropped_profile_${System.currentTimeMillis()}.jpg")
 
-        // Use FileProvider.getUriForFile() instead of Uri.fromFile() to avoid
-        // FileUriExposedException on Android 7+ (API 24+), which silently cancelled uCrop
-        val destUri = FileProvider.getUriForFile(
-            requireContext(),
-            "${requireContext().packageName}.fileprovider",
-            destFile
-        )
+        // uCrop requires the destination URI to be a file:// URI. 
+        // Since UCropActivity runs in our own app process, it does not trigger FileUriExposedException.
+        val destUri = Uri.fromFile(destFile)
 
         val cropIntent = UCrop.of(sourceUri, destUri)
             .withAspectRatio(1f, 1f)
