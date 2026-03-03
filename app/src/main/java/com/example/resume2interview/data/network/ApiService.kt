@@ -24,6 +24,16 @@ interface ApiService {
         @Body request: com.example.resume2interview.data.model.AuthRequest
     ): Response<com.example.resume2interview.data.model.AuthResponse>
 
+    // ── Profile ───────────────────────────────────────────────────────────
+
+    @GET("profile/me")
+    suspend fun getProfile(): Response<com.example.resume2interview.data.model.UserProfileResponse>
+
+    @PUT("profile/me")
+    suspend fun updateProfile(
+        @Body profile: com.example.resume2interview.data.model.UpdateProfileRequest
+    ): Response<com.example.resume2interview.data.model.UserProfileResponse>
+
     // ── Health ────────────────────────────────────────────────────────────
 
     @GET("health")

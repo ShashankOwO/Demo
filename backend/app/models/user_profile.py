@@ -14,6 +14,12 @@ class UserProfile(db.Model):
         unique=True
     )
 
+    full_name: Mapped[str] = mapped_column(String(120), nullable=True)
+    job_title: Mapped[str] = mapped_column(String(120), nullable=True)
+    location: Mapped[str] = mapped_column(String(120), nullable=True)
+    bio: Mapped[str] = mapped_column(Text, nullable=True)
+    profile_photo_url: Mapped[str] = mapped_column(String(255), nullable=True)
+
     skills_json: Mapped[str] = mapped_column(Text, nullable=True)
     previous_role: Mapped[str] = mapped_column(String(100), nullable=True)
     target_role: Mapped[str] = mapped_column(String(100), nullable=True)

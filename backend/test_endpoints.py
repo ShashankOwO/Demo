@@ -67,6 +67,23 @@ def run_tests():
     status, res = make_request(f"{BASE_URL}/analytics/role-consistency", "GET", headers=auth_headers)
     print(f"Status: {status}\nResponse: {json.dumps(res, indent=2)}")
 
+    # 5. Get Profile (Empty)
+    print("\n--- Test 5/6: Get My Profile (Should be empty shell) ---")
+    status, res = make_request(f"{BASE_URL}/profile/me", "GET", headers=auth_headers)
+    print(f"Status: {status}\nResponse: {json.dumps(res, indent=2)}")
+    
+    # 6. Update Profile
+    print("\n--- Test 6/6: Update My Profile ---")
+    profile_update_data = {
+        "full_name": "John Doe",
+        "job_title": "Senior Android Engineer",
+        "location": "London, UK",
+        "bio": "I write code.",
+        "profile_photo_url": "https://example.com/photo.jpg"
+    }
+    status, res = make_request(f"{BASE_URL}/profile/me", "PUT", profile_update_data, auth_headers)
+    print(f"Status: {status}\nResponse: {json.dumps(res, indent=2)}")
+
 
 if __name__ == "__main__":
     run_tests()

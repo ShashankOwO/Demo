@@ -14,6 +14,7 @@ from app.routers.resume import bp as resume_bp
 from app.routers.auth import bp as auth_bp
 from app.routers.analytics import bp as analytics_bp
 from app.routers.roles import bp as roles_bp
+from app.routers.user_profile import bp as profile_bp
 
 settings = get_settings()
 
@@ -54,6 +55,7 @@ def create_app():
     app.register_blueprint(auth_bp, url_prefix="/auth")
     app.register_blueprint(analytics_bp, url_prefix="/analytics")
     app.register_blueprint(roles_bp, url_prefix="/roles")
+    app.register_blueprint(profile_bp, url_prefix="/profile")
 
     return app
 

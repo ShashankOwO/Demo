@@ -6,6 +6,9 @@ import com.example.resume2interview.databinding.FragmentEditProfileBinding
 import com.example.resume2interview.ui.base.BaseFragment
 import dagger.hilt.android.AndroidEntryPoint
 
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.flow.collectLatest
+
 @AndroidEntryPoint
 class EditProfileFragment : BaseFragment<FragmentEditProfileBinding, EditProfileViewModel>(
     FragmentEditProfileBinding::inflate
@@ -13,6 +16,20 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding, EditProfile
     override val viewModel: EditProfileViewModel by viewModels()
 
     override fun setupUI() {
+        viewModel.fetchProfile()
+
+        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+            viewModel.profileData.collectLatest { profile ->
+                profile?.let {
+                    binding.etName.setText(it.name)
+                    binding.etEmail.setText(it.email)
+                    binding.etJobTitle.setText(it.title)
+                    binding.etLocation.setText(it.location)
+                    binding.etBio.setText(it.bio)
+                }
+            }
+        }
+
         binding.btnBack.setOnClickListener {
             findNavController().navigateUp()
         }
