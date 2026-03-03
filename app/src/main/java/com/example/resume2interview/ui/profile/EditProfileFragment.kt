@@ -120,6 +120,22 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding, EditProfile
                 binding.etBio.text.toString()
             )
         }
+
+        // Observe photo upload success
+        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+            viewModel.photoUploadState.collectLatest { url ->
+                url?.let {
+                    android.widget.Toast.makeText(requireContext(), "Photo uploaded successfully!", android.widget.Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+
+        // Observe photo upload error
+        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+            viewModel.photoUploadError.collectLatest { errorMsg ->
+                android.widget.Toast.makeText(requireContext(), errorMsg, android.widget.Toast.LENGTH_LONG).show()
+            }
+        }
     }
 
     override fun showContent(data: Any?) {

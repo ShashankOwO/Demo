@@ -25,6 +25,9 @@ class EditProfileViewModel @Inject constructor(
     private val _photoUploadState = MutableStateFlow<String?>(null)
     val photoUploadState: StateFlow<String?> = _photoUploadState.asStateFlow()
 
+    private val _photoUploadError = kotlinx.coroutines.flow.MutableSharedFlow<String>()
+    val photoUploadError: kotlinx.coroutines.flow.SharedFlow<String> = _photoUploadError.kotlinx.coroutines.flow.asSharedFlow()
+
     fun fetchProfile() {
         viewModelScope.launch {
             profileRepository.fetchProfile()
@@ -48,6 +51,8 @@ class EditProfileViewModel @Inject constructor(
             val result = profileRepository.uploadPhoto(uri, context)
             if (result.isSuccess) {
                 _photoUploadState.value = result.getOrNull()
+            } else {
+                _photoUploadError.emit("Photo upload failed: ${result.exceptionOrNull()?.message}")
             }
         }
     }
