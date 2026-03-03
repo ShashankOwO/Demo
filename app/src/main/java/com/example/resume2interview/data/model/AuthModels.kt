@@ -2,7 +2,8 @@ package com.example.resume2interview.data.model
 
 data class AuthRequest(
     val email: String,
-    val password: String
+    val password: String,
+    val name: String? = null
 )
 
 data class AuthResponse(

@@ -21,8 +21,9 @@ def get_my_profile():
         return jsonify({
             "id": 0,
             "user_id": current_user.id,
-            "full_name": None,
-            "job_title": None,
+            "email": current_user.email,
+            "name": None,
+            "title": None,
             "location": None,
             "bio": None,
             "profile_photo_url": None,
@@ -56,10 +57,20 @@ def update_my_profile():
         profile = UserProfile(user_id=current_user.id)
         db.session.add(profile)
         
-    if 'full_name' in json_data:
-        profile.full_name = json_data['full_name']
-    if 'job_title' in json_data:
-        profile.job_title = json_data['job_title']
+    # Update User account email if changed
+    if 'email' in json_data and json_data['email'] and json_data['email'] != current_user.email:
+        # Avoid constraint violation if email already taken
+        from app.models.user import User
+        existing_user = User.query.filter_by(email=json_data['email']).first()
+        if existing_user and existing_user.id != current_user.id:
+            return jsonify({"message": "Email already in use"}), 400
+        current_user.email = json_data['email']
+        db.session.add(current_user)
+
+    if 'name' in json_data:
+        profile.full_name = json_data['name']
+    if 'title' in json_data:
+        profile.job_title = json_data['title']
     if 'location' in json_data:
         profile.location = json_data['location']
     if 'bio' in json_data:

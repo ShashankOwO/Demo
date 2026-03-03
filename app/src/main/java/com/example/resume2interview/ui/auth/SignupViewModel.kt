@@ -13,7 +13,7 @@ class SignupViewModel @Inject constructor(
 
     fun signup(name: String, email: String, pass: String) {
         launchDataLoad {
-            authRepository.register(email, pass)
+            authRepository.register(name, email, pass)
         }
     }
 }

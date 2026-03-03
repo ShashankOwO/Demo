@@ -21,7 +21,11 @@ def register():
     except ValidationError as err:
         return jsonify(err.messages), 422
         
-    user = auth_service.register_user(email=data['email'], password=data['password'])
+    user = auth_service.register_user(
+        email=data['email'], 
+        password=data['password'],
+        name=data.get('name')
+    )
     return jsonify(user_schema.dump(user)), 201
 
 @bp.route("/login", methods=["POST"])

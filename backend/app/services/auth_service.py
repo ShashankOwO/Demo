@@ -5,7 +5,9 @@ from app.database import db
 from app.models.user import User
 from app.core.security import get_password_hash, verify_password, create_access_token
 
-def register_user(email: str, password: str) -> User:
+from app.models.user_profile import UserProfile
+
+def register_user(email: str, password: str, name: str = None) -> User:
     # Check if user already exists
     existing_user = User.query.filter_by(email=email).first()
     if existing_user:
@@ -15,6 +17,12 @@ def register_user(email: str, password: str) -> User:
     hashed_password = get_password_hash(password)
     new_user = User(email=email, hashed_password=hashed_password)
     db.session.add(new_user)
+    db.session.flush() # get ID before commit
+
+    # Auto-create empty profile
+    profile = UserProfile(user_id=new_user.id, full_name=name)
+    db.session.add(profile)
+    
     db.session.commit()
     return new_user
 

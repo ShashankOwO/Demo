@@ -75,10 +75,11 @@ def run_tests():
     # 6. Update Profile
     print("\n--- Test 6/6: Update My Profile ---")
     profile_update_data = {
-        "full_name": "John Doe",
-        "job_title": "Senior Android Engineer",
+        "name": "Jane Doe",
+        "email": test_email,
+        "title": "Lead Android Engineer",
         "location": "London, UK",
-        "bio": "I write code.",
+        "bio": "I write bug-free code.",
         "profile_photo_url": "https://example.com/photo.jpg"
     }
     status, res = make_request(f"{BASE_URL}/profile/me", "PUT", profile_update_data, auth_headers)

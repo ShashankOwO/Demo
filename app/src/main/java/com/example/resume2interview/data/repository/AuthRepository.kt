@@ -34,9 +34,9 @@ class AuthRepository @Inject constructor(
         }
     }
 
-    suspend fun register(email: String, pass: String): Boolean {
+    suspend fun register(name: String, email: String, pass: String): Boolean {
         try {
-            val response = apiService.register(AuthRequest(email, pass))
+            val response = apiService.register(AuthRequest(email, pass, name))
             if (response.isSuccessful) {
                 return true
             } else {
