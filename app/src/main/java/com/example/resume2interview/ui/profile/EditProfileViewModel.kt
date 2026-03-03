@@ -1,5 +1,7 @@
 package com.example.resume2interview.ui.profile
 
+import android.content.Context
+import android.net.Uri
 import androidx.lifecycle.viewModelScope
 import com.example.resume2interview.data.model.UpdateProfileRequest
 import com.example.resume2interview.data.model.UserProfileResponse
@@ -17,15 +19,15 @@ class EditProfileViewModel @Inject constructor(
     private val profileRepository: ProfileRepository
 ) : BaseViewModel<Boolean>() {
 
-    private val _profileData = MutableStateFlow<UserProfileResponse?>(null)
-    val profileData: StateFlow<UserProfileResponse?> = _profileData.asStateFlow()
+    // Observe shared cached profile (pre-populates fields from signup data)
+    val profileData: StateFlow<UserProfileResponse?> = profileRepository.cachedProfile
+
+    private val _photoUploadState = MutableStateFlow<String?>(null)
+    val photoUploadState: StateFlow<String?> = _photoUploadState.asStateFlow()
 
     fun fetchProfile() {
         viewModelScope.launch {
-            val result = profileRepository.fetchProfile()
-            if (result.isSuccess) {
-                _profileData.value = result.getOrNull()
-            }
+            profileRepository.fetchProfile()
         }
     }
 
@@ -37,6 +39,15 @@ class EditProfileViewModel @Inject constructor(
                 true
             } else {
                 throw Exception("Failed to save profile")
+            }
+        }
+    }
+
+    fun uploadPhoto(uri: Uri, context: Context) {
+        viewModelScope.launch {
+            val result = profileRepository.uploadPhoto(uri, context)
+            if (result.isSuccess) {
+                _photoUploadState.value = result.getOrNull()
             }
         }
     }

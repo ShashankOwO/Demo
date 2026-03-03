@@ -65,4 +65,7 @@ dependencies {
 
     // DataStore
     implementation(libs.androidx.datastore.preferences)
+
+    // Glide — profile photo loading
+    implementation(libs.glide)
 }

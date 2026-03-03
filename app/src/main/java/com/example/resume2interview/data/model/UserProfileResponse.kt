@@ -7,5 +7,6 @@ data class UserProfileResponse(
     @SerializedName("email") val email: String?,
     @SerializedName("title") val title: String?,
     @SerializedName("location") val location: String?,
-    @SerializedName("bio") val bio: String?
+    @SerializedName("bio") val bio: String?,
+    @SerializedName("profile_photo_url") val profilePhotoUrl: String? = null
 )

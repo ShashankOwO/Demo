@@ -1,8 +1,9 @@
-from flask import Blueprint, request, jsonify, abort
+from flask import Blueprint, request, jsonify, abort, send_from_directory
 from app.schemas.user_profile import UserProfileSchema, UserProfileUpdateSchema
 from app.services import user_profile_service
 from app.core.security import get_current_user
 from app.database import db
+import os, uuid
 
 bp = Blueprint('profile', __name__)
 
@@ -82,3 +83,47 @@ def update_my_profile():
     db.session.refresh(profile)
     
     return jsonify(profile_schema.dump(profile)), 200
+
+
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
+UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), '..', 'uploads')
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+@bp.route("/photo", methods=["POST"])
+def upload_profile_photo():
+    """Upload a profile photo for the current user."""
+    current_user = get_current_user()
+
+    if 'photo' not in request.files:
+        return jsonify({"message": "No photo file provided"}), 400
+
+    file = request.files['photo']
+    if file.filename == '':
+        return jsonify({"message": "No selected file"}), 400
+
+    if not allowed_file(file.filename):
+        return jsonify({"message": "File type not allowed"}), 400
+
+    # Save file with a unique name to avoid collisions
+    ext = file.filename.rsplit('.', 1)[1].lower()
+    filename = f"profile_{current_user.id}_{uuid.uuid4().hex[:8]}.{ext}"
+    os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+    file.save(os.path.join(UPLOAD_FOLDER, filename))
+
+    # Determine server base URL for full path
+    photo_url = f"/uploads/{filename}"
+
+    # Persist photo URL into user_profiles
+    from app.models.user_profile import UserProfile
+    profile = user_profile_service.get_user_profile(current_user.id)
+    if not profile:
+        profile = UserProfile(user_id=current_user.id)
+        db.session.add(profile)
+    profile.profile_photo_url = photo_url
+    db.session.commit()
+    db.session.refresh(profile)
+
+    return jsonify({"profile_photo_url": photo_url}), 200

@@ -4,6 +4,7 @@ import com.example.resume2interview.data.model.AnalyticsSummary
 import com.example.resume2interview.data.model.InterviewCreate
 import com.example.resume2interview.data.model.InterviewOut
 import com.example.resume2interview.data.model.LastFiveEntry
+import com.example.resume2interview.data.model.ProfilePhotoResponse
 import com.example.resume2interview.data.model.ResumeAnalysisOut
 import com.example.resume2interview.data.model.SkillPracticed
 import okhttp3.MultipartBody
@@ -33,6 +34,12 @@ interface ApiService {
     suspend fun updateProfile(
         @Body profile: com.example.resume2interview.data.model.UpdateProfileRequest
     ): Response<com.example.resume2interview.data.model.UserProfileResponse>
+
+    @Multipart
+    @POST("profile/photo")
+    suspend fun uploadProfilePhoto(
+        @Part photo: MultipartBody.Part
+    ): Response<ProfilePhotoResponse>
 
     // ── Health ────────────────────────────────────────────────────────────
 

@@ -57,6 +57,15 @@ def create_app():
     app.register_blueprint(roles_bp, url_prefix="/roles")
     app.register_blueprint(profile_bp, url_prefix="/profile")
 
+    # Serve uploaded profile photos statically
+    import os
+    from flask import send_from_directory
+    uploads_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'uploads')
+    
+    @app.route('/uploads/<path:filename>')
+    def serve_upload(filename):
+        return send_from_directory(uploads_dir, filename)
+
     return app
 
 if __name__ == "__main__":
