@@ -12,7 +12,6 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import java.io.File
-import java.io.FileOutputStream
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -56,26 +55,29 @@ class ProfileRepository @Inject constructor(
 
     suspend fun uploadPhoto(uri: Uri, context: Context): Result<String> {
         return try {
-            // Copy content URI to a temp file so OkHttp can read it
-            val inputStream = context.contentResolver.openInputStream(uri)
-                ?: return Result.failure(Exception("Cannot open image"))
-            val tempFile = File.createTempFile("profile_photo", ".jpg", context.cacheDir)
-            FileOutputStream(tempFile).use { out -> inputStream.copyTo(out) }
+            // Resolve the actual File from the URI (handles both file:// and content:// from FileProvider)
+            val tempFile: File = if (uri.scheme == "file") {
+                // file:// URI — can directly get path
+                File(uri.path!!)
+            } else {
+                // content:// URI (FileProvider) — copy stream to a temp file OkHttp can read
+                val inputStream = context.contentResolver.openInputStream(uri)
+                    ?: return Result.failure(Exception("Cannot open image URI"))
+                val temp = File.createTempFile("upload_photo", ".jpg", context.cacheDir)
+                temp.outputStream().use { out -> inputStream.copyTo(out) }
+                temp
+            }
 
-            val requestBody = tempFile.asRequestBody("image/*".toMediaTypeOrNull())
-            val part = MultipartBody.Part.createFormData("photo", tempFile.name, requestBody)
+            val requestBody = tempFile.asRequestBody("image/jpeg".toMediaTypeOrNull())
+            val part = MultipartBody.Part.createFormData("photo", "profile.jpg", requestBody)
 
             val response = apiService.uploadProfilePhoto(part)
             if (response.isSuccessful && response.body() != null) {
                 val url = response.body()!!.profilePhotoUrl ?: ""
-                // Refresh cached profile with new photo URL
-                _cachedProfile.value = _cachedProfile.value?.copy(
-                    // UserProfileResponse doesn't have profilePhotoUrl yet; we refresh fully
-                )
                 fetchProfile() // refresh full profile after upload
                 Result.success(url)
             } else {
-                Result.failure(Exception("Photo upload failed: ${response.code()}"))
+                Result.failure(Exception("Photo upload failed: ${response.code()} ${response.errorBody()?.string()}"))
             }
         } catch (e: Exception) {
             Result.failure(e)

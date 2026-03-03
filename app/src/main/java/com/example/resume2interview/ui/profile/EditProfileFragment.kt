@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.FileProvider
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -35,30 +36,37 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding, EditProfile
     // Step 2: Receive cropped image from uCrop
     private val cropLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == Activity.RESULT_OK) {
+            if (result.resultCode == Activity.RESULT_OK && result.data != null) {
                 val croppedUri = UCrop.getOutput(result.data!!)
-                croppedUri?.let {
+                croppedUri?.let { uri ->
                     // Show immediately in UI
                     Glide.with(this)
-                        .load(it)
+                        .load(uri)
                         .circleCrop()
                         .into(binding.ivAvatar)
 
                     // Upload to backend
-                    viewModel.uploadPhoto(it, requireContext())
+                    viewModel.uploadPhoto(uri, requireContext())
                 }
             }
         }
 
     private fun launchCrop(sourceUri: Uri) {
         val destFile = File(requireContext().cacheDir, "cropped_profile_${System.currentTimeMillis()}.jpg")
-        val destUri = Uri.fromFile(destFile)
+
+        // Use FileProvider.getUriForFile() instead of Uri.fromFile() to avoid
+        // FileUriExposedException on Android 7+ (API 24+), which silently cancelled uCrop
+        val destUri = FileProvider.getUriForFile(
+            requireContext(),
+            "${requireContext().packageName}.fileprovider",
+            destFile
+        )
 
         val cropIntent = UCrop.of(sourceUri, destUri)
-            .withAspectRatio(1f, 1f)          // Square crop (perfect for circular display)
-            .withMaxResultSize(512, 512)       // Cap output size for backend upload
+            .withAspectRatio(1f, 1f)
+            .withMaxResultSize(512, 512)
             .withOptions(UCrop.Options().apply {
-                setCircleDimmedLayer(true)     // Show circular crop overlay
+                setCircleDimmedLayer(true)
                 setShowCropFrame(false)
                 setShowCropGrid(false)
                 setToolbarTitle("Crop Profile Photo")
