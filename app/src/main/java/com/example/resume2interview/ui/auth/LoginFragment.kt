@@ -56,12 +56,25 @@ class LoginFragment : BaseFragment<FragmentLoginBinding, LoginViewModel>(
         binding.tvForgotPassword.setOnClickListener {
             findNavController().navigate(R.id.action_loginFragment_to_forgotPasswordFragment)
         }
+
+        binding.btnSkip.setOnClickListener {
+            findNavController().navigate(R.id.action_loginFragment_to_homeFragment)
+        }
     }
 
     override fun showContent(data: Any?) {
         val success = data as? Boolean ?: false
         if (success) {
             findNavController().navigate(R.id.action_loginFragment_to_homeFragment)
+        }
+    }
+
+    override fun showError(message: String) {
+        super.showError(message)
+        if (message.contains("Email", ignoreCase = true) || message.contains("User", ignoreCase = true)) {
+            binding.etEmail.error = message
+        } else if (message.contains("Password", ignoreCase = true)) {
+            binding.etPassword.error = message
         }
     }
 }

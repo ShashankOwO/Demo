@@ -9,3 +9,9 @@ def get_category_performance():
     current_user = get_current_user()
     data = analytics_service.get_category_performance_data(current_user.id)
     return jsonify(data)
+
+@bp.route("/role-consistency", methods=["GET"])
+def get_role_consistency():
+    current_user = get_current_user()
+    data = analytics_service.analyze_role_history(current_user.id)
+    return jsonify(data)

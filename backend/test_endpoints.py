@@ -51,7 +51,8 @@ def run_tests():
     interview_data = {
         "responses": [
             {"question": "What is Python?", "answer": "A programming language.", "category": "Technical"}
-        ]
+        ],
+        "role_applied_for": "Backend Engineer"
     }
     status, res = make_request(f"{BASE_URL}/interviews/", "POST", interview_data, auth_headers)
     print(f"Status: {status}\nResponse: {res}")
@@ -62,9 +63,9 @@ def run_tests():
     print(f"Status: {status}\nResponse: {json.dumps(res, indent=2)}")
     
     # Check Analytics
-    print("\n--- Check: Analytics Endpoint ---")
-    status, res = make_request(f"{BASE_URL}/analytics/", "GET", headers=auth_headers)
-    print(f"Status: {status}\nResponse: {res}")
+    print("\n--- Check: Analytics Role Consistency Endpoint ---")
+    status, res = make_request(f"{BASE_URL}/analytics/role-consistency", "GET", headers=auth_headers)
+    print(f"Status: {status}\nResponse: {json.dumps(res, indent=2)}")
 
 
 if __name__ == "__main__":

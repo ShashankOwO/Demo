@@ -1,6 +1,7 @@
 from app.database import db
 from app.models.interview import Interview, Skill
 from sqlalchemy.orm import selectinload
+from collections import Counter
 
 
 def aggregate_categories(interviews: list[Interview]) -> dict[str, int]:
@@ -77,4 +78,46 @@ def get_category_performance_data(user_id: int):
         "weakest_category": weakest_category,
         "strongest_category": strongest_category,
         "trend": trend
+    }
+
+def analyze_role_history(user_id: int) -> dict:
+    """
+    Fetches the last 10 interviews, counts role_applied_for frequency,
+    and determines a consistency score based on the number of unique roles.
+    """
+    interviews = (
+        db.session.query(Interview.role_applied_for)
+        .filter(Interview.user_id == user_id)
+        .filter(Interview.role_applied_for.isnot(None))
+        .filter(Interview.role_applied_for != "")
+        .order_by(Interview.created_at.desc())
+        .limit(10)
+        .all()
+    )
+    
+    if not interviews:
+        return {
+            "most_practiced_role": None,
+            "consistency_score": 0
+        }
+        
+    roles = [i.role_applied_for for i in interviews]
+    role_counts = Counter(roles)
+    
+    most_practiced_role = role_counts.most_common(1)[0][0]
+    unique_roles = len(role_counts)
+    
+    if unique_roles == 1:
+        consistency_score = 100
+    elif unique_roles == 2:
+        consistency_score = 80
+    elif unique_roles == 3:
+        consistency_score = 50
+    else:
+        # > 3 roles
+        consistency_score = max(0, 50 - ((unique_roles - 3) * 15))
+        
+    return {
+        "most_practiced_role": most_practiced_role,
+        "consistency_score": consistency_score
     }

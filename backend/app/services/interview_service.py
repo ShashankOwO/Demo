@@ -2,7 +2,7 @@ import json
 from collections import defaultdict
 from app.database import db
 from app.models.interview import Interview, QuestionAnswer, Skill
-from app.services import ai_service
+from app.services import llm_service
 
 
 def _feedback_level(score: int) -> str:
@@ -33,6 +33,7 @@ def create_interview(interview_data: dict, user_id: int) -> Interview:
     all question-answer pairs with granular AI feedback, and aggregated category scores.
     """
     responses = interview_data.get('responses', [])
+    role_applied_for = interview_data.get('role_applied_for')
     
     # Store AI evaluations per response
     evaluated_responses = []
@@ -44,8 +45,17 @@ def create_interview(interview_data: dict, user_id: int) -> Interview:
         answer = r.get('answer', '')
         category = r.get('category', '').strip()
 
-        # Call AI evaluation
-        ai_eval = ai_service.evaluate_answer(question, answer, category)
+        # Call LLM evaluation with fallback
+        try:
+            ai_eval = llm_service.evaluate_answer(question, answer, category)
+        except Exception as e:
+            # Deterministic Fallback if LLM evaluation fails
+            length_val = min(100, len(answer) // 2)
+            ai_eval = {
+                "score": length_val,
+                "strengths": ["Length-based fallback scoring applied."],
+                "improvements": ["Answer length could be longer for a better fallback score."]
+            }
         
         evaluated_responses.append({
             'question': question,
@@ -78,7 +88,8 @@ def create_interview(interview_data: dict, user_id: int) -> Interview:
         feedback_level=level,
         score=overall_score,
         summary=summary,
-        total_questions=len(evaluated_responses)
+        total_questions=len(evaluated_responses),
+        role_applied_for=role_applied_for
     )
     db.session.add(interview)
     db.session.flush()  # get interview.id without committing

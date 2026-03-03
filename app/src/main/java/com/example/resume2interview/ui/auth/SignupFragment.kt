@@ -52,4 +52,13 @@ class SignupFragment : BaseFragment<FragmentSignupBinding, SignupViewModel>(
             findNavController().navigate(R.id.action_signupFragment_to_homeFragment)
         }
     }
+
+    override fun showError(message: String) {
+        super.showError(message)
+        if (message.contains("Email", ignoreCase = true) || message.contains("User", ignoreCase = true)) {
+            binding.etEmail.error = message
+        } else if (message.contains("Password", ignoreCase = true)) {
+            binding.etPassword.error = message
+        }
+    }
 }

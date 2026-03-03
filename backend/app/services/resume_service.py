@@ -22,6 +22,7 @@ from werkzeug.exceptions import BadRequest, RequestEntityTooLarge, Unprocessable
 
 # ---------------------------------------------------------------------------
 from app.core.logger import get_logger
+from app.services import analytics_service
 
 logger = get_logger(__name__)
 
@@ -445,9 +446,23 @@ def _detect_experience_years(text: str) -> Optional[int]:
 # ❺  Question Generation
 # ---------------------------------------------------------------------------
 
-def _generate_questions(tech_skills: dict[str, list[str]], applied_role: Optional[str] = None) -> list[dict]:
+def _generate_questions(tech_skills: dict[str, list[str]], applied_role: Optional[str] = None, weakest_category: Optional[str] = None) -> list[dict]:
     questions: list[dict] = []
     
+    # Adaptive Weighting: Pre-allocate extra questions for weakest category
+    adaptive_quota = 0
+    if weakest_category and weakest_category.lower() in [k.lower() for k in QUESTION_ELIGIBLE_CATEGORIES]:
+        # +30% weight out of MAX_QUESTIONS -> 3 extra questions allocated to weakest cat
+        adaptive_quota = int(MAX_QUESTIONS * 0.3) 
+    
+    # Find exact casing of weakest category
+    weakest_cat_exact = None
+    if adaptive_quota > 0:
+        for cat in tech_skills.keys():
+            if cat.lower() == weakest_category.lower() and tech_skills[cat]:
+                weakest_cat_exact = cat
+                break
+
     # Prioritise based on role if known, else fallback to standard eligible
     base_categories = list(QUESTION_ELIGIBLE_CATEGORIES)
     if applied_role and applied_role in ROLE_PRIORITIES:
@@ -461,9 +476,26 @@ def _generate_questions(tech_skills: dict[str, list[str]], applied_role: Optiona
     else:
         categories_to_query = base_categories
         
+    # Phase 1: Allocate adaptive weakest category questions first
+    if weakest_cat_exact:
+        for skill in tech_skills.get(weakest_cat_exact, []):
+            for q_text in QUESTION_BANK.get(skill, []):
+                if adaptive_quota == 0:
+                    break
+                # Only add if we haven't maxed out overall
+                if len(questions) >= MAX_QUESTIONS:
+                    return questions
+                questions.append({"question": q_text, "category": skill})
+                adaptive_quota -= 1
+
+    # Phase 2: Distribute remaining questions across all categories
     for category in categories_to_query:
         for skill in tech_skills.get(category, []):
             for q_text in QUESTION_BANK.get(skill, []):
+                # We skip adding duplicates if the adaptive logic already grabbed this exact question
+                if any(q["question"] == q_text for q in questions):
+                    continue
+                    
                 if len(questions) >= MAX_QUESTIONS:
                     return questions
                 questions.append({"question": q_text, "category": skill})
@@ -533,7 +565,7 @@ def _extract_text(raw: bytes) -> str:
 # ❽  Public Service Function
 # ---------------------------------------------------------------------------
 
-def process_resume(file) -> dict:
+def process_resume(file, user_id: int) -> dict:
     """
     Full pipeline:
       validate → extract text → detect sections → match skills → generate questions.
@@ -605,7 +637,11 @@ def process_resume(file) -> dict:
     
     previous_role, inferred_target_role = _extract_roles(full_text, technical_skills)
     fallback_role = previous_role or inferred_target_role
-    questions = _generate_questions(tech_skills, applied_role=fallback_role)
+    
+    analytics_data = analytics_service.get_category_performance_data(user_id)
+    weakest_category = analytics_data.get("weakest_category")
+    
+    questions = _generate_questions(tech_skills, applied_role=fallback_role, weakest_category=weakest_category)
 
     # ── Step 7: tools_frameworks (web + devops + testing, flat, deduped) ─────
     tools_set: list[str] = []

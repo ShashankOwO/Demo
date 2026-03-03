@@ -24,6 +24,7 @@ class SkillSchema(Schema):
 
 class InterviewCreateSchema(Schema):
     responses = fields.List(fields.Nested(QuestionAnswerCreateSchema), required=True)
+    role_applied_for = fields.String(required=False, allow_none=True)
 
 class InterviewSchema(Schema):
     id = fields.Integer(dump_only=True)
@@ -32,5 +33,6 @@ class InterviewSchema(Schema):
     score = fields.Integer(dump_only=True)
     summary = fields.String(dump_only=True)
     created_at = fields.DateTime(dump_only=True)
+    role_applied_for = fields.String(dump_only=True)
     responses = fields.List(fields.Nested(QuestionAnswerSchema), dump_only=True)
     skills = fields.List(fields.Nested(SkillSchema), dump_only=True)

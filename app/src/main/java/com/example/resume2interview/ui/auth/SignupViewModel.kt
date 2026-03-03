@@ -13,11 +13,7 @@ class SignupViewModel @Inject constructor(
 
     fun signup(name: String, email: String, pass: String) {
         launchDataLoad {
-            val success = authRepository.register(email, pass)
-            if (!success) {
-                throw Exception("Signup failed or server error")
-            }
-            success
+            authRepository.register(email, pass)
         }
     }
 }

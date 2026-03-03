@@ -21,10 +21,10 @@ def register_user(email: str, password: str) -> User:
 def authenticate_user(email: str, password: str) -> dict:
     user = User.query.filter_by(email=email).first()
     if not user:
-        abort(401, description="Incorrect email or password")
+        abort(401, description="Email does not exist")
     
     if not verify_password(password, user.hashed_password):
-        abort(401, description="Incorrect email or password")
+        abort(401, description="Password mismatch")
     
     # Generate token (60 min expiration)
     access_token_expires = timedelta(minutes=60)

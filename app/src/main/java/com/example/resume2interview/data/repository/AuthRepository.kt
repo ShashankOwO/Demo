@@ -12,35 +12,61 @@ class AuthRepository @Inject constructor(
     private val tokenManager: TokenManager
 ) {
     suspend fun login(email: String, pass: String): Boolean {
-        return try {
+        try {
             val response = apiService.login(AuthRequest(email, pass))
             if (response.isSuccessful) {
                 val token = response.body()?.access_token
                 if (!token.isNullOrEmpty()) {
                     tokenManager.saveToken(token)
-                    true
-                } else false
-            } else false
+                    return true
+                } else {
+                    throw Exception("Invalid token received.")
+                }
+            } else {
+                val errorBody = response.errorBody()?.string()
+                val message = extractErrorMessage(errorBody)
+                throw Exception(message)
+            }
         } catch (e: Exception) {
             e.printStackTrace()
-            false
+            // Rethrow so the ViewModel can catch the specific message
+            throw Exception(e.message ?: "Network error, please try again")
         }
     }
 
     suspend fun register(email: String, pass: String): Boolean {
-        return try {
+        try {
             val response = apiService.register(AuthRequest(email, pass))
             if (response.isSuccessful) {
-                // Return true, user can then log in
-                true
-            } else false
+                return true
+            } else {
+                val errorBody = response.errorBody()?.string()
+                val message = extractErrorMessage(errorBody)
+                throw Exception(message)
+            }
         } catch (e: Exception) {
             e.printStackTrace()
-            false
+            throw Exception(e.message ?: "Network error, please try again")
         }
     }
 
     suspend fun logout() {
         tokenManager.clearToken()
+    }
+
+    private fun extractErrorMessage(errorBody: String?): String {
+        if (errorBody.isNullOrEmpty()) return "Unknown server error"
+        return try {
+            val jsonObject = org.json.JSONObject(errorBody)
+            if (jsonObject.has("message")) {
+                jsonObject.getString("message")
+            } else if (jsonObject.has("error")) {
+                jsonObject.getString("error")
+            } else {
+                "Authentication failed"
+            }
+        } catch (e: Exception) {
+            "An error occurred"
+        }
     }
 }

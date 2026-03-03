@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify
 
 from app.schemas.resume import ResumeAnalysisOutSchema
 from app.services import resume_service
+from app.core.security import get_current_user
 
 bp = Blueprint('resume', __name__)
 resume_analysis_schema = ResumeAnalysisOutSchema()
@@ -24,5 +25,6 @@ def upload_resume():
     if file.filename == '':
         return jsonify({"detail": "No selected file"}), 400
         
-    result = resume_service.process_resume(file)
+    current_user = get_current_user()
+    result = resume_service.process_resume(file, current_user.id)
     return jsonify(resume_analysis_schema.dump(result))
