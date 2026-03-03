@@ -49,8 +49,7 @@ class ProfileFragment : BaseFragment<FragmentProfileBinding, ProfileViewModel>(
     }
 
     override fun showContent(data: Any?) {
-        val profile = data as? UserProfileResponse ?: return
-        displayProfile(profile)
+        // Ignored. We use profileData flow for continuous real-time updates.
     }
 
     private fun displayProfile(profile: UserProfileResponse) {
