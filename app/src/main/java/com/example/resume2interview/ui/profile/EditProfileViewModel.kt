@@ -9,6 +9,7 @@ import com.example.resume2interview.data.repository.ProfileRepository
 import com.example.resume2interview.ui.base.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -26,7 +27,7 @@ class EditProfileViewModel @Inject constructor(
     val photoUploadState: StateFlow<String?> = _photoUploadState.asStateFlow()
 
     private val _photoUploadError = kotlinx.coroutines.flow.MutableSharedFlow<String>()
-    val photoUploadError: kotlinx.coroutines.flow.SharedFlow<String> = _photoUploadError.kotlinx.coroutines.flow.asSharedFlow()
+    val photoUploadError = _photoUploadError.asSharedFlow()
 
     fun fetchProfile() {
         viewModelScope.launch {
