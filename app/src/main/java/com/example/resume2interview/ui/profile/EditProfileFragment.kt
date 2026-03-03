@@ -12,8 +12,10 @@ import com.example.resume2interview.R
 import com.example.resume2interview.data.network.ApiClient
 import com.example.resume2interview.databinding.FragmentEditProfileBinding
 import com.example.resume2interview.ui.base.BaseFragment
+import com.yalantis.ucrop.UCrop
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
+import java.io.File
 
 @AndroidEntryPoint
 class EditProfileFragment : BaseFragment<FragmentEditProfileBinding, EditProfileViewModel>(
@@ -21,17 +23,25 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding, EditProfile
 ) {
     override val viewModel: EditProfileViewModel by viewModels()
 
-    // Standard gallery image picker — works on all Android versions (minSdk 24+)
+    // Step 1: Pick image from gallery
     private val imagePickerLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
-                val uri: Uri? = result.data?.data
-                uri?.let {
-                    // Immediately show the selected image in UI
+                val sourceUri: Uri? = result.data?.data
+                sourceUri?.let { launchCrop(it) }
+            }
+        }
+
+    // Step 2: Receive cropped image from uCrop
+    private val cropLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                val croppedUri = UCrop.getOutput(result.data!!)
+                croppedUri?.let {
+                    // Show immediately in UI
                     Glide.with(this)
                         .load(it)
                         .circleCrop()
-                        .placeholder(R.drawable.ic_user)
                         .into(binding.ivAvatar)
 
                     // Upload to backend
@@ -40,10 +50,31 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding, EditProfile
             }
         }
 
+    private fun launchCrop(sourceUri: Uri) {
+        val destFile = File(requireContext().cacheDir, "cropped_profile_${System.currentTimeMillis()}.jpg")
+        val destUri = Uri.fromFile(destFile)
+
+        val cropIntent = UCrop.of(sourceUri, destUri)
+            .withAspectRatio(1f, 1f)          // Square crop (perfect for circular display)
+            .withMaxResultSize(512, 512)       // Cap output size for backend upload
+            .withOptions(UCrop.Options().apply {
+                setCircleDimmedLayer(true)     // Show circular crop overlay
+                setShowCropFrame(false)
+                setShowCropGrid(false)
+                setToolbarTitle("Crop Profile Photo")
+                setStatusBarColor(android.graphics.Color.parseColor("#4285F4"))
+                setToolbarColor(android.graphics.Color.parseColor("#4285F4"))
+                setToolbarWidgetColor(android.graphics.Color.WHITE)
+            })
+            .getIntent(requireContext())
+
+        cropLauncher.launch(cropIntent)
+    }
+
     override fun setupUI() {
         viewModel.fetchProfile()
 
-        // Pre-populate fields from cached profile (includes signup name)
+        // Pre-populate fields from cached profile
         viewLifecycleOwner.lifecycleScope.launchWhenStarted {
             viewModel.profileData.collectLatest { profile ->
                 profile?.let {
@@ -67,7 +98,7 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding, EditProfile
             }
         }
 
-        // "Change Photo" tap → open device gallery
+        // "Change Photo" → open gallery → uCrop → upload
         binding.tvChangePhoto.setOnClickListener {
             val intent = Intent(Intent.ACTION_PICK).apply {
                 type = "image/*"

@@ -14,19 +14,35 @@
         android:paddingTop="28dp"
         android:paddingBottom="100dp">
 
-        <!-- Avatar initials circle -->
-        <TextView
-            android:id="@+id/tv_avatar"
+        <!-- Avatar: shows profile photo (or initials if no photo) -->
+        <FrameLayout
+            android:id="@+id/frame_avatar"
             android:layout_width="46dp"
             android:layout_height="46dp"
-            android:background="@drawable/bg_gradient_button"
-            android:gravity="center"
-            android:text="A"
-            android:textColor="@color/text_on_accent"
-            android:textStyle="bold"
-            android:textSize="18sp"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent">
+
+            <!-- Photo layer -->
+            <ImageView
+                android:id="@+id/iv_avatar"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/bg_gradient_button"
+                android:scaleType="centerCrop"
+                android:visibility="gone" />
+
+            <!-- Initials fallback -->
+            <TextView
+                android:id="@+id/tv_avatar"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/bg_gradient_button"
+                android:gravity="center"
+                android:text="A"
+                android:textColor="@color/text_on_accent"
+                android:textStyle="bold"
+                android:textSize="18sp" />
+        </FrameLayout>
 
         <TextView
             android:id="@+id/tv_welcome"
@@ -39,7 +55,7 @@
             android:textStyle="bold"
             android:letterSpacing="-0.02"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/tv_avatar"
+            app:layout_constraintEnd_toStartOf="@+id/frame_avatar"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
@@ -52,7 +68,7 @@
             android:textColor="@color/text_secondary"
             android:textSize="14sp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/tv_avatar"
+            app:layout_constraintEnd_toStartOf="@+id/frame_avatar"
             app:layout_constraintTop_toBottomOf="@+id/tv_welcome" />
 
         <!-- Resume Status Card -->

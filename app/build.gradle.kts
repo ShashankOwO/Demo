@@ -68,4 +68,7 @@ dependencies {
 
     // Glide — profile photo loading
     implementation(libs.glide)
+
+    // uCrop — image cropping
+    implementation(libs.ucrop)
 }
