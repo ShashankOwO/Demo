@@ -22,8 +22,10 @@ class ReportsFragment : BaseFragment<FragmentReportsBinding, ReportsViewModel>(
         val reports = data as? List<ReportItem> ?: return
         
         val adapter = ReportAdapter(reports) { reportId ->
-            // Pass argument normally, simplifying
-            findNavController().navigate(R.id.action_reportsFragment_to_reportDetailFragment)
+            val bundle = android.os.Bundle().apply {
+                putString("reportId", reportId)
+            }
+            findNavController().navigate(R.id.action_reportsFragment_to_reportDetailFragment, bundle)
         }
         binding.rvReports.layoutManager = LinearLayoutManager(context)
         binding.rvReports.adapter = adapter

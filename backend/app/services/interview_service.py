@@ -47,14 +47,15 @@ def create_interview(interview_data: dict, user_id: int) -> Interview:
 
         # Call LLM evaluation with fallback
         try:
-            ai_eval = llm_service.evaluate_answer(question, answer, category)
+            ai_eval = llm_service.evaluate_answer(question, answer, category, role_applied_for)
         except Exception as e:
             # Deterministic Fallback if LLM evaluation fails
             length_val = min(100, len(answer) // 2)
             ai_eval = {
                 "score": length_val,
                 "strengths": ["Length-based fallback scoring applied."],
-                "improvements": ["Answer length could be longer for a better fallback score."]
+                "improvements": ["Answer length could be longer for a better fallback score."],
+                "suggestions": ["Include more technical depth."]
             }
         
         evaluated_responses.append({
@@ -79,8 +80,13 @@ def create_interview(interview_data: dict, user_id: int) -> Interview:
         overall_score = int(sum(category_scores.values()) / len(category_scores))
 
     level = _feedback_level(overall_score)
-    unique_categories = list(category_scores.keys())
-    summary = _build_summary(overall_score, level, unique_categories)
+    # Synthesize the 3-4 line contextual AI summary covering all categories
+    summary = llm_service.generate_interview_summary(
+        role=role_applied_for,
+        overall_score=overall_score,
+        feedback_level=level,
+        category_scores=category_scores
+    )
 
     # Persist Interview
     interview = Interview(
@@ -103,7 +109,8 @@ def create_interview(interview_data: dict, user_id: int) -> Interview:
             category=r['category'],
             score=r['ai_eval']['score'],
             strengths=json.dumps(r['ai_eval']['strengths']),
-            improvements=json.dumps(r['ai_eval']['improvements'])
+            improvements=json.dumps(r['ai_eval']['improvements']),
+            suggestions=json.dumps(r['ai_eval'].get('suggestions', []))
         ))
 
     # Persist Skill rows (one per unique category with aggregated score)

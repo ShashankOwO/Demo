@@ -58,8 +58,11 @@ class InterviewFragment : BaseFragment<FragmentInterviewBinding, InterviewViewMo
 
         // Next question button
         binding.btnNext.setOnClickListener {
-            viewModel.nextQuestion()
+            val answerText = binding.etAnswer.text?.toString() ?: ""
+            viewModel.nextQuestion(answerText)
             binding.etAnswer.text?.clear()
+            // Reset baseText so next question's speech doesn't append to old answer
+            baseText = ""
         }
 
         // Observe timer text

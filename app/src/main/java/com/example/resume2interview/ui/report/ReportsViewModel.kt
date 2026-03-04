@@ -3,7 +3,8 @@ package com.example.resume2interview.ui.report
 import com.example.resume2interview.data.repository.InterviewRepository
 import com.example.resume2interview.ui.base.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
+import java.text.SimpleDateFormat
+import java.util.Locale
 import javax.inject.Inject
 
 data class ReportItem(
@@ -25,15 +26,32 @@ class ReportsViewModel @Inject constructor(
 
     private fun loadReports() {
         launchDataLoad {
-            delay(1000)
-            listOf(
-                ReportItem("1", "System Design & Scalability", "2/11/2026", 82, "Average"),
-                ReportItem("2", "System Design & Scalability", "2/8/2026", 85, "Good"),
-                ReportItem("3", "Confidence & Technical Depth", "2/1/2026", 72, "Average"),
-                ReportItem("4", "Response Time Management", "1/24/2026", 91, "Good"),
-                ReportItem("5", "Structured Problem Solving", "1/15/2026", 58, "Needs Improvement"),
-                ReportItem("6", "Technical Communication", "1/6/2026", 67, "Average")
-            )
+            val result = interviewRepository.listInterviews().getOrThrow()
+            
+            val sdfIn = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault())
+            val sdfOut = SimpleDateFormat("MMM d, yyyy", Locale.getDefault())
+            
+            val reports = result.map { interview ->
+                val dateStr = try {
+                    val d = sdfIn.parse(interview.createdAt)
+                    if (d != null) sdfOut.format(d) else "Unknown"
+                } catch (e: Exception) {
+                    "Unknown"
+                }
+                
+                // Assuming skills are attached or default to "Mixed Interview"
+                val topSkill = interview.skills.firstOrNull()?.skillName ?: "General Interview"
+                
+                ReportItem(
+                    id = interview.id.toString(),
+                    title = topSkill,
+                    date = dateStr,
+                    score = interview.score,
+                    status = interview.feedbackLevel
+                )
+            }.reversed() // Show newest first
+            
+            reports
         }
     }
 }

@@ -45,7 +45,7 @@ class ResumeSkillsViewModel @Inject constructor(
         setState(
             UiState.Success(
                 SkillsUiData(
-                    techSkills = listOf("Python", "FastAPI", "SQL"),
+                    techSkills = emptyList(),
                     softSkills = emptyList(),
                     tools = emptyList()
                 )

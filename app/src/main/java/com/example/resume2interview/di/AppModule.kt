@@ -81,7 +81,7 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideInterviewRepository(): InterviewRepository {
-        return InterviewRepository()
+    fun provideInterviewRepository(apiService: ApiService): InterviewRepository {
+        return InterviewRepository(apiService)
     }
 }

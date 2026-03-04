@@ -7,6 +7,7 @@ import com.example.resume2interview.data.model.LastFiveEntry
 import com.example.resume2interview.data.model.ProfilePhotoResponse
 import com.example.resume2interview.data.model.ResumeAnalysisOut
 import com.example.resume2interview.data.model.SkillPracticed
+import com.example.resume2interview.data.model.SuggestedRolesResponse
 import okhttp3.MultipartBody
 import retrofit2.Response
 import retrofit2.http.*
@@ -79,4 +80,12 @@ interface ApiService {
 
     @GET("analytics/skills-practiced")
     suspend fun getSkillsPracticed(): Response<List<SkillPracticed>>
+
+    @GET("analytics/category-performance")
+    suspend fun getCategoryPerformance(): Response<com.example.resume2interview.data.model.CategoryPerformanceResponse>
+
+    // ── Roles ──────────────────────────────────────────────────
+
+    @GET("roles/suggest")
+    suspend fun suggestRoles(): Response<SuggestedRolesResponse>
 }

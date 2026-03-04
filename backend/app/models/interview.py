@@ -50,6 +50,7 @@ class QuestionAnswer(db.Model):
     score: Mapped[int] = mapped_column(Integer, nullable=True) # made nullable for backwards compatibility
     strengths: Mapped[str] = mapped_column(Text, nullable=True) # store as JSON string
     improvements: Mapped[str] = mapped_column(Text, nullable=True) # store as JSON string
+    suggestions: Mapped[str] = mapped_column(Text, nullable=True) # store as JSON string
 
     interview: Mapped["Interview"] = relationship("Interview", back_populates="responses")
 

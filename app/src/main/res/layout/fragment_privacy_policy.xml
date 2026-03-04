@@ -168,19 +168,33 @@
                     android:lineSpacingExtra="4dp" />
 
                 <!-- Section 3 -->
-                <TextView
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="3. Data Security"
-                    android:textColor="#1A1C1E"
-                    android:textSize="15sp"
-                    android:textStyle="bold"
-                    android:paddingBottom="8dp" />
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingBottom="8dp">
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_lock"
+                        app:tint="#4285F4" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:text="3. Data Security"
+                        android:textColor="#1A1C1E"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:paddingStart="12dp"
+                    android:paddingStart="28dp"
                     android:paddingBottom="20dp"
                     android:text="We implement appropriate technical and organizational measures to protect your personal data against unauthorized or unlawful processing, accidental loss, destruction, or damage."
                     android:textColor="#5C5E62"
@@ -188,19 +202,33 @@
                     android:lineSpacingExtra="4dp" />
 
                 <!-- Section 4 -->
-                <TextView
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="4. Your Rights"
-                    android:textColor="#1A1C1E"
-                    android:textSize="15sp"
-                    android:textStyle="bold"
-                    android:paddingBottom="8dp" />
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingBottom="8dp">
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_lock"
+                        app:tint="#4285F4" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:text="4. Your Rights"
+                        android:textColor="#1A1C1E"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:paddingStart="12dp"
+                    android:paddingStart="28dp"
                     android:paddingBottom="8dp"
                     android:text="You have the right to access, correct, or delete your personal data at any time. You can manage your preferences in the Settings menu or contact our support team for assistance."
                     android:textColor="#5C5E62"

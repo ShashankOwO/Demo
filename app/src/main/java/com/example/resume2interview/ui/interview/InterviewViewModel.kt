@@ -3,7 +3,10 @@ package com.example.resume2interview.ui.interview
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.example.resume2interview.data.model.InterviewQuestion
+import com.example.resume2interview.data.model.QuestionAnswerIn
 import com.example.resume2interview.data.repository.InterviewRepository
+import com.example.resume2interview.data.repository.ResumeRepository
 import com.example.resume2interview.ui.base.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
@@ -22,21 +25,21 @@ data class InterviewUiData(
 
 @HiltViewModel
 class InterviewViewModel @Inject constructor(
-    private val interviewRepository: InterviewRepository
+    private val interviewRepository: InterviewRepository,
+    private val resumeRepository: ResumeRepository
 ) : BaseViewModel<InterviewUiData>() {
 
-    private val questions = listOf(
-        "Tell me about a time you had to handle a difficult conflict with a coworker. How did you resolve it?",
-        "Where do you see yourself in 5 years?",
-        "What is your greatest professional strength?",
-        "Describe a challenging project you worked on and how you overcame obstacles.",
-        "Why do you want to work at this company?",
-        "Tell me about a time when you showed leadership.",
-        "How do you handle working under pressure and tight deadlines?",
-        "What is a weakness you have been actively working to improve?",
-        "Describe a situation where you had to learn something quickly.",
-        "Do you have any questions for us?"
+    // Default fallback questions in case there is no resume loaded (e.g., debug testing)
+    private val _fallbackQuestions = listOf(
+        InterviewQuestion("Tell me about a time you had to handle a difficult conflict with a coworker. How did you resolve it?", "Behavioral"),
+        InterviewQuestion("Where do you see yourself in 5 years?", "Behavioral"),
+        InterviewQuestion("What is your greatest professional strength?", "Behavioral")
     )
+
+    private var _questions: List<InterviewQuestion> = emptyList()
+
+    // Store the answers for submission at the end
+    private val _userResponses = mutableListOf<QuestionAnswerIn>()
 
     private val _currentIndex = MutableLiveData(0)
     val currentIndex: LiveData<Int> = _currentIndex
@@ -54,6 +57,13 @@ class InterviewViewModel @Inject constructor(
     val isFinished: LiveData<Boolean> = _isFinished
 
     init {
+        // Load questions from cached resume analysis, if available.
+        val analysis = resumeRepository.lastAnalysis.value
+        _questions = if (analysis != null && analysis.generatedQuestions.isNotEmpty()) {
+            analysis.generatedQuestions
+        } else {
+            _fallbackQuestions
+        }
         loadQuestion(0)
     }
 
@@ -61,8 +71,8 @@ class InterviewViewModel @Inject constructor(
         launchDataLoad {
             InterviewUiData(
                 currentQuestionIndex = index + 1,
-                totalQuestions = questions.size,
-                questionText = questions[index],
+                totalQuestions = _questions.size,
+                questionText = _questions[index].question,
                 timerText = "00:00"
             )
         }
@@ -78,17 +88,49 @@ class InterviewViewModel @Inject constructor(
         }
     }
 
-    fun nextQuestion() {
-        val index = (_currentIndex.value ?: 0) + 1
+    fun nextQuestion(answerText: String) {
+        val index = (_currentIndex.value ?: 0)
+        
+        // Record the answer BEFORE moving next
+        if (index < _questions.size) {
+            val q = _questions[index]
+            _userResponses.add(
+                QuestionAnswerIn(
+                    question = q.question,
+                    answer = answerText.ifBlank { "No answer provided." },
+                    category = q.category
+                )
+            )
+        }
+
+        val nextIndex = index + 1
         stopTimer()
         _timerSeconds.value = 0
         _timerText.value = "00:00"
-        if (index >= questions.size) {
-            _isFinished.value = true
+
+        if (nextIndex >= _questions.size) {
+            // Interview complete – submit to backend
+            submitInterview()
         } else {
-            _currentIndex.value = index
+            _currentIndex.value = nextIndex
             _isRecording.value = false
-            loadQuestion(index)
+            loadQuestion(nextIndex)
+        }
+    }
+
+    private fun submitInterview() {
+        // Option 1: Switch to a loading layer instead of directly finishing
+        // _isFinished.value = true can be called AFTER submission succeeds.
+        
+        viewModelScope.launch {
+            val result = interviewRepository.submitInterview(_userResponses)
+            if (result.isSuccess) {
+                _isFinished.value = true
+            } else {
+                // If submission fails, we can handle error states here.
+                // For now, allow them to finish to not block the UI.
+                _isFinished.value = true
+            }
         }
     }
 

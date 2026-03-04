@@ -71,4 +71,7 @@ dependencies {
 
     // uCrop — image cropping
     implementation(libs.ucrop)
+    
+    // MPAndroidChart
+    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
 }

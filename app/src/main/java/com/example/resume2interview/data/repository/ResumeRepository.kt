@@ -5,6 +5,9 @@ import android.net.Uri
 import android.provider.OpenableColumns
 import com.example.resume2interview.data.model.ResumeAnalysisOut
 import com.example.resume2interview.data.network.ApiService
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -16,6 +19,10 @@ import javax.inject.Singleton
 class ResumeRepository @Inject constructor(
     private val api: ApiService
 ) {
+    // Holds the last successful resume analysis so InterviewViewModel
+    // can read the generated questions without an extra network call.
+    private val _lastAnalysis = MutableStateFlow<ResumeAnalysisOut?>(null)
+    val lastAnalysis: StateFlow<ResumeAnalysisOut?> = _lastAnalysis.asStateFlow()
 
     /**
      * Pings GET /health — returns true if the backend is reachable.
@@ -79,6 +86,7 @@ class ResumeRepository @Inject constructor(
         }
 
         return response.body()
+            ?.also { _lastAnalysis.value = it }   // ← cache for InterviewViewModel
             ?: throw IllegalArgumentException("Empty response body from server")
     }
 }

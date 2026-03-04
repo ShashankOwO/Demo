@@ -98,7 +98,7 @@
                 <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
                     android:layout_weight="1" android:gravity="center" android:orientation="vertical">
                     <TextView android:id="@+id/tv_stat_interviews" android:layout_width="wrap_content"
-                        android:layout_height="wrap_content" android:text="12"
+                        android:layout_height="wrap_content" android:text="--"
                         android:textColor="@color/accent_indigo" android:textSize="22sp"
                         android:textStyle="bold"/>
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
@@ -112,7 +112,7 @@
                 <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
                     android:layout_weight="1" android:gravity="center" android:orientation="vertical">
                     <TextView android:id="@+id/tv_stat_score" android:layout_width="wrap_content"
-                        android:layout_height="wrap_content" android:text="85"
+                        android:layout_height="wrap_content" android:text="--"
                         android:textColor="@color/accent_emerald" android:textSize="22sp"
                         android:textStyle="bold"/>
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
@@ -126,7 +126,7 @@
                 <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
                     android:layout_weight="1" android:gravity="center" android:orientation="vertical">
                     <TextView android:id="@+id/tv_stat_resumes" android:layout_width="wrap_content"
-                        android:layout_height="wrap_content" android:text="3"
+                        android:layout_height="wrap_content" android:text="1"
                         android:textColor="@color/accent_violet" android:textSize="22sp"
                         android:textStyle="bold"/>
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
@@ -172,11 +172,14 @@
                     android:background="@color/border_default"
                     android:layout_marginHorizontal="16dp"/>
 
-                <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
-                    android:padding="16dp" android:text="Subscription"
+                <TextView android:id="@+id/tv_help_center"
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:padding="16dp" android:text="Help Center"
                     android:textColor="@color/text_primary" android:textSize="15sp"
+                    android:background="?attr/selectableItemBackground"
                     app:drawableEndCompat="@drawable/ic_arrow_right"
-                    app:drawableStartCompat="@drawable/ic_credit_card"
+                    app:drawableStartCompat="@drawable/ic_help"
+                    app:drawableTint="@color/text_primary"
                     android:drawablePadding="16dp"/>
 
                 <View android:layout_width="match_parent" android:layout_height="1dp"

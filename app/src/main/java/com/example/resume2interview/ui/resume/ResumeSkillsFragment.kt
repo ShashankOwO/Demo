@@ -6,15 +6,20 @@ import android.view.View
 import android.widget.ArrayAdapter
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.example.resume2interview.R
 import com.example.resume2interview.data.model.ResumeAnalysisOut
 import com.example.resume2interview.databinding.FragmentResumeSkillsBinding
 import com.example.resume2interview.ui.base.BaseFragment
 import com.example.resume2interview.ui.home.HomeStaticState
+import com.example.resume2interview.utils.ResumePreferences
+import com.example.resume2interview.utils.TokenManager
 import com.google.android.material.chip.Chip
 import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class ResumeSkillsFragment : BaseFragment<FragmentResumeSkillsBinding, ResumeSkillsViewModel>(
@@ -24,11 +29,20 @@ class ResumeSkillsFragment : BaseFragment<FragmentResumeSkillsBinding, ResumeSki
         const val ARG_ANALYSIS_JSON = "analysis_json"
     }
 
+    @Inject lateinit var resumePreferences: ResumePreferences
+    @Inject lateinit var tokenManager: TokenManager
+
     override val viewModel: ResumeSkillsViewModel by viewModels()
 
     override fun setupUI() {
         binding.btnBack.setOnClickListener {
-            HomeStaticState.isResumeUploaded = true
+            // Persist the resume-uploaded flag so it survives sign-out/sign-in
+            viewLifecycleOwner.lifecycleScope.launch {
+                val token = tokenManager.getToken()
+                val email = extractEmailFromJwt(token)
+                resumePreferences.setResumeUploaded(email, true)
+                HomeStaticState.isResumeUploaded = true
+            }
             findNavController().popBackStack(R.id.homeFragment, false)
         }
 
@@ -139,5 +153,24 @@ class ResumeSkillsFragment : BaseFragment<FragmentResumeSkillsBinding, ResumeSki
             }
         }
         chipGroup.addView(chip)
+    }
+
+    /**
+     * Best-effort decode of the JWT payload to extract the 'sub' (email) claim.
+     * Returns null if the token is missing or malformed.
+     */
+    private fun extractEmailFromJwt(token: String?): String? {
+        return try {
+            val parts = token?.split(".") ?: return null
+            if (parts.size < 2) return null
+            val payload = android.util.Base64.decode(
+                parts[1].replace('-', '+').replace('_', '/'),
+                android.util.Base64.NO_PADDING or android.util.Base64.URL_SAFE
+            )
+            val json = org.json.JSONObject(String(payload, Charsets.UTF_8))
+            json.optString("sub").takeIf { it.isNotBlank() }
+        } catch (e: Exception) {
+            null
+        }
     }
 }

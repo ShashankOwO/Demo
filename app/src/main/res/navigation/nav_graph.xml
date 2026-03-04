@@ -219,6 +219,13 @@
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
             app:popExitAnim="@anim/slide_out_right" />
+        <action
+            android:id="@+id/action_profileFragment_to_helpCenterFragment"
+            app:destination="@id/helpCenterFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
     </fragment>
 
     <fragment
@@ -245,5 +252,10 @@
         android:id="@+id/privacyPolicyFragment"
         android:name="com.example.resume2interview.ui.profile.PrivacyPolicyFragment"
         tools:layout="@layout/fragment_privacy_policy" />
+
+    <fragment
+        android:id="@+id/helpCenterFragment"
+        android:name="com.example.resume2interview.ui.profile.HelpCenterFragment"
+        tools:layout="@layout/fragment_help_center" />
 
 </navigation>

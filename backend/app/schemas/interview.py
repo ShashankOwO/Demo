@@ -13,6 +13,7 @@ class QuestionAnswerSchema(Schema):
     score = fields.Integer(dump_only=True)
     strengths = fields.String(dump_only=True)
     improvements = fields.String(dump_only=True)
+    suggestions = fields.String(dump_only=True)
 
 class SkillCreateSchema(Schema):
     skill_name = fields.String(required=True)

@@ -23,6 +23,7 @@ from werkzeug.exceptions import BadRequest, RequestEntityTooLarge, Unprocessable
 # ---------------------------------------------------------------------------
 from app.core.logger import get_logger
 from app.services import analytics_service
+from app.services import llm_service
 
 logger = get_logger(__name__)
 
@@ -446,7 +447,21 @@ def _detect_experience_years(text: str) -> Optional[int]:
 # ❺  Question Generation
 # ---------------------------------------------------------------------------
 
-def _generate_questions(tech_skills: dict[str, list[str]], applied_role: Optional[str] = None, weakest_category: Optional[str] = None) -> list[dict]:
+def _generate_questions(tech_skills: dict[str, list[str]], applied_role: Optional[str] = None, weakest_category: Optional[str] = None, experience: int = 0) -> list[dict]:
+    # ── Try Gemini AI first ──
+    flat_skills = [s for cat_skills in tech_skills.values() for s in cat_skills]
+    if flat_skills:
+        ai_questions = llm_service.generate_questions(
+            skills=flat_skills,
+            role=applied_role or "Software Engineer",
+            experience=experience,
+            count=MAX_QUESTIONS,
+            weakest_category=weakest_category
+        )
+        if ai_questions and len(ai_questions) > 0:
+            return ai_questions
+
+    # ── Fallback to Static Question Bank ──
     questions: list[dict] = []
     
     # Adaptive Weighting: Pre-allocate extra questions for weakest category
@@ -641,7 +656,7 @@ def process_resume(file, user_id: int) -> dict:
     analytics_data = analytics_service.get_category_performance_data(user_id)
     weakest_category = analytics_data.get("weakest_category")
     
-    questions = _generate_questions(tech_skills, applied_role=fallback_role, weakest_category=weakest_category)
+    questions = _generate_questions(tech_skills, applied_role=fallback_role, weakest_category=weakest_category, experience=experience)
 
     # ── Step 7: tools_frameworks (web + devops + testing, flat, deduped) ─────
     tools_set: list[str] = []

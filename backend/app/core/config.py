@@ -12,6 +12,7 @@ class Settings:
         self.allowed_origins = os.getenv("ALLOWED_ORIGINS", "http://localhost,http://10.0.2.2")
         self.secret_key = os.getenv("SECRET_KEY", "changeme-super-secret-key")
         self.jwt_secret_key = os.getenv("JWT_SECRET_KEY", "jwt-changeme-secret-key")
+        self.gemini_api_key = os.getenv("GEMINI_API_KEY", "")
 
     @property
     def origins_list(self) -> list[str]:

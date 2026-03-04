@@ -104,11 +104,18 @@ class HomeFragment : BaseFragment<FragmentHomeBinding, HomeViewModel>(
             binding.tvStatusBadge.setTextColor(Color.parseColor("#1B5E20"))
             binding.tvStatusBadge.setBackgroundResource(R.drawable.bg_badge_green)
             binding.cardResumeStatus.setCardBackgroundColor(Color.parseColor("#FFFFFF"))
-            binding.tvResumeStatus.text = "12 skills extracted"
+            val skillCount = uiData.extractedSkills
+            binding.tvResumeStatus.text = if (skillCount > 0) "$skillCount skills extracted" else "Resume active"
             binding.tvResumeStatus.setTextColor(Color.parseColor("#1A1C1E"))
             binding.tvLastUpdated.isVisible = true
             val sdf = SimpleDateFormat("M/dd/yyyy", Locale.getDefault())
-            binding.tvLastUpdated.text = "Last updated:   ${sdf.format(Date())}"
+            val displayDate = uiData.resumeUploadedAt?.let {
+                try {
+                    val iso = java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault())
+                    sdf.format(iso.parse(it) ?: Date())
+                } catch (e: Exception) { sdf.format(Date()) }
+            } ?: sdf.format(Date())
+            binding.tvLastUpdated.text = "Last updated:   $displayDate"
         } else {
             binding.cardResumeStatus.setOnClickListener {
                 findNavController().navigate(R.id.action_homeFragment_to_uploadResumeFragment)
@@ -123,6 +130,31 @@ class HomeFragment : BaseFragment<FragmentHomeBinding, HomeViewModel>(
         }
 
         binding.tvSessionCount.text = uiData.interviewSessionCount.toString()
-        binding.tvLatestScore.text = "${uiData.latestScore}/100"
+        binding.tvLatestScore.text  = if (uiData.latestScore > 0) "${uiData.latestScore}/100" else "--/100"
+
+        // Show real last session date from analytics/last-five
+        val sdfOut = java.text.SimpleDateFormat("M/d/yyyy", java.util.Locale.getDefault())
+        val sdfIn  = java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", java.util.Locale.getDefault())
+        val dateStr = uiData.lastSessionDate?.let {
+            try { sdfOut.format(sdfIn.parse(it) ?: java.util.Date()) }
+            catch (e: Exception) { null }
+        }
+        val tvDate = view?.findViewById<android.widget.TextView>(R.id.tv_last_session_date)
+        tvDate?.text = dateStr ?: "--"
+        tvDate?.isVisible = dateStr != null
+
+        // Dynamically set Focus Areas
+        if (uiData.focusAreas.isNotEmpty()) {
+            val tvFocus1 = view?.findViewById<android.widget.TextView>(R.id.tv_focus_1)
+            tvFocus1?.text = uiData.focusAreas[0]
+            
+            if (uiData.focusAreas.size > 1) {
+                val tvFocus2 = view?.findViewById<android.widget.TextView>(R.id.tv_focus_2)
+                tvFocus2?.text = uiData.focusAreas[1]
+                binding.cardFocus2.isVisible = true
+            } else {
+                binding.cardFocus2.isVisible = false
+            }
+        }
     }
 }

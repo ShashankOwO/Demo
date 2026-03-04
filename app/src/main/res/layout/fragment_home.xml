@@ -177,7 +177,8 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                <TextView android:id="@+id/tv_last_session_date"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
                     android:text="2/8/2026" android:textColor="@color/text_muted"
                     android:textSize="12sp"
                     app:drawableStartCompat="@drawable/ic_calendar"
@@ -258,7 +259,7 @@
                 android:padding="16dp" android:orientation="horizontal" android:gravity="center_vertical">
                 <View android:layout_width="8dp" android:layout_height="8dp"
                     android:background="@drawable/circle_red" android:layout_marginEnd="14dp"/>
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                <TextView android:id="@+id/tv_focus_1" android:layout_width="wrap_content" android:layout_height="wrap_content"
                     android:text="System design scalability"
                     android:textColor="@color/text_secondary" android:textSize="14sp"/>
             </LinearLayout>
@@ -273,7 +274,7 @@
                 android:padding="16dp" android:orientation="horizontal" android:gravity="center_vertical">
                 <View android:layout_width="8dp" android:layout_height="8dp"
                     android:background="@drawable/circle_red" android:layout_marginEnd="14dp"/>
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                <TextView android:id="@+id/tv_focus_2" android:layout_width="wrap_content" android:layout_height="wrap_content"
                     android:text="Edge case handling"
                     android:textColor="@color/text_secondary" android:textSize="14sp"/>
             </LinearLayout>

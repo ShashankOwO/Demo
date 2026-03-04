@@ -36,6 +36,10 @@ class ProfileFragment : BaseFragment<FragmentProfileBinding, ProfileViewModel>(
             findNavController().navigate(R.id.action_profileFragment_to_preferencesFragment)
         }
 
+        binding.tvHelpCenter.setOnClickListener {
+            findNavController().navigate(R.id.action_profileFragment_to_helpCenterFragment)
+        }
+
         binding.tvPrivacyPolicy.setOnClickListener {
             findNavController().navigate(R.id.action_profileFragment_to_privacyPolicyFragment)
         }
@@ -46,6 +50,19 @@ class ProfileFragment : BaseFragment<FragmentProfileBinding, ProfileViewModel>(
                 profile?.let { displayProfile(it) }
             }
         }
+
+        // Observe analytics summary → bind stats row (interviews count, avg score)
+        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+            viewModel.summaryData.collectLatest { summary ->
+                summary?.let {
+                    binding.tvStatInterviews.text = it.totalSessions.toString()
+                    binding.tvStatScore.text      = it.averageScore.toInt().toString()
+                }
+            }
+        }
+
+        // Check the shared globally static resume state
+        binding.tvStatResumes.text = if (com.example.resume2interview.ui.home.HomeStaticState.isResumeUploaded) "1" else "0"
     }
 
     override fun showContent(data: Any?) {

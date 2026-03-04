@@ -24,6 +24,10 @@ class ReportDetailFragment : BaseFragment<FragmentReportDetailBinding, ReportDet
         binding.btnBack.setOnClickListener {
             findNavController().navigateUp()
         }
+        
+        arguments?.getString("reportId")?.toIntOrNull()?.let { id ->
+            viewModel.loadReportDetail(id)
+        }
     }
 
     override fun showContent(data: Any?) {
@@ -50,6 +54,15 @@ class ReportDetailFragment : BaseFragment<FragmentReportDetailBinding, ReportDet
             bulletColor = "#C62828",   // dark red
             textColor = "#1A1C1E",     // near-black
             bgColor = "#FFF5F5"        // very light red tint
+        )
+
+        // Populate suggestions items — blue bullet, dark text
+        fillList(
+            container = binding.layoutSuggestions,
+            items = uiData.suggestions,
+            bulletColor = "#1565C0",   // dark blue
+            textColor = "#1A1C1E",     // near-black
+            bgColor = "#E3F2FD"        // very light blue tint
         )
     }
 

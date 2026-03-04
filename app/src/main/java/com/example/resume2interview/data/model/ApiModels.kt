@@ -62,6 +62,10 @@ data class QuestionAnswerOut(
     @SerializedName("question")     val question:    String,
     @SerializedName("answer")       val answer:      String,
     @SerializedName("category")     val category:    String,
+    @SerializedName("score")        val score:       Int = 0,
+    @SerializedName("strengths")    val strengths:   String? = null,
+    @SerializedName("improvements") val improvements: String? = null,
+    @SerializedName("suggestions")  val suggestions:  String? = null,
 )
 
 data class SkillOut(
@@ -100,9 +104,29 @@ data class AnalyticsSummary(
     @SerializedName("highest_score")     val highestScore:      Int,
     @SerializedName("lowest_score")      val lowestScore:       Int,
     @SerializedName("trend_percentage")  val trendPercentage:   Float,
+    @SerializedName("total_sessions")    val totalSessions:     Int    = 0,
 )
 
 data class SkillPracticed(
     @SerializedName("category")      val category:     String,
     @SerializedName("session_count") val sessionCount: Int,
+)
+
+data class CategoryPerformanceResponse(
+    @SerializedName("category_averages")  val categoryAverages:  Map<String, Int> = emptyMap(),
+    @SerializedName("weakest_category")   val weakestCategory:   String? = null,
+    @SerializedName("strongest_category") val strongestCategory: String? = null,
+    @SerializedName("trend")              val trend:             Float? = null
+)
+
+// ── Roles ─────────────────────────────────────────────────────────────────────
+// Matches: GET /roles/suggest  →  SuggestedRolesResponse
+
+data class SuggestedRoleEntry(
+    @SerializedName("role")        val role:       String,
+    @SerializedName("match_score") val matchScore: Int,
+)
+
+data class SuggestedRolesResponse(
+    @SerializedName("suggested_roles") val suggestedRoles: List<SuggestedRoleEntry> = emptyList(),
 )
