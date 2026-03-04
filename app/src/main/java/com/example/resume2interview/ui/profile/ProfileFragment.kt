@@ -61,6 +61,8 @@ class ProfileFragment : BaseFragment<FragmentProfileBinding, ProfileViewModel>(
         val photoUrl = profile.profilePhotoUrl
         if (!photoUrl.isNullOrBlank()) {
             val fullUrl = "${ApiClient.BASE_URL.trimEnd('/')}$photoUrl"
+            binding.ivAvatar.imageTintList = null
+            binding.ivAvatar.setPadding(0, 0, 0, 0)
             Glide.with(this)
                 .load(fullUrl)
                 .circleCrop()
@@ -69,6 +71,11 @@ class ProfileFragment : BaseFragment<FragmentProfileBinding, ProfileViewModel>(
                 .into(binding.ivAvatar)
         } else {
             binding.ivAvatar.setImageResource(R.drawable.ic_user)
+            binding.ivAvatar.imageTintList = android.content.res.ColorStateList.valueOf(
+                androidx.core.content.ContextCompat.getColor(requireContext(), R.color.accent_indigo)
+            )
+            val paddingPx = (20 * resources.displayMetrics.density).toInt()
+            binding.ivAvatar.setPadding(paddingPx, paddingPx, paddingPx, paddingPx)
         }
     }
 }

@@ -37,6 +37,8 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding, EditProfile
                 val croppedUri = UCrop.getOutput(result.data!!)
                 croppedUri?.let { uri ->
                     // Show immediately in UI
+                    binding.ivAvatar.imageTintList = null
+                    binding.ivAvatar.setPadding(0, 0, 0, 0)
                     Glide.with(this)
                         .load(uri)
                         .circleCrop()
@@ -91,12 +93,21 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding, EditProfile
                     // Load existing profile photo
                     val photoUrl = it.profilePhotoUrl
                     if (!photoUrl.isNullOrBlank()) {
+                        binding.ivAvatar.imageTintList = null
+                        binding.ivAvatar.setPadding(0, 0, 0, 0)
                         Glide.with(this@EditProfileFragment)
                             .load("${ApiClient.BASE_URL.trimEnd('/')}$photoUrl")
                             .circleCrop()
                             .placeholder(R.drawable.ic_user)
                             .error(R.drawable.ic_user)
                             .into(binding.ivAvatar)
+                    } else {
+                        binding.ivAvatar.setImageResource(R.drawable.ic_user)
+                        binding.ivAvatar.imageTintList = android.content.res.ColorStateList.valueOf(
+                            android.graphics.Color.parseColor("#4285F4")
+                        )
+                        val paddingPx = (24 * resources.displayMetrics.density).toInt()
+                        binding.ivAvatar.setPadding(paddingPx, paddingPx, paddingPx, paddingPx)
                     }
                 }
             }
