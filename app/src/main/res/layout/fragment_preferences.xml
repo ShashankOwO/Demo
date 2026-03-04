@@ -23,6 +23,9 @@
             android:background="?attr/selectableItemBackgroundBorderless"
             android:src="@drawable/ic_arrow_back"
             android:contentDescription="Back"
+            android:clickable="true"
+            android:focusable="true"
+            android:stateListAnimator="@animator/scale_on_press"
             app:tint="#1A1C1E" />
 
         <TextView
@@ -53,7 +56,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:cardCornerRadius="16dp"
-            app:cardElevation="0dp"
+            app:cardElevation="4dp"
             app:cardBackgroundColor="#FFFFFF">
 
             <LinearLayout
@@ -155,6 +158,7 @@
             android:textColor="#FFFFFF"
             android:textSize="16sp"
             android:textStyle="bold"
+            android:stateListAnimator="@animator/scale_on_press"
             app:backgroundTint="#4285F4"
             app:cornerRadius="16dp" />
     </LinearLayout>

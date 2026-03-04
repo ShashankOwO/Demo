@@ -8,6 +8,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:animateLayoutChanges="true"
         android:padding="24dp">
 
         <ImageView
@@ -16,6 +17,9 @@
             android:layout_height="wrap_content"
             android:padding="8dp"
             android:src="@drawable/ic_arrow_back"
+            android:clickable="true"
+            android:focusable="true"
+            android:stateListAnimator="@animator/scale_on_press"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             android:layout_marginTop="16dp"/>
@@ -39,7 +43,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="32dp"
             app:cardCornerRadius="16dp"
-            app:cardElevation="0dp"
+            app:cardElevation="4dp"
             app:cardBackgroundColor="#FFFFFF"
             app:layout_constraintTop_toBottomOf="@+id/tv_title">
 
@@ -93,7 +97,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             app:cardCornerRadius="16dp"
-            app:cardElevation="0dp"
+            app:cardElevation="4dp"
             app:cardBackgroundColor="#FFFFFF"
             app:layout_constraintTop_toBottomOf="@+id/card_verification">
 
@@ -255,7 +259,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             app:cardCornerRadius="16dp"
-            app:cardElevation="0dp"
+            app:cardElevation="4dp"
             app:cardBackgroundColor="#FFFFFF"
             app:layout_constraintTop_toBottomOf="@+id/card_experience">
 
@@ -303,6 +307,9 @@
                     android:textColor="#4285F4"
                     android:textSize="14sp"
                     android:textStyle="bold"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:stateListAnimator="@animator/scale_on_press"
                     android:paddingVertical="8dp"/>
                     
                 <LinearLayout
@@ -329,6 +336,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
                         android:text="Add"
+                        android:stateListAnimator="@animator/scale_on_press"
                         app:cornerRadius="8dp"/>
                 </LinearLayout>
 
@@ -342,7 +350,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             app:cardCornerRadius="16dp"
-            app:cardElevation="0dp"
+            app:cardElevation="4dp"
             app:cardBackgroundColor="#FFFFFF"
             app:layout_constraintTop_toBottomOf="@+id/card_tech_skills">
 
@@ -390,6 +398,9 @@
                     android:textColor="#4285F4"
                     android:textSize="14sp"
                     android:textStyle="bold"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:stateListAnimator="@animator/scale_on_press"
                     android:paddingVertical="8dp"/>
                     
                 <LinearLayout
@@ -416,6 +427,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
                         android:text="Add"
+                        android:stateListAnimator="@animator/scale_on_press"
                         app:cornerRadius="8dp"/>
                 </LinearLayout>
 
@@ -429,7 +441,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             app:cardCornerRadius="16dp"
-            app:cardElevation="0dp"
+            app:cardElevation="4dp"
             app:cardBackgroundColor="#FFFFFF"
             app:layout_constraintTop_toBottomOf="@+id/card_soft_skills">
 
@@ -477,6 +489,9 @@
                     android:textColor="#4285F4"
                     android:textSize="14sp"
                     android:textStyle="bold"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:stateListAnimator="@animator/scale_on_press"
                     android:paddingVertical="8dp"/>
                     
                 <LinearLayout
@@ -503,6 +518,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
                         android:text="Add"
+                        android:stateListAnimator="@animator/scale_on_press"
                         app:cornerRadius="8dp"/>
                 </LinearLayout>
 
@@ -516,7 +532,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             app:cardCornerRadius="16dp"
-            app:cardElevation="0dp"
+            app:cardElevation="4dp"
             app:cardBackgroundColor="#FFFFFF"
             app:layout_constraintTop_toBottomOf="@+id/card_tools">
 

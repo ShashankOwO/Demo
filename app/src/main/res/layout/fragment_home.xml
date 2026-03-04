@@ -10,6 +10,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:animateLayoutChanges="true"
         android:paddingHorizontal="20dp"
         android:paddingTop="28dp"
         android:paddingBottom="100dp">
@@ -21,6 +22,9 @@
             android:layout_height="48dp"
             android:background="@drawable/bg_gradient_circle"
             android:padding="2dp"
+            android:stateListAnimator="@animator/scale_on_press"
+            android:clickable="true"
+            android:focusable="true"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
@@ -79,8 +83,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:stateListAnimator="@animator/scale_on_press"
             app:cardCornerRadius="20dp"
-            app:cardElevation="2dp"
+            app:cardElevation="4dp"
             app:cardBackgroundColor="@color/bg_white"
             app:layout_constraintTop_toBottomOf="@+id/tv_subtitle">
 
@@ -297,8 +304,11 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:layout_marginEnd="8dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:stateListAnimator="@animator/scale_on_press"
                 app:cardCornerRadius="18dp"
-                app:cardElevation="2dp"
+                app:cardElevation="4dp"
                 app:cardBackgroundColor="@color/bg_white">
 
                 <LinearLayout
@@ -330,8 +340,11 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:layout_marginStart="8dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:stateListAnimator="@animator/scale_on_press"
                 app:cardCornerRadius="18dp"
-                app:cardElevation="4dp"
+                app:cardElevation="8dp"
                 app:cardBackgroundColor="@color/accent_indigo">
 
                 <LinearLayout

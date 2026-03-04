@@ -51,12 +51,14 @@ class LoginFragment : BaseFragment<FragmentLoginBinding, LoginViewModel>(
             binding.containerName.visibility = View.GONE
         }
 
-        // ── Tab sizing: pill must fill exactly half the tab bar ─────────────────
+        // ── Tab sizing: pill must fill exactly half the inner width ─────────────
         binding.layoutTab.post {
-            val w = binding.layoutTab.width / 2
+            val hPadding = binding.layoutTab.paddingStart + binding.layoutTab.paddingEnd
+            val w = (binding.layoutTab.width - hPadding) / 2
+            
             binding.tabPill.layoutParams.width = w
             binding.tabPill.requestLayout()
-            // Pill label widths must also fill half
+            
             binding.tvTabLogin.layoutParams.width = w
             binding.tvTabSignup.layoutParams.width = w
             binding.tvTabLogin.requestLayout()
@@ -150,11 +152,11 @@ class LoginFragment : BaseFragment<FragmentLoginBinding, LoginViewModel>(
 
     /** Slide the pill background to left (login) or right (signup) */
     private fun animatePill(toRight: Boolean) {
-        val targetX = if (toRight) (binding.layoutTab.width / 2).toFloat() else 0f
+        val targetX = if (toRight) binding.tabPill.width.toFloat() else 0f
         ObjectAnimator.ofFloat(binding.tabPill, "translationX", binding.tabPill.translationX, targetX)
             .apply {
                 duration    = 380
-                interpolator = OvershootInterpolator(1.4f)
+                interpolator = OvershootInterpolator(1.2f)
             }.start()
     }
 
