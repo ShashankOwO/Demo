@@ -63,6 +63,7 @@ class ProfileFragment : BaseFragment<FragmentProfileBinding, ProfileViewModel>(
             val fullUrl = "${ApiClient.BASE_URL.trimEnd('/')}$photoUrl"
             binding.ivAvatar.imageTintList = null
             binding.ivAvatar.setPadding(0, 0, 0, 0)
+            binding.ivAvatar.background = null
             Glide.with(this)
                 .load(fullUrl)
                 .circleCrop()
@@ -71,6 +72,7 @@ class ProfileFragment : BaseFragment<FragmentProfileBinding, ProfileViewModel>(
                 .into(binding.ivAvatar)
         } else {
             binding.ivAvatar.setImageResource(R.drawable.ic_user)
+            binding.ivAvatar.background = androidx.core.content.ContextCompat.getDrawable(requireContext(), R.drawable.bg_card_glass)
             binding.ivAvatar.imageTintList = android.content.res.ColorStateList.valueOf(
                 androidx.core.content.ContextCompat.getColor(requireContext(), R.color.accent_indigo)
             )

@@ -39,6 +39,7 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding, EditProfile
                     // Show immediately in UI
                     binding.ivAvatar.imageTintList = null
                     binding.ivAvatar.setPadding(0, 0, 0, 0)
+                    binding.ivAvatar.background = null
                     Glide.with(this)
                         .load(uri)
                         .circleCrop()
@@ -95,6 +96,7 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding, EditProfile
                     if (!photoUrl.isNullOrBlank()) {
                         binding.ivAvatar.imageTintList = null
                         binding.ivAvatar.setPadding(0, 0, 0, 0)
+                        binding.ivAvatar.background = null
                         Glide.with(this@EditProfileFragment)
                             .load("${ApiClient.BASE_URL.trimEnd('/')}$photoUrl")
                             .circleCrop()
@@ -103,6 +105,7 @@ class EditProfileFragment : BaseFragment<FragmentEditProfileBinding, EditProfile
                             .into(binding.ivAvatar)
                     } else {
                         binding.ivAvatar.setImageResource(R.drawable.ic_user)
+                        binding.ivAvatar.background = androidx.core.content.ContextCompat.getDrawable(requireContext(), R.drawable.circle_blue_light)
                         binding.ivAvatar.imageTintList = android.content.res.ColorStateList.valueOf(
                             android.graphics.Color.parseColor("#4285F4")
                         )
