@@ -61,6 +61,7 @@ class ProfileFragment : BaseFragment<FragmentProfileBinding, ProfileViewModel>(
         val photoUrl = profile.profilePhotoUrl
         if (!photoUrl.isNullOrBlank()) {
             val fullUrl = "${ApiClient.BASE_URL.trimEnd('/')}$photoUrl"
+            // Clear placeholder styling so the real photo fills the circle cleanly
             binding.ivAvatar.imageTintList = null
             binding.ivAvatar.setPadding(0, 0, 0, 0)
             binding.ivAvatar.background = null
@@ -71,13 +72,16 @@ class ProfileFragment : BaseFragment<FragmentProfileBinding, ProfileViewModel>(
                 .error(R.drawable.ic_user)
                 .into(binding.ivAvatar)
         } else {
+            // Restore placeholder styling
             binding.ivAvatar.setImageResource(R.drawable.ic_user)
-            binding.ivAvatar.background = androidx.core.content.ContextCompat.getDrawable(requireContext(), R.drawable.bg_card_glass)
             binding.ivAvatar.imageTintList = android.content.res.ColorStateList.valueOf(
                 androidx.core.content.ContextCompat.getColor(requireContext(), R.color.accent_indigo)
             )
-            val paddingPx = (20 * resources.displayMetrics.density).toInt()
+            val paddingPx = (18 * resources.displayMetrics.density).toInt()
             binding.ivAvatar.setPadding(paddingPx, paddingPx, paddingPx, paddingPx)
+            binding.ivAvatar.background = androidx.core.content.ContextCompat.getDrawable(
+                requireContext(), R.drawable.bg_gradient_circle
+            )
         }
     }
 }

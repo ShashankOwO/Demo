@@ -17,8 +17,10 @@
         <!-- Avatar: shows profile photo (or initials if no photo) -->
         <FrameLayout
             android:id="@+id/frame_avatar"
-            android:layout_width="46dp"
-            android:layout_height="46dp"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@drawable/bg_gradient_circle"
+            android:padding="2dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
@@ -27,7 +29,7 @@
                 android:id="@+id/iv_avatar"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="@drawable/bg_gradient_button"
+                android:background="@drawable/bg_gradient_circle"
                 android:scaleType="centerCrop"
                 android:visibility="gone" />
 
@@ -36,7 +38,7 @@
                 android:id="@+id/tv_avatar"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="@drawable/bg_gradient_button"
+                android:background="@drawable/bg_gradient_circle"
                 android:gravity="center"
                 android:text="A"
                 android:textColor="@color/text_on_accent"

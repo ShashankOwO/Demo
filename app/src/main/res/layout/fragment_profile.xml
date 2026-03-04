@@ -26,24 +26,27 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <!-- Avatar with gradient ring -->
+        <!-- Avatar: circular photo with gradient ring border -->
         <FrameLayout
             android:id="@+id/frame_avatar"
-            android:layout_width="96dp"
-            android:layout_height="96dp"
-            android:layout_marginTop="28dp"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_marginTop="24dp"
+            android:background="@drawable/bg_gradient_circle"
+            android:padding="3dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tv_title">
 
-            <View android:layout_width="match_parent" android:layout_height="match_parent"
-                android:background="@drawable/bg_gradient_button" />
-
-            <ImageView android:id="@+id/iv_avatar"
-                android:layout_width="86dp" android:layout_height="86dp"
-                android:layout_gravity="center"
-                android:background="@drawable/bg_card_glass" android:padding="20dp"
-                android:src="@drawable/ic_user" app:tint="@color/accent_indigo" />
+            <ImageView
+                android:id="@+id/iv_avatar"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/bg_gradient_circle"
+                android:padding="18dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_user"
+                app:tint="@color/accent_indigo" />
         </FrameLayout>
 
         <TextView android:id="@+id/tv_name"
