@@ -2,6 +2,7 @@ package com.example.resume2interview.di
 
 import com.example.resume2interview.data.network.ApiService
 import com.example.resume2interview.data.network.AuthInterceptor
+import com.example.resume2interview.data.network.NetworkConfig
 import com.example.resume2interview.data.repository.AuthRepository
 import com.example.resume2interview.data.repository.InterviewRepository
 import com.example.resume2interview.data.repository.ResumeRepository
@@ -22,7 +23,6 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object AppModule {
 
-    private const val BASE_URL = "http://10.0.2.2:5000/"
 
     @Provides
     @Singleton
@@ -49,7 +49,7 @@ object AppModule {
     @Singleton
     fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
         return Retrofit.Builder()
-            .baseUrl(BASE_URL)
+            .baseUrl(NetworkConfig.BASE_URL)
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
