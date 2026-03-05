@@ -36,20 +36,7 @@ class LoginFragment : BaseFragment<FragmentLoginBinding, LoginViewModel>(
 
     override fun setupUI() {
 
-        // ── Measure collapsed containers on first layout ────────────────────────
-        binding.containerName.post {
-            // Make visible with WRAP_CONTENT temporarily to measure
-            binding.containerName.layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT
-            binding.containerName.visibility = View.INVISIBLE
-            binding.containerName.measure(
-                View.MeasureSpec.makeMeasureSpec(binding.containerName.width, View.MeasureSpec.EXACTLY),
-                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
-            )
-            nameContainerHeight = binding.containerName.measuredHeight
-            // Collapse back
-            binding.containerName.layoutParams.height = 0
-            binding.containerName.visibility = View.GONE
-        }
+        // ── Removed static measuring to dynamically measure exact container size later ──
 
         // ── Tab sizing: pill must fill exactly half the inner width ─────────────
         binding.layoutTab.post {
@@ -123,7 +110,7 @@ class LoginFragment : BaseFragment<FragmentLoginBinding, LoginViewModel>(
         animateTabLabels(toSignup)
 
         // 3. Expand / collapse the Name field container
-        if (toSignup) expandView(binding.containerName, nameContainerHeight)
+        if (toSignup) expandView(binding.containerName)
         else collapseView(binding.containerName)
 
         // 4. Fade the forgot password link
@@ -184,12 +171,20 @@ class LoginFragment : BaseFragment<FragmentLoginBinding, LoginViewModel>(
     }
 
     /**
-     * Expand a view from 0 → targetHeight using a ValueAnimator so it feels
+     * Expand a view from 0 → measured targetHeight using a ValueAnimator so it feels
      * like an iOS expanding settings cell (spring eased).
      */
-    private fun expandView(view: View, targetHeight: Int) {
+    private fun expandView(view: View) {
+        val parent = view.parent as ViewGroup
+        val matchParentMeasureSpec = View.MeasureSpec.makeMeasureSpec(
+            parent.width - parent.paddingLeft - parent.paddingRight,
+            View.MeasureSpec.EXACTLY
+        )
+        val wrapContentMeasureSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+        view.measure(matchParentMeasureSpec, wrapContentMeasureSpec)
+        val targetHeight = view.measuredHeight
+
         if (targetHeight == 0) {
-            // Not measured yet — make visible and let animateLayoutChanges handle it
             view.visibility = View.VISIBLE
             view.layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT
             view.requestLayout()
