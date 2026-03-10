@@ -45,20 +45,16 @@ class InterviewViewModel @Inject constructor(
     // Store the answers for submission at the end
     private val _userResponses = mutableListOf<QuestionAnswerIn>()
 
-    private val _currentIndex = MutableLiveData(0)
-    val currentIndex: LiveData<Int> = _currentIndex
+    val isRecording: Boolean
+        get() = (uiState.value as? com.example.resume2interview.utils.UiState.Success)?.data?.isRecording == true
 
-    private val _isRecording = MutableLiveData(false)
-    val isRecording: LiveData<Boolean> = _isRecording
-
-    private val _timerSeconds = MutableLiveData(0)
+    private var _timerSeconds = 0
     private var timerJob: Job? = null
-
-    private val _timerText = MutableLiveData("00:00")
-    val timerText: LiveData<String> = _timerText
 
     private val _isFinished = MutableLiveData(false)
     val isFinished: LiveData<Boolean> = _isFinished
+
+    var isTransitioning = false
 
     init {
         val profile = profileRepository.cachedProfile.value
@@ -175,18 +171,20 @@ class InterviewViewModel @Inject constructor(
 
     private fun loadQuestion(index: Int) {
         launchDataLoad {
+            isTransitioning = false
             InterviewUiData(
                 currentQuestionIndex = index + 1,
                 totalQuestions = _questions.size,
                 questionText = _questions[index].question,
-                timerText = "00:00"
+                timerText = "00:00",
+                isRecording = false
             )
         }
     }
 
     fun toggleRecording() {
-        val recording = _isRecording.value ?: false
-        _isRecording.value = !recording
+        val recording = isRecording
+        updateState { it.copy(isRecording = !recording) }
         if (!recording) {
             startTimer()
         } else {
@@ -195,7 +193,11 @@ class InterviewViewModel @Inject constructor(
     }
 
     fun nextQuestion(answerText: String) {
-        val index = (_currentIndex.value ?: 0)
+        if (isTransitioning) return
+        isTransitioning = true
+
+        val currentUi = (uiState.value as? com.example.resume2interview.utils.UiState.Success)?.data
+        val index = currentUi?.currentQuestionIndex?.minus(1) ?: 0
         
         // Record the answer BEFORE moving next
         if (index < _questions.size) {
@@ -211,15 +213,12 @@ class InterviewViewModel @Inject constructor(
 
         val nextIndex = index + 1
         stopTimer()
-        _timerSeconds.value = 0
-        _timerText.value = "00:00"
+        _timerSeconds = 0
 
         if (nextIndex >= _questions.size) {
             // Interview complete – submit to backend
             submitInterview()
         } else {
-            _currentIndex.value = nextIndex
-            _isRecording.value = false
             loadQuestion(nextIndex)
         }
     }
@@ -243,14 +242,15 @@ class InterviewViewModel @Inject constructor(
     private fun startTimer() {
         timerJob?.cancel()
         timerJob = viewModelScope.launch {
-            var seconds = _timerSeconds.value ?: 0
+            var seconds = _timerSeconds
             while (true) {
                 delay(1000)
                 seconds++
-                _timerSeconds.value = seconds
+                _timerSeconds = seconds
                 val min = seconds / 60
                 val sec = seconds % 60
-                _timerText.value = "%02d:%02d".format(min, sec)
+                val timeStr = "%02d:%02d".format(min, sec)
+                updateState { it.copy(timerText = timeStr) }
             }
         }
     }

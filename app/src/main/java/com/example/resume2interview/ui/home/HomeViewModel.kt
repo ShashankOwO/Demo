@@ -5,6 +5,8 @@ import com.example.resume2interview.data.repository.ProfileRepository
 import com.example.resume2interview.ui.base.BaseViewModel
 import com.example.resume2interview.utils.ResumePreferences
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 data class HomeUiData(
@@ -64,19 +66,22 @@ class HomeViewModel @Inject constructor(
             // ── 5. Resume active check (read from backend profile skillsJson) ──
             val skillsJsonStr = profile?.skillsJson
             
-            var extractedSkillsCount = 0
-            if (!skillsJsonStr.isNullOrBlank() && skillsJsonStr != "{}" && skillsJsonStr != "[]") {
-                try {
-                    val jsonObj = org.json.JSONObject(skillsJsonStr)
-                    val keys = jsonObj.keys()
-                    while (keys.hasNext()) {
-                        val key = keys.next()
-                        val arr = jsonObj.optJSONArray(key)
-                        if (arr != null) extractedSkillsCount += arr.length()
+            val extractedSkillsCount = withContext(Dispatchers.Default) {
+                var count = 0
+                if (!skillsJsonStr.isNullOrBlank() && skillsJsonStr != "{}" && skillsJsonStr != "[]") {
+                    try {
+                        val jsonObj = org.json.JSONObject(skillsJsonStr)
+                        val keys = jsonObj.keys()
+                        while (keys.hasNext()) {
+                            val key = keys.next()
+                            val arr = jsonObj.optJSONArray(key)
+                            if (arr != null) count += arr.length()
+                        }
+                    } catch (e: Exception) {
+                        // Ignore parse errors
                     }
-                } catch (e: Exception) {
-                    // Ignore parse errors
                 }
+                count
             }
 
             // A resume/skills configuration is only considered active if they successfully have skills

@@ -51,7 +51,7 @@
             android:id="@+id/group_interview_content"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:visibility="visible"
+            android:visibility="gone"
             app:constraint_referenced_ids="tv_question_counter,progress_bar,card_question,btn_mic,tv_mic_hint,tv_timer,card_answer,btn_next" />
 
         <!-- Empty State Layout -->

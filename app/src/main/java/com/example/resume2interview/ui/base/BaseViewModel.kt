@@ -17,6 +17,13 @@ abstract class BaseViewModel<T> : ViewModel() {
         _uiState.value = state
     }
 
+    protected fun updateState(update: (T) -> T) {
+        val currentState = uiState.value
+        if (currentState is UiState.Success) {
+            setState(UiState.Success(update(currentState.data)))
+        }
+    }
+
     protected fun launchDataLoad(block: suspend () -> T) {
         viewModelScope.launch {
             setState(UiState.Loading)

@@ -29,6 +29,7 @@ class InterviewFragment : BaseFragment<FragmentInterviewBinding, InterviewViewMo
     private var isListening = false
     private var speechIntent: Intent? = null
     private var baseText = ""
+    private var isFirstRender = true
 
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -66,14 +67,10 @@ class InterviewFragment : BaseFragment<FragmentInterviewBinding, InterviewViewMo
         binding.btnNext.setOnClickListener {
             val answerText = binding.etAnswer.text?.toString() ?: ""
             viewModel.nextQuestion(answerText)
+            binding.btnNext.isEnabled = !viewModel.isTransitioning
             binding.etAnswer.text?.clear()
             // Reset baseText so next question's speech doesn't append to old answer
             baseText = ""
-        }
-
-        // Observe timer text
-        viewModel.timerText.observe(viewLifecycleOwner) { time ->
-            binding.tvTimer.text = time
         }
 
         // Observe finished
@@ -155,7 +152,7 @@ class InterviewFragment : BaseFragment<FragmentInterviewBinding, InterviewViewMo
 
     private fun startListening() {
         baseText = binding.etAnswer.text?.toString()?.trim() ?: ""
-        if (viewModel.isRecording.value == false) {
+        if (!viewModel.isRecording) {
             viewModel.toggleRecording()
         }
         speechRecognizer?.startListening(speechIntent)
@@ -165,7 +162,7 @@ class InterviewFragment : BaseFragment<FragmentInterviewBinding, InterviewViewMo
 
     private fun stopListening() {
         if (isListening) {
-            if (viewModel.isRecording.value == true) {
+            if (viewModel.isRecording) {
                 viewModel.toggleRecording()
             }
             speechRecognizer?.stopListening()
@@ -192,32 +189,44 @@ class InterviewFragment : BaseFragment<FragmentInterviewBinding, InterviewViewMo
 
     override fun showContent(data: Any?) {
         val uiData = data as? InterviewUiData ?: return
-        
+
         if (uiData.isEmptyState) {
-            if (!binding.layoutEmptyState.isVisible) {
+            if (isFirstRender) {
+                // On first render: instant swap, no animation
+                isFirstRender = false
+                binding.layoutEmptyState.visibility = android.view.View.VISIBLE
+                binding.layoutEmptyState.alpha = 1f
+                binding.groupInterviewContent.visibility = android.view.View.GONE
+            } else if (!binding.layoutEmptyState.isVisible) {
                 binding.layoutEmptyState.apply {
                     alpha = 0f
                     isVisible = true
-                    animate().alpha(1f).setDuration(400).start()
+                    animate().alpha(1f).setDuration(300).start()
                 }
                 binding.groupInterviewContent.apply {
-                    animate().alpha(0f).setDuration(400).withEndAction {
+                    animate().alpha(0f).setDuration(300).withEndAction {
                         isVisible = false
                     }.start()
                 }
             }
             return
         } else {
-            if (!binding.groupInterviewContent.isVisible) {
+            if (isFirstRender) {
+                // On first render: instant swap, no animation
+                isFirstRender = false
+                binding.groupInterviewContent.visibility = android.view.View.VISIBLE
+                binding.groupInterviewContent.alpha = 1f
+                binding.layoutEmptyState.visibility = android.view.View.GONE
+            } else if (!binding.groupInterviewContent.isVisible) {
                 binding.layoutEmptyState.apply {
-                    animate().alpha(0f).setDuration(400).withEndAction {
+                    animate().alpha(0f).setDuration(300).withEndAction {
                         isVisible = false
                     }.start()
                 }
                 binding.groupInterviewContent.apply {
                     alpha = 0f
                     isVisible = true
-                    animate().alpha(1f).setDuration(400).start()
+                    animate().alpha(1f).setDuration(300).start()
                 }
             }
         }
@@ -237,6 +246,7 @@ class InterviewFragment : BaseFragment<FragmentInterviewBinding, InterviewViewMo
         } else {
             binding.btnNext.text = "Next Question"
         }
+        binding.btnNext.isEnabled = !viewModel.isTransitioning
     }
 
     override fun onDestroy() {

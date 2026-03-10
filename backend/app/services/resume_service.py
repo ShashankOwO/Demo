@@ -122,6 +122,7 @@ TECH_SKILLS_DB: dict[str, list[str]] = {
     "testing": [
         "JUnit", "Mockito", "Selenium", "Cypress",
     ],
+    "misc": []
 }
 
 SOFT_SKILLS_DB: list[str] = [
@@ -449,7 +450,7 @@ def _detect_experience_years(text: str) -> Optional[int]:
 
 def _generate_questions(tech_skills: dict[str, list[str]], applied_role: Optional[str] = None, weakest_category: Optional[str] = None, experience: int = 0) -> list[dict]:
     # ── Try Gemini AI first ──
-    flat_skills = [s for cat_skills in tech_skills.values() for s in cat_skills]
+    flat_skills = [s for cat, cat_skills in tech_skills.items() if cat != "misc" for s in cat_skills]
     if flat_skills:
         ai_questions = llm_service.generate_questions(
             skills=flat_skills,
@@ -537,7 +538,7 @@ def _generate_questions(tech_skills: dict[str, list[str]], applied_role: Optiona
     # Phase 3: If we still don't have enough questions and we have custom/unknown skills
     # because they didn't match the eligible categories, iterate over ALL skills
     if len(questions) < MAX_QUESTIONS:
-        all_skills = [s for cat_skills in tech_skills.values() for s in cat_skills]
+        all_skills = [s for cat, cat_skills in tech_skills.items() if cat != "misc" for s in cat_skills]
         # Just grab random questions for them
         for skill in all_skills:
             if len(questions) >= MAX_QUESTIONS:
@@ -746,8 +747,8 @@ def bucket_skills(skills: list[str]) -> dict[str, list[str]]:
         if found_cat:
             technical_skills[found_cat].append(skill)
         else:
-            # If completely unknown, stick it in "languages" or "architecture" loosely 
-            technical_skills["languages"].append(skill)
+            # If completely unknown, stick it in "misc" loosely 
+            technical_skills["misc"].append(skill)
             
     return technical_skills
 

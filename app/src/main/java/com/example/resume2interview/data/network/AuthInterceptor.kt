@@ -13,8 +13,8 @@ class AuthInterceptor @Inject constructor(
     override fun intercept(chain: Interceptor.Chain): Response {
         val requestBuilder = chain.request().newBuilder()
 
-        // Fetch token synchronously for OkHttp interceptor
-        val token = runBlocking { tokenManager.getToken() }
+        // Fetch token synchronously from memory for OkHttp interceptor
+        val token = tokenManager.getCachedToken()
         if (!token.isNullOrEmpty()) {
             requestBuilder.addHeader("Authorization", "Bearer $token")
         }

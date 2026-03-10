@@ -27,6 +27,14 @@ class TokenManager @Inject constructor(
     private val _unauthorizedEvent = MutableSharedFlow<Unit>()
     val unauthorizedEvent = _unauthorizedEvent.asSharedFlow()
 
+    private var cachedToken: String? = null
+
+    fun updateToken(token: String?) {
+        cachedToken = token
+    }
+
+    fun getCachedToken(): String? = cachedToken
+
     fun getTokenFlow(): Flow<String?> {
         return context.dataStore.data.map { preferences ->
             preferences[TOKEN_KEY]
@@ -38,12 +46,14 @@ class TokenManager @Inject constructor(
     }
 
     suspend fun saveToken(token: String) {
+        updateToken(token)
         context.dataStore.edit { preferences ->
             preferences[TOKEN_KEY] = token
         }
     }
 
     suspend fun clearToken() {
+        updateToken(null)
         context.dataStore.edit { preferences ->
             preferences.remove(TOKEN_KEY)
         }
