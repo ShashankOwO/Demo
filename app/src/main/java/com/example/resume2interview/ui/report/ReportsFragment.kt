@@ -38,21 +38,21 @@ class ReportsFragment : BaseFragment<FragmentReportsBinding, ReportsViewModel>(
             binding.rvReports.visibility = View.GONE
             if (isSearchActive) {
                 binding.tvNoSearchResults.visibility = View.VISIBLE
-                binding.tvEmptyReports.visibility = View.GONE
+                binding.layoutEmptyReports.visibility = View.GONE
             } else {
-                binding.tvEmptyReports.visibility = View.VISIBLE
+                binding.layoutEmptyReports.visibility = View.VISIBLE
                 binding.tvNoSearchResults.visibility = View.GONE
-                // Hide search bar if there are no reports at all to begin with
                 binding.etSearch.visibility = View.GONE
             }
         } else {
             binding.rvReports.visibility = View.VISIBLE
-            binding.tvEmptyReports.visibility = View.GONE
+            binding.layoutEmptyReports.visibility = View.GONE
             binding.tvNoSearchResults.visibility = View.GONE
-            // Ensure search is visible if we have any reports
             binding.etSearch.visibility = View.VISIBLE
         }
 
+        // Always re-attach the adapter since the RecyclerView is recreated on
+        // view destruction (back-navigation recreates the binding but the field survives)
         if (reportAdapter == null) {
             reportAdapter = ReportAdapter(reports) { reportId ->
                 val bundle = android.os.Bundle().apply {
@@ -60,11 +60,21 @@ class ReportsFragment : BaseFragment<FragmentReportsBinding, ReportsViewModel>(
                 }
                 findNavController().navigate(R.id.action_reportsFragment_to_reportDetailFragment, bundle)
             }
-            binding.rvReports.layoutManager = LinearLayoutManager(context)
-            binding.rvReports.adapter = reportAdapter
         } else {
             reportAdapter?.updateData(reports)
         }
+        // Always assign the adapter to the current RecyclerView instance
+        if (binding.rvReports.adapter !== reportAdapter) {
+            binding.rvReports.layoutManager = LinearLayoutManager(context)
+            binding.rvReports.adapter = reportAdapter
+        }
+    }
+
+    override fun onDestroyView() {
+        // Null the adapter so the next showContent() creates a fresh one
+        // tied to the new RecyclerView instance
+        reportAdapter = null
+        super.onDestroyView()
     }
 
     class ReportAdapter(

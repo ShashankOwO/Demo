@@ -2,6 +2,7 @@ package com.example.resume2interview.ui.resume
 
 import android.animation.ObjectAnimator
 import android.animation.PropertyValuesHolder
+import android.animation.ValueAnimator
 import android.net.Uri
 import android.util.Log
 import android.view.View
@@ -56,6 +57,7 @@ class UploadResumeFragment : BaseFragment<FragmentUploadResumeBinding, UploadRes
         startPulseAnimation()
 
         binding.btnBrowse.setOnClickListener {
+            animatePressScale(binding.btnBrowse)
             // ONLY launch the picker — no loading, no upload triggered here
             Log.d(DBG, "Picker opened")
             pdfPickerLauncher.launch("application/pdf")
@@ -131,5 +133,18 @@ class UploadResumeFragment : BaseFragment<FragmentUploadResumeBinding, UploadRes
     override fun onDestroyView() {
         stopPulseAnimation()
         super.onDestroyView()
+    }
+
+    /** Button press scale micro-interaction: 1 -> 0.95 -> 1 */
+    private fun animatePressScale(view: View) {
+        if (!ValueAnimator.areAnimatorsEnabled()) return
+        val sx = PropertyValuesHolder.ofFloat(View.SCALE_X, 1f, 0.95f)
+        val sy = PropertyValuesHolder.ofFloat(View.SCALE_Y, 1f, 0.95f)
+        ObjectAnimator.ofPropertyValuesHolder(view, sx, sy).apply {
+            duration = 60
+            repeatCount = 1
+            repeatMode = ObjectAnimator.REVERSE
+            start()
+        }
     }
 }

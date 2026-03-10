@@ -1,8 +1,11 @@
 package com.example.resume2interview.ui.report
 
+import android.animation.ValueAnimator
 import android.graphics.Color
 import android.graphics.Typeface
 import android.view.Gravity
+import android.view.View
+import android.view.animation.DecelerateInterpolator
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -34,35 +37,51 @@ class ReportDetailFragment : BaseFragment<FragmentReportDetailBinding, ReportDet
         val uiData = data as? ReportDetailUiData ?: return
 
         binding.tvDate.text = uiData.date
-        binding.tvScore.text = uiData.score.toString()
         binding.tvEvaluation.text = uiData.evaluation
         binding.tvSummary.text = uiData.summary
 
-        // Populate strength items — green bullet, dark text
+        // Score count-up animation
+        if (android.animation.ValueAnimator.areAnimatorsEnabled()) {
+            ValueAnimator.ofInt(0, uiData.score).apply {
+                duration = 600
+                interpolator = DecelerateInterpolator()
+                addUpdateListener { binding.tvScore.text = it.animatedValue.toString() }
+                start()
+            }
+            binding.tvEvaluation.alpha = 0f
+            binding.tvEvaluation.animate().alpha(1f).setDuration(400).setStartDelay(200).start()
+        } else {
+            binding.tvScore.text = uiData.score.toString()
+        }
+
+        // Populate strength items — slide from left
         fillList(
             container = binding.layoutStrengths,
             items = uiData.strengths,
-            bulletColor = "#2E7D32",   // dark green
-            textColor = "#1A1C1E",     // near-black
-            bgColor = "#F1F8F1"        // very light green tint
+            bulletColor = "#2E7D32",
+            textColor = "#1A1C1E",
+            bgColor = "#F1F8F1",
+            slideFromLeft = true
         )
 
-        // Populate improvement items — red bullet, dark text
+        // Populate improvement items — slide from right
         fillList(
             container = binding.layoutImprovements,
             items = uiData.improvements,
-            bulletColor = "#C62828",   // dark red
-            textColor = "#1A1C1E",     // near-black
-            bgColor = "#FFF5F5"        // very light red tint
+            bulletColor = "#C62828",
+            textColor = "#1A1C1E",
+            bgColor = "#FFF5F5",
+            slideFromLeft = false
         )
 
-        // Populate suggestions items — blue bullet, dark text
+        // Populate suggestions items — slide from left
         fillList(
             container = binding.layoutSuggestions,
             items = uiData.suggestions,
-            bulletColor = "#1565C0",   // dark blue
-            textColor = "#1A1C1E",     // near-black
-            bgColor = "#E3F2FD"        // very light blue tint
+            bulletColor = "#1565C0",
+            textColor = "#1A1C1E",
+            bgColor = "#E3F2FD",
+            slideFromLeft = true
         )
     }
 
@@ -71,15 +90,16 @@ class ReportDetailFragment : BaseFragment<FragmentReportDetailBinding, ReportDet
         items: List<String>,
         bulletColor: String,
         textColor: String,
-        bgColor: String
+        bgColor: String,
+        slideFromLeft: Boolean = true
     ) {
         container.removeAllViews()
         val ctx = requireContext()
         val dp8 = (8 * resources.displayMetrics.density).toInt()
         val dp12 = (12 * resources.displayMetrics.density).toInt()
-        val dp16 = (16 * resources.displayMetrics.density).toInt()
+        val slideOffset = (40 * resources.displayMetrics.density)
 
-        items.forEach { item ->
+        items.forEachIndexed { index, item ->
             // Row container
             val row = LinearLayout(ctx).apply {
                 orientation = LinearLayout.HORIZONTAL
@@ -92,7 +112,7 @@ class ReportDetailFragment : BaseFragment<FragmentReportDetailBinding, ReportDet
                 ).also { it.setMargins(0, dp8, 0, 0) }
             }
 
-            // Bullet dot (colored circle text "●")
+            // Bullet dot
             val bullet = TextView(ctx).apply {
                 text = "●"
                 textSize = 10f
@@ -100,7 +120,7 @@ class ReportDetailFragment : BaseFragment<FragmentReportDetailBinding, ReportDet
                 setPadding(0, 0, dp12, 0)
             }
 
-            // Item text — dark, readable
+            // Item text
             val tv = TextView(ctx).apply {
                 text = item
                 textSize = 14f
@@ -115,6 +135,19 @@ class ReportDetailFragment : BaseFragment<FragmentReportDetailBinding, ReportDet
             row.addView(bullet)
             row.addView(tv)
             container.addView(row)
+
+            // Stagger slide-in animation
+            if (ValueAnimator.areAnimatorsEnabled()) {
+                row.alpha = 0f
+                row.translationX = if (slideFromLeft) -slideOffset else slideOffset
+                row.animate()
+                    .alpha(1f)
+                    .translationX(0f)
+                    .setDuration(350)
+                    .setStartDelay((index * 80).toLong())
+                    .setInterpolator(DecelerateInterpolator())
+                    .start()
+            }
         }
     }
 }

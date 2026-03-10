@@ -75,4 +75,7 @@ dependencies {
     
     // MPAndroidChart
     implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
+
+    // Lottie — vector-based JSON animations
+    implementation("com.airbnb.android:lottie:6.4.0")
 }

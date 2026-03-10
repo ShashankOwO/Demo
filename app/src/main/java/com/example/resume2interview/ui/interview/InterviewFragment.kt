@@ -1,12 +1,16 @@
 package com.example.resume2interview.ui.interview
 
 import android.Manifest
+import android.animation.ObjectAnimator
+import android.animation.PropertyValuesHolder
+import android.animation.ValueAnimator
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.speech.RecognitionListener
 import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
+import android.view.View
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
@@ -30,6 +34,7 @@ class InterviewFragment : BaseFragment<FragmentInterviewBinding, InterviewViewMo
     private var speechIntent: Intent? = null
     private var baseText = ""
     private var isFirstRender = true
+    private var micPulseAnimator: ObjectAnimator? = null
 
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -51,6 +56,7 @@ class InterviewFragment : BaseFragment<FragmentInterviewBinding, InterviewViewMo
 
         // Begin Session (Empty State) -> Upload Resume
         binding.btnBeginSession.setOnClickListener {
+            animatePressScale(binding.btnBeginSession)
             findNavController().navigate(R.id.action_interviewFragment_to_uploadResumeFragment)
         }
 
@@ -65,6 +71,7 @@ class InterviewFragment : BaseFragment<FragmentInterviewBinding, InterviewViewMo
 
         // Next question button
         binding.btnNext.setOnClickListener {
+            animatePressScale(binding.btnNext)
             val answerText = binding.etAnswer.text?.toString() ?: ""
             viewModel.nextQuestion(answerText)
             binding.btnNext.isEnabled = !viewModel.isTransitioning
@@ -73,15 +80,12 @@ class InterviewFragment : BaseFragment<FragmentInterviewBinding, InterviewViewMo
             baseText = ""
         }
 
-        // Observe finished
+        // Observe finished — navigate to success screen
         viewModel.isFinished.observe(viewLifecycleOwner) { finished ->
             if (finished) {
-                Toast.makeText(
-                    requireContext(),
-                    "Interview complete! Great job!",
-                    Toast.LENGTH_LONG
-                ).show()
-                findNavController().navigateUp()
+                findNavController().navigate(
+                    R.id.action_interviewFragment_to_interviewSuccessFragment
+                )
             }
         }
     }
@@ -171,17 +175,55 @@ class InterviewFragment : BaseFragment<FragmentInterviewBinding, InterviewViewMo
         }
     }
 
+    // ── Animation Helpers ─────────────────────────────────────────────────────
+
+    /** Button press scale micro-interaction: 1 → 0.95 → 1 over 120ms */
+    private fun animatePressScale(view: View) {
+        if (!ValueAnimator.areAnimatorsEnabled()) return
+        val scaleDown = PropertyValuesHolder.ofFloat(View.SCALE_X, 1f, 0.95f)
+        val scaleDownY = PropertyValuesHolder.ofFloat(View.SCALE_Y, 1f, 0.95f)
+        ObjectAnimator.ofPropertyValuesHolder(view, scaleDown, scaleDownY).apply {
+            duration = 60
+            repeatCount = 1
+            repeatMode = ObjectAnimator.REVERSE
+            start()
+        }
+    }
+
+    /** Mic icon pulse scale 1 → 1.2 → 1, repeated while recording */
+    private fun startMicPulse() {
+        if (!ValueAnimator.areAnimatorsEnabled()) return
+        micPulseAnimator?.cancel()
+        val sx = PropertyValuesHolder.ofFloat(View.SCALE_X, 1f, 1.18f)
+        val sy = PropertyValuesHolder.ofFloat(View.SCALE_Y, 1f, 1.18f)
+        micPulseAnimator = ObjectAnimator.ofPropertyValuesHolder(binding.btnMic, sx, sy).apply {
+            duration = 600
+            repeatCount = ObjectAnimator.INFINITE
+            repeatMode = ObjectAnimator.REVERSE
+            start()
+        }
+    }
+
+    /** Stop mic pulse and restore natural scale */
+    private fun stopMicPulse() {
+        micPulseAnimator?.cancel()
+        micPulseAnimator = null
+        binding.btnMic.animate().scaleX(1f).scaleY(1f).setDuration(200).start()
+    }
+
     private fun updateMicUI() {
         if (isListening) {
             binding.tvMicHint.text = "Listening… tap again to stop"
             binding.btnMic.setColorFilter(
                 android.graphics.Color.parseColor("#F44336")
             )
+            startMicPulse()
             binding.btnNext.isEnabled = false
             binding.btnNext.alpha = 0.5f
         } else {
             binding.tvMicHint.text = "Tap microphone to speak your answer"
             binding.btnMic.clearColorFilter()
+            stopMicPulse()
             binding.btnNext.isEnabled = true
             binding.btnNext.alpha = 1.0f
         }
@@ -192,11 +234,43 @@ class InterviewFragment : BaseFragment<FragmentInterviewBinding, InterviewViewMo
 
         if (uiData.isEmptyState) {
             if (isFirstRender) {
-                // On first render: instant swap, no animation
                 isFirstRender = false
-                binding.layoutEmptyState.visibility = android.view.View.VISIBLE
-                binding.layoutEmptyState.alpha = 1f
-                binding.groupInterviewContent.visibility = android.view.View.GONE
+                binding.layoutEmptyState.visibility = View.VISIBLE
+                binding.groupInterviewContent.visibility = View.GONE
+
+                if (ValueAnimator.areAnimatorsEnabled()) {
+                    // Onboarding stagger entrance
+                    val emptyChildren = listOf(
+                        binding.lottieEmptyInterview,
+                        binding.layoutEmptyState.getChildAt(1), // title
+                        binding.layoutEmptyState.getChildAt(2), // subtitle
+                        binding.btnBeginSession
+                    )
+                    emptyChildren.forEach { it?.alpha = 0f }
+
+                    // Lottie: scale 0.8 -> 1.0
+                    binding.lottieEmptyInterview.scaleX = 0.8f
+                    binding.lottieEmptyInterview.scaleY = 0.8f
+                    binding.lottieEmptyInterview.animate()
+                        .alpha(1f).scaleX(1f).scaleY(1f)
+                        .setDuration(400).setStartDelay(0).start()
+
+                    // Title: fade in
+                    binding.layoutEmptyState.getChildAt(1)?.animate()
+                        ?.alpha(1f)?.setDuration(350)?.setStartDelay(100)?.start()
+
+                    // Subtitle: fade in
+                    binding.layoutEmptyState.getChildAt(2)?.animate()
+                        ?.alpha(1f)?.setDuration(350)?.setStartDelay(200)?.start()
+
+                    // Button: slide up from below
+                    binding.btnBeginSession.translationY = 40f.dpToPx()
+                    binding.btnBeginSession.animate()
+                        .alpha(1f).translationY(0f)
+                        .setDuration(400).setStartDelay(280).start()
+                } else {
+                    binding.layoutEmptyState.alpha = 1f
+                }
             } else if (!binding.layoutEmptyState.isVisible) {
                 binding.layoutEmptyState.apply {
                     alpha = 0f
@@ -251,6 +325,10 @@ class InterviewFragment : BaseFragment<FragmentInterviewBinding, InterviewViewMo
 
     override fun onDestroy() {
         super.onDestroy()
+        micPulseAnimator?.cancel()
         speechRecognizer?.destroy()
     }
+
+    private fun Float.dpToPx(): Float =
+        this * resources.displayMetrics.density
 }
