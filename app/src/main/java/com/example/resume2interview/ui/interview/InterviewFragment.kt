@@ -80,12 +80,17 @@ class InterviewFragment : BaseFragment<FragmentInterviewBinding, InterviewViewMo
             baseText = ""
         }
 
-        // Observe finished — navigate to success screen
+        // Observe finished — navigate to success screen (consume-once)
         viewModel.isFinished.observe(viewLifecycleOwner) { finished ->
             if (finished) {
-                findNavController().navigate(
-                    R.id.action_interviewFragment_to_interviewSuccessFragment
-                )
+                viewModel.consumeFinished()
+                try {
+                    findNavController().navigate(
+                        R.id.action_interviewFragment_to_interviewSuccessFragment
+                    )
+                } catch (e: Exception) {
+                    // Guard against double-navigation if observer fires twice
+                }
             }
         }
     }

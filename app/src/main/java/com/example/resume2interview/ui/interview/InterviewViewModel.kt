@@ -229,14 +229,14 @@ class InterviewViewModel @Inject constructor(
         
         viewModelScope.launch {
             val result = interviewRepository.submitInterview(_userResponses)
-            if (result.isSuccess) {
-                _isFinished.value = true
-            } else {
-                // If submission fails, we can handle error states here.
-                // For now, allow them to finish to not block the UI.
-                _isFinished.value = true
-            }
+            // Always navigate to success (even on submission failure)
+            _isFinished.postValue(true)
         }
+    }
+
+    /** Call after consuming the finished event to prevent re-delivery on re-subscription. */
+    fun consumeFinished() {
+        _isFinished.value = false
     }
 
     private fun startTimer() {
