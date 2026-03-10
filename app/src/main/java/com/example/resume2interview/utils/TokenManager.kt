@@ -29,8 +29,15 @@ class TokenManager @Inject constructor(
 
     private var cachedToken: String? = null
 
+    /** True when the user pressed Skip — API 401s should not redirect to login */
+    var isGuestMode: Boolean = false
+        private set
+
+    fun setGuestMode(enabled: Boolean) { isGuestMode = enabled }
+
     fun updateToken(token: String?) {
         cachedToken = token
+        if (token != null) isGuestMode = false  // real login clears guest mode
     }
 
     fun getCachedToken(): String? = cachedToken
@@ -60,6 +67,7 @@ class TokenManager @Inject constructor(
     }
 
     suspend fun triggerUnauthorized() {
+        if (isGuestMode) return   // skip mode — don't redirect
         _unauthorizedEvent.emit(Unit)
     }
 }

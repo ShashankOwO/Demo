@@ -15,7 +15,9 @@ import androidx.navigation.fragment.findNavController
 import com.example.resume2interview.R
 import com.example.resume2interview.databinding.FragmentLoginBinding
 import com.example.resume2interview.ui.base.BaseFragment
+import com.example.resume2interview.utils.TokenManager
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 /**
  * Single-fragment auth component with two internal states: LOGIN and SIGNUP.
@@ -27,6 +29,8 @@ class LoginFragment : BaseFragment<FragmentLoginBinding, LoginViewModel>(
     FragmentLoginBinding::inflate
 ) {
     override val viewModel: LoginViewModel by viewModels()
+
+    @Inject lateinit var tokenManager: TokenManager
 
     private enum class AuthState { LOGIN, SIGNUP }
     private var currentState = AuthState.LOGIN
@@ -83,8 +87,9 @@ class LoginFragment : BaseFragment<FragmentLoginBinding, LoginViewModel>(
             findNavController().navigate(R.id.action_loginFragment_to_forgotPasswordFragment)
         }
 
-        // ── Skip ────────────────────────────────────────────────────────────────
+        // ── Skip (bottom-right, guest mode) ───────────────────────────────────
         binding.btnSkip.setOnClickListener {
+            tokenManager.setGuestMode(true)
             findNavController().navigate(R.id.action_loginFragment_to_homeFragment)
         }
 
