@@ -57,12 +57,27 @@ class InterviewSuccessFragment : BaseFragment<FragmentInterviewSuccessBinding, I
         }, 2000)
 
         binding.btnViewReports.setOnClickListener {
-            // Navigate to reports tab — pop all the way back to home first
-            findNavController().popBackStack(R.id.homeFragment, false)
+            // Navigate to the Reports tab and clear the interview back-stack
+            findNavController().navigate(
+                R.id.reportsFragment,
+                null,
+                androidx.navigation.NavOptions.Builder()
+                    .setPopUpTo(R.id.homeFragment, false)
+                    .setLaunchSingleTop(true)
+                    .build()
+            )
         }
 
         binding.btnGoHome.setOnClickListener {
-            findNavController().popBackStack(R.id.homeFragment, false)
+            // Pop back to Home tab
+            findNavController().navigate(
+                R.id.homeFragment,
+                null,
+                androidx.navigation.NavOptions.Builder()
+                    .setPopUpTo(R.id.homeFragment, true)
+                    .setLaunchSingleTop(true)
+                    .build()
+            )
         }
     }
 
