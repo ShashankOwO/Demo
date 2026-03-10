@@ -49,6 +49,37 @@ class AuthRepository @Inject constructor(
             throw Exception(e.message ?: "Network error, please try again")
         }
     }
+    suspend fun requestReset(email: String): Boolean {
+        try {
+            val response = apiService.requestReset(com.example.resume2interview.data.model.PasswordResetRequest(email))
+            if (response.isSuccessful) {
+                return true
+            } else {
+                val errorBody = response.errorBody()?.string()
+                val message = extractErrorMessage(errorBody)
+                throw Exception(message)
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            throw Exception(e.message ?: "Network error, please try again")
+        }
+    }
+
+    suspend fun resetPassword(email: String, code: String, newPass: String): Boolean {
+        try {
+            val response = apiService.resetPassword(com.example.resume2interview.data.model.PasswordResetConfirm(email, code, newPass))
+            if (response.isSuccessful) {
+                return true
+            } else {
+                val errorBody = response.errorBody()?.string()
+                val message = extractErrorMessage(errorBody)
+                throw Exception(message)
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            throw Exception(e.message ?: "Network error, please try again")
+        }
+    }
 
     suspend fun logout() {
         tokenManager.clearToken()

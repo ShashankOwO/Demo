@@ -41,3 +41,39 @@ def login():
         
     token_response = auth_service.authenticate_user(email=data['email'], password=data['password'])
     return jsonify(token_response), 200
+
+@bp.route("/request-reset", methods=["POST"])
+def request_reset():
+    from app.schemas.user import PasswordResetRequestSchema
+    
+    json_data = request.get_json()
+    if not json_data:
+        return jsonify({"message": "No input data provided"}), 400
+        
+    try:
+        data = PasswordResetRequestSchema().load(json_data)
+    except ValidationError as err:
+        return jsonify(err.messages), 422
+        
+    auth_service.request_password_reset(email=data['email'])
+    return jsonify({"message": "If the email exists, a reset code was sent."}), 200
+
+@bp.route("/reset-password", methods=["POST"])
+def reset_password():
+    from app.schemas.user import PasswordResetConfirmSchema
+    
+    json_data = request.get_json()
+    if not json_data:
+        return jsonify({"message": "No input data provided"}), 400
+        
+    try:
+        data = PasswordResetConfirmSchema().load(json_data)
+    except ValidationError as err:
+        return jsonify(err.messages), 422
+        
+    auth_service.reset_password(
+        email=data['email'], 
+        code=data['code'], 
+        new_password=data['new_password']
+    )
+    return jsonify({"message": "Password successfully reset."}), 200

@@ -2,6 +2,7 @@ package com.example.resume2interview.ui.report
 
 import com.example.resume2interview.data.repository.InterviewRepository
 import com.example.resume2interview.ui.base.BaseViewModel
+import com.example.resume2interview.utils.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -19,6 +20,8 @@ data class ReportItem(
 class ReportsViewModel @Inject constructor(
     private val interviewRepository: InterviewRepository
 ) : BaseViewModel<List<ReportItem>>() {
+
+    private var allReports: List<ReportItem> = emptyList()
 
     init {
         loadReports()
@@ -51,7 +54,22 @@ class ReportsViewModel @Inject constructor(
                 )
             }.reversed() // Show newest first
             
+            allReports = reports
             reports
         }
+    }
+
+    fun filterReports(query: String) {
+        if (query.isBlank()) {
+            setState(UiState.Success(allReports))
+            return
+        }
+        val q = query.lowercase(Locale.getDefault())
+        val filtered = allReports.filter {
+            it.title.lowercase(Locale.getDefault()).contains(q) ||
+            it.date.lowercase(Locale.getDefault()).contains(q) ||
+            it.status.lowercase(Locale.getDefault()).contains(q)
+        }
+        setState(UiState.Success(filtered))
     }
 }

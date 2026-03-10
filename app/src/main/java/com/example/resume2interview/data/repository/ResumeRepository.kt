@@ -89,4 +89,44 @@ class ResumeRepository @Inject constructor(
             ?.also { _lastAnalysis.value = it }   // ← cache for InterviewViewModel
             ?: throw IllegalArgumentException("Empty response body from server")
     }
+
+    /**
+     * Calls the backend to generate a clean set of interview questions
+     * based ONLY on the user-curated list of tech skills, target role, and experience.
+     * Updates the local cache `lastAnalysis` so the InterviewViewModel picks it up.
+     */
+    suspend fun generateQuestionsFromPreferences(
+        skills: List<String>,
+        targetRole: String?,
+        experienceYears: Int?
+    ): Result<Unit> {
+        return try {
+            val request = com.example.resume2interview.data.model.GenerateQuestionsRequest(
+                skills = skills,
+                targetRole = targetRole,
+                experienceYears = experienceYears
+            )
+            val response = api.generateQuestions(request)
+            
+            if (response.isSuccessful && response.body() != null) {
+                val newQuestions = response.body()!!.generatedQuestions
+                
+                // Update local cache
+                val currentAnalysis = _lastAnalysis.value
+                if (currentAnalysis != null) {
+                    _lastAnalysis.value = currentAnalysis.copy(generatedQuestions = newQuestions)
+                } else {
+                    _lastAnalysis.value = ResumeAnalysisOut(
+                        technicalSkills = com.example.resume2interview.data.model.TechnicalSkills(),
+                        generatedQuestions = newQuestions
+                    )
+                }
+                Result.success(Unit)
+            } else {
+                Result.failure(Exception("Failed to generate questions: HTTP ${response.code()}"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 }

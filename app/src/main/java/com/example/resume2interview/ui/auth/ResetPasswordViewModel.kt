@@ -11,9 +11,9 @@ class ResetPasswordViewModel @Inject constructor(
     private val authRepository: AuthRepository
 ) : BaseViewModel<Boolean>() {
 
-    fun resetPassword(code: String, newPass: String) {
+    fun resetPassword(email: String, code: String, newPass: String) {
         launchDataLoad {
-            delay(1000)
+            authRepository.resetPassword(email, code, newPass)
             true
         }
     }

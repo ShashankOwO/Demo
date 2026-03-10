@@ -27,7 +27,9 @@ class ForgotPasswordFragment : BaseFragment<FragmentForgotPasswordBinding, Forgo
     override fun showContent(data: Any?) {
         val success = data as? Boolean ?: false
         if (success) {
-            findNavController().navigate(R.id.action_forgotPasswordFragment_to_resetPasswordFragment)
+            val email = binding.etEmail.text.toString().trim()
+            val action = ForgotPasswordFragmentDirections.actionForgotPasswordFragmentToResetPasswordFragment(email)
+            findNavController().navigate(action)
         }
     }
 }

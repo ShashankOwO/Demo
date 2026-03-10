@@ -1,7 +1,7 @@
 import os
 from dotenv import load_dotenv
 
-load_dotenv()
+load_dotenv(override=True)
 
 class Settings:
     def __init__(self):
@@ -13,6 +13,10 @@ class Settings:
         self.secret_key = os.getenv("SECRET_KEY", "changeme-super-secret-key")
         self.jwt_secret_key = os.getenv("JWT_SECRET_KEY", "jwt-changeme-secret-key")
         self.gemini_api_key = os.getenv("GEMINI_API_KEY", "")
+        
+        # Email Configuration (Resend API)
+        self.resend_api_key = os.getenv("RESEND_API_KEY", "")
+        self.email_from = os.getenv("EMAIL_FROM", "onboarding@resend.dev")
 
     @property
     def origins_list(self) -> list[str]:

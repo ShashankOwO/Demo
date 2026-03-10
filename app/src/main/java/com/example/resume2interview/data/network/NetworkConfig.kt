@@ -22,5 +22,5 @@ object NetworkConfig {
     const val BASE_URL = "http://10.0.2.2:5000/"
 
     // ✅ PHYSICAL PHONE — replace IP with your PC's Wi-Fi IPv4 address (run `ipconfig`)
-    // const val BASE_URL = "http://192.168.x.x:5000/"
+   // const val BASE_URL = "http://192.168.123.200:5000/"
 }

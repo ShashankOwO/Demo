@@ -7,21 +7,32 @@ import com.example.resume2interview.databinding.FragmentResetPasswordBinding
 import com.example.resume2interview.ui.base.BaseFragment
 import dagger.hilt.android.AndroidEntryPoint
 
+import androidx.navigation.fragment.navArgs
+
 @AndroidEntryPoint
 class ResetPasswordFragment : BaseFragment<FragmentResetPasswordBinding, ResetPasswordViewModel>(
     FragmentResetPasswordBinding::inflate
 ) {
     override val viewModel: ResetPasswordViewModel by viewModels()
+    private val args: ResetPasswordFragmentArgs by navArgs()
 
     override fun setupUI() {
         binding.btnResetPassword.setOnClickListener {
-            val code = binding.etCode.text.toString()
+            val code = binding.etCode.text.toString().trim()
             val newPass = binding.etNewPassword.text.toString()
-            viewModel.resetPassword(code, newPass)
+            val confirmPass = binding.etConfirmPassword.text.toString()
+            
+            if (newPass != confirmPass) {
+                // Not ideal to have logic here but quick validation
+                return@setOnClickListener
+            }
+            
+            viewModel.resetPassword(args.email, code, newPass)
         }
 
         binding.btnBack.setOnClickListener {
-            findNavController().navigateUp()
+            // Popping explicitly to login to skip the ForgotPassword screen
+            findNavController().popBackStack(R.id.loginFragment, false)
         }
     }
 

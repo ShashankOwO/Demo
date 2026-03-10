@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.hilt.android)
     id("kotlin-kapt")
+    alias(libs.plugins.androidx.navigation.safeargs.kotlin)
 }
 
 android {

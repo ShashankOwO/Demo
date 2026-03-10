@@ -220,10 +220,12 @@ class InterviewProgressFragment : BaseFragment<FragmentInterviewProgressBinding,
         // Sort dynamically descending by sessionCount and take the top 5
         val sortedSkills = skills.sortedByDescending { it.sessionCount }.take(5)
         
-        if (sortedSkills.isEmpty()) {
+        if (sortedSkills.isEmpty() || sortedSkills.first().sessionCount == 0) {
             chart.clear()
             return
         }
+
+        val maxSessionCount = sortedSkills.first().sessionCount.toFloat()
 
         // Horizontal bar chart draws index 0 at the bottom.
         // We want the highest session count at the top visually, so we reverse it.
@@ -233,7 +235,8 @@ class InterviewProgressFragment : BaseFragment<FragmentInterviewProgressBinding,
         val labels = ArrayList<String>()
 
         displaySkills.forEachIndexed { index, skill ->
-            entries.add(BarEntry(index.toFloat(), skill.sessionCount.toFloat()))
+            val benchmarkScore = (skill.sessionCount.toFloat() / maxSessionCount) * 100f
+            entries.add(BarEntry(index.toFloat(), benchmarkScore))
             
             // Abbreviate long category names
             val label = if(skill.category.length > 15) {
@@ -249,10 +252,10 @@ class InterviewProgressFragment : BaseFragment<FragmentInterviewProgressBinding,
         dataSet.valueTextColor = Color.parseColor("#757575")
         dataSet.valueTextSize = 10f
         
-        // Ensure integers on bars
+        // Ensure integers + % on bars
         dataSet.valueFormatter = object : com.github.mikephil.charting.formatter.ValueFormatter() {
             override fun getFormattedValue(value: Float): String {
-                return value.toInt().toString()
+                return "${value.toInt()}%"
             }
         }
 
@@ -275,7 +278,8 @@ class InterviewProgressFragment : BaseFragment<FragmentInterviewProgressBinding,
         val leftAxis = chart.axisLeft // This is the bottom number labeling
         leftAxis.textColor = Color.parseColor("#B0BEC5")
         leftAxis.axisMinimum = 0f
-        leftAxis.granularity = 1f
+        leftAxis.axisMaximum = 100f
+        leftAxis.granularity = 10f // Optional step
         leftAxis.setDrawGridLines(true)
         leftAxis.enableGridDashedLine(10f, 10f, 0f)
 

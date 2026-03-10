@@ -5,36 +5,78 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.resume2interview.R
 import com.example.resume2interview.databinding.FragmentReportsBinding
-import com.example.resume2interview.ui.base.BaseFragment
-import com.example.resume2interview.databinding.ItemReportBinding
-import android.view.ViewGroup
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.RecyclerView
+import com.example.resume2interview.databinding.ItemReportBinding
+import com.example.resume2interview.ui.base.BaseFragment
 import dagger.hilt.android.AndroidEntryPoint
-
 @AndroidEntryPoint
 class ReportsFragment : BaseFragment<FragmentReportsBinding, ReportsViewModel>(
     FragmentReportsBinding::inflate
 ) {
+    private var reportAdapter: ReportAdapter? = null
+
     override val viewModel: ReportsViewModel by viewModels()
+
+    override fun setupUI() {
+        super.setupUI()
+        binding.etSearch.addTextChangedListener { text ->
+            viewModel.filterReports(text?.toString().orEmpty())
+        }
+    }
 
     override fun showContent(data: Any?) {
         val reports = data as? List<ReportItem> ?: return
         
-        val adapter = ReportAdapter(reports) { reportId ->
-            val bundle = android.os.Bundle().apply {
-                putString("reportId", reportId)
+        val isSearchActive = binding.etSearch.text.toString().isNotEmpty()
+        
+        if (reports.isEmpty()) {
+            binding.rvReports.visibility = View.GONE
+            if (isSearchActive) {
+                binding.tvNoSearchResults.visibility = View.VISIBLE
+                binding.tvEmptyReports.visibility = View.GONE
+            } else {
+                binding.tvEmptyReports.visibility = View.VISIBLE
+                binding.tvNoSearchResults.visibility = View.GONE
+                // Hide search bar if there are no reports at all to begin with
+                binding.etSearch.visibility = View.GONE
             }
-            findNavController().navigate(R.id.action_reportsFragment_to_reportDetailFragment, bundle)
+        } else {
+            binding.rvReports.visibility = View.VISIBLE
+            binding.tvEmptyReports.visibility = View.GONE
+            binding.tvNoSearchResults.visibility = View.GONE
+            // Ensure search is visible if we have any reports
+            binding.etSearch.visibility = View.VISIBLE
         }
-        binding.rvReports.layoutManager = LinearLayoutManager(context)
-        binding.rvReports.adapter = adapter
+
+        if (reportAdapter == null) {
+            reportAdapter = ReportAdapter(reports) { reportId ->
+                val bundle = android.os.Bundle().apply {
+                    putString("reportId", reportId)
+                }
+                findNavController().navigate(R.id.action_reportsFragment_to_reportDetailFragment, bundle)
+            }
+            binding.rvReports.layoutManager = LinearLayoutManager(context)
+            binding.rvReports.adapter = reportAdapter
+        } else {
+            reportAdapter?.updateData(reports)
+        }
     }
 
     class ReportAdapter(
-        private val items: List<ReportItem>,
+        private var items: List<ReportItem>,
         private val onClick: (String) -> Unit
     ) : RecyclerView.Adapter<ReportAdapter.ViewHolder>() {
+
+        @SuppressLint("NotifyDataSetChanged")
+        fun updateData(newItems: List<ReportItem>) {
+            this.items = newItems
+            notifyDataSetChanged()
+        }
 
         inner class ViewHolder(val binding: ItemReportBinding) : RecyclerView.ViewHolder(binding.root)
 

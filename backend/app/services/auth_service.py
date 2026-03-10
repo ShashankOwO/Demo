@@ -41,3 +41,47 @@ def authenticate_user(email: str, password: str) -> dict:
     )
     
     return {"access_token": access_token, "token_type": "bearer"}
+
+def request_password_reset(email: str) -> None:
+    from datetime import datetime, timezone, timedelta
+    import random
+    import string
+    
+    user = User.query.filter_by(email=email).first()
+    if not user:
+        # Silently succeed to prevent email enumeration
+        return
+        
+    code = ''.join(random.choices(string.digits, k=6))
+    user.reset_code = code
+    user.reset_code_expires_at = datetime.now(timezone.utc) + timedelta(minutes=15)
+    db.session.commit()
+    
+    from app.services.email_service import send_reset_email
+
+    success = send_reset_email(email, code)
+    if not success:
+        # We still silently fail for unregistered emails, but if the email failed
+        # to send due to SMTP configuration, we should let the user know.
+        abort(500, description="Error dispatching reset email. Check server configuration.")
+
+def reset_password(email: str, code: str, new_password: str) -> None:
+    from datetime import datetime, timezone
+    
+    user = User.query.filter_by(email=email).first()
+    if not user or not user.reset_code or user.reset_code != code:
+        abort(400, description="Invalid reset code")
+        
+    # Ensure code isn't expired
+    expires_at = user.reset_code_expires_at
+    if expires_at and expires_at.tzinfo is None:
+        expires_at = expires_at.replace(tzinfo=timezone.utc)
+        
+    if not expires_at or expires_at < datetime.now(timezone.utc):
+        abort(400, description="Reset code expired")
+        
+    # Valid code -> Update password -> Clear token
+    user.hashed_password = get_password_hash(new_password)
+    user.reset_code = None
+    user.reset_code_expires_at = None
+    db.session.commit()

@@ -26,6 +26,16 @@ interface ApiService {
         @Body request: com.example.resume2interview.data.model.AuthRequest
     ): Response<com.example.resume2interview.data.model.AuthResponse>
 
+    @POST("auth/request-reset")
+    suspend fun requestReset(
+        @Body request: com.example.resume2interview.data.model.PasswordResetRequest
+    ): Response<Map<String, String>>
+
+    @POST("auth/reset-password")
+    suspend fun resetPassword(
+        @Body request: com.example.resume2interview.data.model.PasswordResetConfirm
+    ): Response<Map<String, String>>
+
     // ── Profile ───────────────────────────────────────────────────────────
 
     @GET("profile/me")
@@ -54,6 +64,11 @@ interface ApiService {
     suspend fun uploadResume(
         @Part file: MultipartBody.Part
     ): Response<ResumeAnalysisOut>
+
+    @POST("resume/generate-questions")
+    suspend fun generateQuestions(
+        @Body request: com.example.resume2interview.data.model.GenerateQuestionsRequest
+    ): Response<com.example.resume2interview.data.model.GenerateQuestionsResponse>
 
     // ── Interviews ───────────────────────────────────────────────────────
 

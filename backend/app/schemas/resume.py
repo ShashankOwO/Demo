@@ -32,3 +32,13 @@ class ResumeAnalysisOutSchema(Schema):
     inferred_target_role = fields.String(missing=None)
     previous_role = fields.String(missing=None)
     generated_questions = fields.List(fields.Nested(InterviewQuestionSchema), missing=list)
+
+class GenerateQuestionsRequestSchema(Schema):
+    """Request payload for POST /resume/generate-questions."""
+    skills = fields.List(fields.String(), required=True)
+    target_role = fields.String(missing=None, allow_none=True)
+    experience_years = fields.Integer(missing=None, allow_none=True)
+
+class GenerateQuestionsResponseSchema(Schema):
+    """Response payload for POST /resume/generate-questions."""
+    generated_questions = fields.List(fields.Nested(InterviewQuestionSchema), required=True)

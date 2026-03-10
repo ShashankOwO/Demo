@@ -17,6 +17,9 @@ class User(db.Model):
         default=lambda: datetime.now(timezone.utc),
         nullable=False,
     )
+    # Password Reset
+    reset_code: Mapped[str] = mapped_column(String(6), nullable=True)
+    reset_code_expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=True)
 
     # Relationship to interviews
     interviews: Mapped[list["Interview"]] = relationship(

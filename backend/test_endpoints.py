@@ -57,7 +57,31 @@ def run_tests():
     status, res = make_request(f"{BASE_URL}/interviews/", "POST", interview_data, auth_headers)
     print(f"Status: {status}\nResponse: {res}")
     
-    # 4. Get Interviews
+    # 4. Generate Questions from Preferences
+    print("\n--- Test 4/5: Generate Questions from Preferences (Checks Skill Persistence) ---")
+    gen_data = {
+        "skills": ["python", "django", "aws", "CustomSkillPersist"],
+        "target_role": "Backend Engineer",
+        "experience_years": 3
+    }
+    status, res = make_request(f"{BASE_URL}/resume/generate-questions", "POST", gen_data, auth_headers)
+    print(f"Status: {status}")
+    if status == 200:
+        questions = res.get("generated_questions", [])
+        print(f"Generated {len(questions)} questions.")
+    else:
+        print(f"Response: {res}")
+        
+    print("\n--- Checking if Skill Persistence worked (Profile skills_json should not be null) ---")
+    status, res = make_request(f"{BASE_URL}/profile/me", "GET", headers=auth_headers)
+    print(f"Status (Profile Check): {status}")
+    if res.get("skills_json"):
+        print("Success! skills_json is populated.")
+        print(res.get("skills_json")[:150] + "...")
+    else:
+        print(f"Failure! skills_json is NULL. Full profile: {res}")
+
+    # 5. Get Interviews
     print("\n--- Test 4/4: Get Interviews ---")
     status, res = make_request(f"{BASE_URL}/interviews/", "GET", headers=auth_headers)
     print(f"Status: {status}\nResponse: {json.dumps(res, indent=2)}")

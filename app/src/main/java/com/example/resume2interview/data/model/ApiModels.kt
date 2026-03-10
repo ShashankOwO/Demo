@@ -45,6 +45,16 @@ data class ResumeAnalysisOut(
     @SerializedName("generated_questions")       val generatedQuestions:      List<InterviewQuestion> = emptyList(),
 )
 
+data class GenerateQuestionsRequest(
+    @SerializedName("skills")           val skills:          List<String>,
+    @SerializedName("target_role")      val targetRole:      String?,
+    @SerializedName("experience_years") val experienceYears: Int?
+)
+
+data class GenerateQuestionsResponse(
+    @SerializedName("generated_questions") val generatedQuestions: List<InterviewQuestion>
+)
+
 // ── Interview ─────────────────────────────────────────────────────────────────
 // Matches: POST /interviews/  →  body: InterviewCreate, response: InterviewOut
 //          GET  /interviews/  →  List<InterviewOut>

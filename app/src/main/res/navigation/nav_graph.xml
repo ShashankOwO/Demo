@@ -89,6 +89,9 @@
         android:id="@+id/resetPasswordFragment"
         android:name="com.example.resume2interview.ui.auth.ResetPasswordFragment"
         tools:layout="@layout/fragment_reset_password">
+        <argument
+            android:name="email"
+            app:argType="string" />
         <action
             android:id="@+id/action_resetPasswordFragment_to_loginFragment"
             app:destination="@id/loginFragment"
@@ -160,7 +163,15 @@
     <fragment
         android:id="@+id/interviewFragment"
         android:name="com.example.resume2interview.ui.interview.InterviewFragment"
-        tools:layout="@layout/fragment_interview" />
+        tools:layout="@layout/fragment_interview">
+        <action
+            android:id="@+id/action_interviewFragment_to_uploadResumeFragment"
+            app:destination="@id/uploadResumeFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+    </fragment>
 
     <fragment
         android:id="@+id/reportsFragment"

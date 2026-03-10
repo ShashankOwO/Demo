@@ -95,12 +95,11 @@ def get_skills_practiced():
     )
     category_counts: dict[str, int] = {}
     for interview in interviews:
-        seen = set()
         for skill in interview.skills:
             cat = skill.skill_name
-            if cat not in seen:
-                category_counts[cat] = category_counts.get(cat, 0) + 1
-                seen.add(cat)
+            # Default to 1 if total_questions_per_category is missing in older records
+            count = skill.total_questions_per_category or 1
+            category_counts[cat] = category_counts.get(cat, 0) + count
 
     result = [{"category": cat, "session_count": count}
               for cat, count in sorted(category_counts.items(), key=lambda x: -x[1])]

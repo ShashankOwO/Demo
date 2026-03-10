@@ -96,6 +96,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding, HomeViewModel>(
         binding.ivStartInterviewIcon.setColorFilter(Color.WHITE)
         binding.tvStartInterview.setTextColor(Color.WHITE)
 
+        // Intercept logic removed - standard routing handled in setupUI
         if (uiData.isResumeActive) {
             binding.cardResumeStatus.setOnClickListener {
                 findNavController().navigate(R.id.action_homeFragment_to_resumeSkillsFragment)

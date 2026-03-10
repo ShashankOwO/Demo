@@ -10,6 +10,7 @@ import android.speech.SpeechRecognizer
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.example.resume2interview.R
@@ -45,6 +46,11 @@ class InterviewFragment : BaseFragment<FragmentInterviewBinding, InterviewViewMo
         // Close button — go back
         binding.btnClose.setOnClickListener {
             findNavController().navigateUp()
+        }
+
+        // Begin Session (Empty State) -> Upload Resume
+        binding.btnBeginSession.setOnClickListener {
+            findNavController().navigate(R.id.action_interviewFragment_to_uploadResumeFragment)
         }
 
         // Mic button — toggle recording
@@ -186,6 +192,36 @@ class InterviewFragment : BaseFragment<FragmentInterviewBinding, InterviewViewMo
 
     override fun showContent(data: Any?) {
         val uiData = data as? InterviewUiData ?: return
+        
+        if (uiData.isEmptyState) {
+            if (!binding.layoutEmptyState.isVisible) {
+                binding.layoutEmptyState.apply {
+                    alpha = 0f
+                    isVisible = true
+                    animate().alpha(1f).setDuration(400).start()
+                }
+                binding.groupInterviewContent.apply {
+                    animate().alpha(0f).setDuration(400).withEndAction {
+                        isVisible = false
+                    }.start()
+                }
+            }
+            return
+        } else {
+            if (!binding.groupInterviewContent.isVisible) {
+                binding.layoutEmptyState.apply {
+                    animate().alpha(0f).setDuration(400).withEndAction {
+                        isVisible = false
+                    }.start()
+                }
+                binding.groupInterviewContent.apply {
+                    alpha = 0f
+                    isVisible = true
+                    animate().alpha(1f).setDuration(400).start()
+                }
+            }
+        }
+        
         binding.tvQuestionCounter.text =
             "Question ${uiData.currentQuestionIndex} of ${uiData.totalQuestions}"
         binding.tvQuestion.text = "\u201c ${uiData.questionText} \u201d"

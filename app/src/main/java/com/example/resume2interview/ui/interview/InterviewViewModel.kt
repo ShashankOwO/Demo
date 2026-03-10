@@ -14,10 +14,13 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+import com.example.resume2interview.data.repository.ProfileRepository
+
 data class InterviewUiData(
-    val currentQuestionIndex: Int,
-    val totalQuestions: Int,
-    val questionText: String,
+    val isEmptyState: Boolean = false,
+    val currentQuestionIndex: Int = 0,
+    val totalQuestions: Int = 0,
+    val questionText: String = "",
     val isRecording: Boolean = false,
     val timerText: String = "00:00",
     val transcribedText: String = ""
@@ -26,7 +29,8 @@ data class InterviewUiData(
 @HiltViewModel
 class InterviewViewModel @Inject constructor(
     private val interviewRepository: InterviewRepository,
-    private val resumeRepository: ResumeRepository
+    private val resumeRepository: ResumeRepository,
+    private val profileRepository: ProfileRepository
 ) : BaseViewModel<InterviewUiData>() {
 
     // Default fallback questions in case there is no resume loaded (e.g., debug testing)
@@ -57,14 +61,116 @@ class InterviewViewModel @Inject constructor(
     val isFinished: LiveData<Boolean> = _isFinished
 
     init {
-        // Load questions from cached resume analysis, if available.
-        val analysis = resumeRepository.lastAnalysis.value
-        _questions = if (analysis != null && analysis.generatedQuestions.isNotEmpty()) {
-            analysis.generatedQuestions
-        } else {
-            _fallbackQuestions
+        val profile = profileRepository.cachedProfile.value
+        val skillsStr = profile?.skillsJson
+        
+        var extractedSkillsCount = 0
+        if (!skillsStr.isNullOrBlank() && skillsStr != "{}" && skillsStr != "[]") {
+            try {
+                val jsonObj = org.json.JSONObject(skillsStr)
+                val keys = jsonObj.keys()
+                while (keys.hasNext()) {
+                    val key = keys.next()
+                    val arr = jsonObj.optJSONArray(key)
+                    if (arr != null) extractedSkillsCount += arr.length()
+                }
+            } catch (e: Exception) {
+                // Ignore parse errors
+            }
         }
-        loadQuestion(0)
+
+        val isResumeActive = extractedSkillsCount > 0
+
+        if (!isResumeActive) {
+            launchDataLoad {
+                InterviewUiData(
+                    isEmptyState = true
+                )
+            }
+        } else {
+            // First try cache
+            val analysis = resumeRepository.lastAnalysis.value
+            if (analysis != null && analysis.generatedQuestions.isNotEmpty()) {
+                _questions = analysis.generatedQuestions
+                loadQuestion(0)
+            } else {
+                // No cache? Fetch profile, parse skills, and hit generate
+                fetchProfileAndGenerate()
+            }
+        }
+    }
+    
+    private fun fetchProfileAndGenerate() {
+        android.util.Log.d("InterviewViewModel", "fetchProfileAndGenerate: starting profile fetch")
+        launchDataLoad {
+            // First hit the profile
+            val response = profileRepository.fetchProfile()
+            var usedSkills = emptyList<String>()
+            var targetRole: String? = null
+            var experienceYears = 0
+            
+            if (response.isSuccess) {
+                val profile = response.getOrNull()
+                targetRole = profile?.targetRole
+                val skillsJson = profile?.skillsJson
+                android.util.Log.d("InterviewViewModel", "Profile loaded. targetRole=$targetRole, raw skillsJson=$skillsJson")
+                if (!skillsJson.isNullOrBlank()) {
+                    try {
+                        val type = object : com.google.gson.reflect.TypeToken<Map<String, List<String>>>() {}.type
+                        val skillsMap: Map<String, List<String>> = com.google.gson.Gson().fromJson(skillsJson.toString(), type)
+                        usedSkills = skillsMap.values.flatten().distinct()
+                        android.util.Log.d("InterviewViewModel", "Parsed usedSkills: $usedSkills")
+                    } catch (e: Exception) {
+                        android.util.Log.e("InterviewViewModel", "Exception parsing skillsJson", e)
+                        e.printStackTrace()
+                    }
+                }
+            } else {
+                 android.util.Log.e("InterviewViewModel", "Profile fetch failed: ${response.exceptionOrNull()}")
+            }
+            
+            if (usedSkills.isNotEmpty()) {
+                android.util.Log.d("InterviewViewModel", "Calling generateQuestionsFromPreferences with $usedSkills")
+                // Generate fresh questions from their DB-saved skills
+                val genResult = resumeRepository.generateQuestionsFromPreferences(
+                    skills = usedSkills,
+                    targetRole = targetRole,
+                    experienceYears = experienceYears
+                )
+                
+                if (genResult.isSuccess) {
+                    val freshAnalysis = resumeRepository.lastAnalysis.value
+                    if (freshAnalysis != null && freshAnalysis.generatedQuestions.isNotEmpty()) {
+                        android.util.Log.d("InterviewViewModel", "Successfully generated ${freshAnalysis.generatedQuestions.size} questions from backend")
+                        _questions = freshAnalysis.generatedQuestions
+                        loadQuestion(0)
+                        return@launchDataLoad InterviewUiData(
+                            currentQuestionIndex = 1,
+                            totalQuestions = _questions.size,
+                            questionText = _questions[0].question,
+                            timerText = "00:00"
+                        )
+                    } else {
+                        android.util.Log.e("InterviewViewModel", "genResult success but freshAnalysis is empty or null")
+                    }
+                } else {
+                    android.util.Log.e("InterviewViewModel", "genResult failed: ${genResult.exceptionOrNull()}")
+                }
+            } else {
+                android.util.Log.e("InterviewViewModel", "usedSkills is empty. Falling back.")
+            }
+            
+            android.util.Log.w("InterviewViewModel", "Using absolute fallback questions!")
+            // Absolute fallback
+            _questions = _fallbackQuestions
+            loadQuestion(0)
+            InterviewUiData(
+                currentQuestionIndex = 1,
+                totalQuestions = _questions.size,
+                questionText = _questions[0].question,
+                timerText = "00:00"
+            )
+        }
     }
 
     private fun loadQuestion(index: Int) {

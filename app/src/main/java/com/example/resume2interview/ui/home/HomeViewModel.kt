@@ -61,10 +61,30 @@ class HomeViewModel @Inject constructor(
                 ?.ifEmpty { listOf("Technical", "System Design", "Problem Solving") }
                 ?: listOf("Technical", "System Design", "Problem Solving")
 
-            // ── 5. Resume active check (persisted per user email) ─────────────
+            // ── 5. Resume active check (read from backend profile skillsJson) ──
+            val skillsJsonStr = profile?.skillsJson
+            
+            var extractedSkillsCount = 0
+            if (!skillsJsonStr.isNullOrBlank() && skillsJsonStr != "{}" && skillsJsonStr != "[]") {
+                try {
+                    val jsonObj = org.json.JSONObject(skillsJsonStr)
+                    val keys = jsonObj.keys()
+                    while (keys.hasNext()) {
+                        val key = keys.next()
+                        val arr = jsonObj.optJSONArray(key)
+                        if (arr != null) extractedSkillsCount += arr.length()
+                    }
+                } catch (e: Exception) {
+                    // Ignore parse errors
+                }
+            }
+
+            // A resume/skills configuration is only considered active if they successfully have skills
+            val isResumeActive = extractedSkillsCount > 0
+
+            // Also keep the legacy flags in sync just in case
             val userEmail = profile?.email
-            val isResumeActive = resumePreferences.isResumeUploaded(userEmail)
-            // Also keep the in-memory flag in sync for legacy callers
+            resumePreferences.setResumeUploaded(userEmail, isResumeActive)
             HomeStaticState.isResumeUploaded = isResumeActive
 
             HomeUiData(
@@ -73,6 +93,7 @@ class HomeViewModel @Inject constructor(
                 interviewSessionCount = summary?.totalSessions ?: lastFive.size,
                 latestScore        = latestScore,
                 focusAreas         = focusAreas,
+                extractedSkills    = extractedSkillsCount,
                 isResumeActive     = isResumeActive,
                 lastSessionDate    = lastSessionDate
             )

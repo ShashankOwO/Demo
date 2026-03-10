@@ -13,7 +13,7 @@ class ForgotPasswordViewModel @Inject constructor(
 
     fun sendResetCode(email: String) {
         launchDataLoad {
-            delay(1000)
+            authRepository.requestReset(email)
             true
         }
     }

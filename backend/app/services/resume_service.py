@@ -491,10 +491,21 @@ def _generate_questions(tech_skills: dict[str, list[str]], applied_role: Optiona
     else:
         categories_to_query = base_categories
         
+    # Build a lowercase mapping for the QUESTION_BANK for fallback lookups
+    lowercase_q_bank = {k.lower(): v for k, v in QUESTION_BANK.items()}
+    
     # Phase 1: Allocate adaptive weakest category questions first
     if weakest_cat_exact:
         for skill in tech_skills.get(weakest_cat_exact, []):
-            for q_text in QUESTION_BANK.get(skill, []):
+            skill_lower = skill.lower()
+            q_list = lowercase_q_bank.get(skill_lower, [])
+            # Fallback to general generic if not found
+            if not q_list:
+                q_list = [
+                    f"Describe your experience with {skill} in a production environment.",
+                    f"What are the most challenging aspects of working with {skill}?"
+                ]
+            for q_text in q_list:
                 if adaptive_quota == 0:
                     break
                 # Only add if we haven't maxed out overall
@@ -506,7 +517,15 @@ def _generate_questions(tech_skills: dict[str, list[str]], applied_role: Optiona
     # Phase 2: Distribute remaining questions across all categories
     for category in categories_to_query:
         for skill in tech_skills.get(category, []):
-            for q_text in QUESTION_BANK.get(skill, []):
+            skill_lower = skill.lower()
+            q_list = lowercase_q_bank.get(skill_lower, [])
+            # Dynamic generic generation if missing from static bank
+            if not q_list:
+                q_list = [
+                    f"Can you walk me through a complex problem you solved using {skill}?",
+                    f"How do you stay updated with the latest developments in {skill}?"
+                ]
+            for q_text in q_list:
                 # We skip adding duplicates if the adaptive logic already grabbed this exact question
                 if any(q["question"] == q_text for q in questions):
                     continue
@@ -514,6 +533,32 @@ def _generate_questions(tech_skills: dict[str, list[str]], applied_role: Optiona
                 if len(questions) >= MAX_QUESTIONS:
                     return questions
                 questions.append({"question": q_text, "category": skill})
+                
+    # Phase 3: If we still don't have enough questions and we have custom/unknown skills
+    # because they didn't match the eligible categories, iterate over ALL skills
+    if len(questions) < MAX_QUESTIONS:
+        all_skills = [s for cat_skills in tech_skills.values() for s in cat_skills]
+        # Just grab random questions for them
+        for skill in all_skills:
+            if len(questions) >= MAX_QUESTIONS:
+                break
+            # Skip if we already have 2+ questions for this skill
+            existing_count = sum(1 for q in questions if q["category"] == skill)
+            if existing_count >= 2:
+                continue
+                
+            skill_lower = skill.lower()
+            q_list = lowercase_q_bank.get(skill_lower, [
+                f"How would you explain the core concepts of {skill} to a junior engineer?",
+                f"Describe a time you had to optimize performance related to {skill}."
+            ])
+            
+            for q_text in q_list:
+                if len(questions) >= MAX_QUESTIONS:
+                    break
+                if not any(q["question"] == q_text for q in questions):
+                    questions.append({"question": q_text, "category": skill})
+                    
     return questions
 
 # ---------------------------------------------------------------------------
@@ -682,3 +727,60 @@ def process_resume(file, user_id: int) -> dict:
         "inferred_target_role":      inferred_target_role,
         "generated_questions":       questions,
     }
+
+
+def bucket_skills(skills: list[str]) -> dict[str, list[str]]:
+    """
+    Buckets a flat list of skills into technical categories matching the DB format.
+    """
+    technical_skills: dict[str, list[str]] = {cat: [] for cat in TECH_SKILLS_DB.keys()}
+    
+    for skill in skills:
+        found_cat = None
+        for cat, kw_list in TECH_SKILLS_DB.items():
+            if any(s.lower() == skill.lower() for s in kw_list):
+                found_cat = cat
+                break
+        
+        # If it's a known technical skill, put it in the right category
+        if found_cat:
+            technical_skills[found_cat].append(skill)
+        else:
+            # If completely unknown, stick it in "languages" or "architecture" loosely 
+            technical_skills["languages"].append(skill)
+            
+    return technical_skills
+
+def generate_questions_from_preferences(
+    skills: list[str],
+    role: Optional[str] = None,
+    experience: int = 0,
+    user_id: Optional[int] = None
+) -> list[dict]:
+    """
+    Generates interview questions based ONLY on the explicit skills list provided by the user.
+    Bypasses standard section extraction.
+    """
+    if not skills:
+        return []
+
+    # Map the flat list of skills into the category format expected by the DB logic
+    technical_skills = bucket_skills(skills)
+            
+    # Try getting the analytics weakest category for adaptive generation
+    weakest_category = None
+    if user_id is not None:
+        try:
+            analytics_data = analytics_service.get_category_performance_data(user_id)
+            weakest_category = analytics_data.get("weakest_category")
+        except Exception as e:
+            logger.warning(f"[generate_questions_from_preferences] failed to get analytics: {e}")
+
+    # Pass the synthesised skills dict into the standard question generator
+    # We guarantee these are the ONLY skills passed in.
+    return _generate_questions(
+        tech_skills=technical_skills,
+        applied_role=role,
+        weakest_category=weakest_category,
+        experience=experience
+    )

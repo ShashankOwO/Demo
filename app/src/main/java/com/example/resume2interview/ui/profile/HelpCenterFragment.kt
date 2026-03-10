@@ -45,8 +45,10 @@ class HelpCenterFragment : Fragment() {
                 data = Uri.parse("mailto:shashankyerragunta22@gmail.com")
                 putExtra(Intent.EXTRA_SUBJECT, "Support Request – Resume2Interview")
             }
-            if (intent.resolveActivity(requireActivity().packageManager) != null) {
-                startActivity(intent)
+            try {
+                startActivity(Intent.createChooser(intent, "Send Email"))
+            } catch (e: Exception) {
+                // If completely no apps can handle, just swallow or show toast
             }
         }
     }

@@ -34,17 +34,11 @@ class ResumeSkillsFragment : BaseFragment<FragmentResumeSkillsBinding, ResumeSki
 
     override val viewModel: ResumeSkillsViewModel by viewModels()
 
+    private var isDirty = false
+
     override fun setupUI() {
-        binding.btnBack.setOnClickListener {
-            // Persist the resume-uploaded flag so it survives sign-out/sign-in
-            viewLifecycleOwner.lifecycleScope.launch {
-                val token = tokenManager.getToken()
-                val email = extractEmailFromJwt(token)
-                resumePreferences.setResumeUploaded(email, true)
-                HomeStaticState.isResumeUploaded = true
-            }
-            findNavController().popBackStack(R.id.homeFragment, false)
-        }
+        // Remove the hardcoded popBackStack click listener. We handle it via handleExit now.
+        binding.btnBack.setOnClickListener { handleExit() }
 
         val expLevels = arrayOf("Fresher", "Junior", "Mid-Level", "Senior")
         val expAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, expLevels)
@@ -114,14 +108,82 @@ class ResumeSkillsFragment : BaseFragment<FragmentResumeSkillsBinding, ResumeSki
                 val analysis = Gson().fromJson(json, ResumeAnalysisOut::class.java)
                 viewModel.loadFromApiResponse(analysis)
             } catch (e: Exception) {
-                viewModel.loadFallbackSkills()
+                viewModel.loadSavedSkills()
             }
         } else {
-            viewModel.loadFallbackSkills()
+            viewModel.loadSavedSkills()
         }
+
+        binding.btnSavePreferences.setOnClickListener {
+            val selectedSkills = mutableListOf<String>()
+            
+            // Extract from Tech Chip Group
+            for (i in 0 until binding.chipGroupTech.childCount) {
+                val chip = binding.chipGroupTech.getChildAt(i) as? Chip
+                chip?.text?.toString()?.let { selectedSkills.add(it) }
+            }
+
+            // Extract from Role & Exp
+            val role = if (binding.dropdownTargetRole.text.toString() == "Custom") {
+                binding.etCustomRole.text.toString()
+            } else {
+                binding.dropdownTargetRole.text.toString()
+            }
+            val exp = binding.etExperienceYears.text.toString().toIntOrNull()
+
+            if (selectedSkills.isEmpty()) {
+                android.widget.Toast.makeText(requireContext(), "Please add at least one technical skill to generate questions.", android.widget.Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            // Trigger Generation
+            viewModel.savePreferencesAndGenerate(selectedSkills, role, exp)
+        }
+        
+        // Handle Back Press explicitly via OnBackPressedDispatcher
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, object : androidx.activity.OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                handleExit()
+            }
+        })
+    }
+    
+    private fun handleExit() {
+        exitScreen()
+    }
+
+    private fun exitScreen() {
+        // Persist the resume-uploaded flag so it survives sign-out/sign-in
+        viewLifecycleOwner.lifecycleScope.launch {
+            val token = tokenManager.getToken()
+            val email = extractEmailFromJwt(token)
+            resumePreferences.setResumeUploaded(email, true)
+            HomeStaticState.isResumeUploaded = true
+        }
+        findNavController().popBackStack(R.id.homeFragment, false)
+    }
+
+    override fun showLoading() {
+        super.showLoading()
+        binding.pbSaveLoading.visibility = View.VISIBLE
+        binding.btnSavePreferences.visibility = View.INVISIBLE
+        binding.btnSavePreferences.isEnabled = false
+    }
+
+    override fun showError(message: String) {
+        super.showError(message)
+        binding.pbSaveLoading.visibility = View.GONE
+        binding.btnSavePreferences.visibility = View.VISIBLE
+        binding.btnSavePreferences.isEnabled = true
     }
 
     override fun showContent(data: Any?) {
+        // Clear isDirty flag when successfully loaded or saved
+        isDirty = false
+        binding.btnSavePreferences.visibility = View.VISIBLE
+        binding.pbSaveLoading.visibility = View.GONE
+        binding.btnSavePreferences.isEnabled = true
+        
         val uiData = data as? SkillsUiData ?: return
 
         // Technical Skills — all extracted_skills from backend
@@ -150,9 +212,14 @@ class ResumeSkillsFragment : BaseFragment<FragmentResumeSkillsBinding, ResumeSki
             isCheckable = false
             setOnCloseIconClickListener {
                 chipGroup.removeView(this)
+                this@ResumeSkillsFragment.isDirty = true
             }
         }
         chipGroup.addView(chip)
+        // If we are adding it dynamically after initial load
+        if (chipGroup.childCount > 0 && isResumed) {
+            this@ResumeSkillsFragment.isDirty = true
+        }
     }
 
     /**
