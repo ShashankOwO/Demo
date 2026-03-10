@@ -8,8 +8,8 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
-import androidx.navigation.ui.setupWithNavController
 import com.example.resume2interview.databinding.ActivityMainBinding
+import com.example.resume2interview.ui.widget.PremiumBottomNavView
 import com.example.resume2interview.utils.TokenManager
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -24,6 +24,39 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var navController: NavController
 
+    // Tab items matching bottom_nav_menu order
+    private val navItems = listOf(
+        PremiumBottomNavView.NavItem(R.drawable.ic_home,   "Home"),
+        PremiumBottomNavView.NavItem(R.drawable.ic_mic,    "Interview"),
+        PremiumBottomNavView.NavItem(R.drawable.ic_chart,  "Reports"),
+        PremiumBottomNavView.NavItem(R.drawable.ic_person, "Profile")
+    )
+
+    private val tabDestinations = listOf(
+        R.id.homeFragment,
+        R.id.interviewFragment,
+        R.id.reportsFragment,
+        R.id.profileFragment
+    )
+
+    private val hiddenDestinations = setOf(
+        R.id.splashFragment,
+        R.id.loginFragment,
+        R.id.signupFragment,
+        R.id.forgotPasswordFragment,
+        R.id.resetPasswordFragment,
+        R.id.interviewFragment,
+        R.id.interviewSuccessFragment,
+        R.id.uploadResumeFragment,
+        R.id.resumeSkillsFragment,
+        R.id.editProfileFragment,
+        R.id.reportDetailFragment,
+        R.id.interviewProgressFragment,
+        R.id.notificationsFragment,
+        R.id.preferencesFragment,
+        R.id.privacyPolicyFragment
+    )
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -33,40 +66,35 @@ class MainActivity : AppCompatActivity() {
             .findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         navController = navHostFragment.navController
 
-        binding.bottomNavigation.setupWithNavController(navController)
+        // Wire the premium custom nav bar
+        val nav = binding.premiumBottomNav
+        nav.items = navItems
 
-        // Prevent reloading the same fragment when clicking the active tab again
-        binding.bottomNavigation.setOnItemReselectedListener {
-            // Do nothing
+        nav.onTabSelected = { idx ->
+            navController.navigate(
+                tabDestinations[idx],
+                null,
+                androidx.navigation.NavOptions.Builder()
+                    .setLaunchSingleTop(true)
+                    .setRestoreState(true)
+                    .setPopUpTo(navController.graph.startDestinationId, inclusive = false, saveState = true)
+                    .build()
+            )
         }
 
-        // Hide bottom nav on auth/sub-page screens that have their own back button
-        val hiddenDestinations = setOf(
-            R.id.splashFragment,
-            R.id.loginFragment,
-            R.id.signupFragment,
-            R.id.forgotPasswordFragment,
-            R.id.resetPasswordFragment,
-            R.id.interviewFragment,
-            R.id.uploadResumeFragment,
-            R.id.resumeSkillsFragment,
-            R.id.editProfileFragment,
-            R.id.reportDetailFragment,
-            R.id.interviewProgressFragment,
-            R.id.notificationsFragment,
-            R.id.preferencesFragment,
-            R.id.privacyPolicyFragment
-        )
-
+        // Keep nav bar selection indicator in sync with back stack changes
         navController.addOnDestinationChangedListener { _, destination, _ ->
-            val nav = binding.bottomNavigation
             if (destination.id in hiddenDestinations) {
-                nav.animate().translationY(nav.height.toFloat()).setDuration(200).withEndAction {
-                    nav.visibility = View.GONE
-                }.start()
+                nav.animate().translationY(nav.height.toFloat() + nav.translationY)
+                    .setDuration(220)
+                    .withEndAction { nav.visibility = View.GONE }
+                    .start()
             } else {
                 nav.visibility = View.VISIBLE
-                nav.animate().translationY(0f).setDuration(250).start()
+                nav.animate().translationY(0f).setDuration(260).start()
+                // Sync selected tab without re-navigating
+                val idx = tabDestinations.indexOf(destination.id)
+                if (idx >= 0) nav.selectTab(idx, animate = false)
             }
         }
 
@@ -74,7 +102,6 @@ class MainActivity : AppCompatActivity() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 tokenManager.unauthorizedEvent.collect {
-                    // Current destination must not be login already
                     if (navController.currentDestination?.id != R.id.loginFragment) {
                         navController.navigate(
                             R.id.loginFragment,

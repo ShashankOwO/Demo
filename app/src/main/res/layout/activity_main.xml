@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
+<FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -8,45 +8,23 @@
     android:background="@color/bg_page"
     tools:context=".MainActivity">
 
+    <!-- Fragment container — leaves space for the nav bar at bottom -->
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/nav_host_fragment"
         android:name="androidx.navigation.fragment.NavHostFragment"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingBottom="80dp"
+        android:clipToPadding="false"
         app:defaultNavHost="true"
-        app:navGraph="@navigation/nav_graph"
-        app:layout_constraintBottom_toTopOf="@id/bottom_navigation"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:navGraph="@navigation/nav_graph" />
 
-    <!-- Subtle top line to separate from content -->
-    <View
-        android:layout_width="0dp"
-        android:layout_height="1dp"
-        android:background="#1A000000"
-        app:layout_constraintBottom_toTopOf="@id/bottom_navigation"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+    <!-- Premium animated bottom nav — sits at the very bottom -->
+    <com.example.resume2interview.ui.widget.PremiumBottomNavView
+        android:id="@+id/premium_bottom_nav"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:elevation="12dp" />
 
-    <com.google.android.material.bottomnavigation.BottomNavigationView
-        android:id="@+id/bottom_navigation"
-        android:layout_width="0dp"
-        android:layout_height="60dp"
-        android:background="@color/bg_white"
-        android:elevation="8dp"
-        app:itemPaddingTop="8dp"
-        app:itemPaddingBottom="4dp"
-        app:menu="@menu/bottom_nav_menu"
-        app:itemIconTint="@color/bottom_nav_item_tint"
-        app:itemTextColor="@color/bottom_nav_item_tint"
-        app:itemIconSize="22dp"
-        app:labelVisibilityMode="labeled"
-        app:itemTextAppearanceActive="@style/App.Custom.BottomNavTextActive"
-        app:itemTextAppearanceInactive="@style/App.Custom.BottomNavTextInactive"
-        app:itemActiveIndicatorStyle="@style/App.Custom.Indicator"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent" />
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+</FrameLayout>

@@ -13,7 +13,11 @@ abstract class BaseViewModel<T> : ViewModel() {
     private val _uiState = MutableStateFlow<UiState<T>>(UiState.Loading)
     val uiState: StateFlow<UiState<T>> = _uiState.asStateFlow()
 
+    /** True once the first successful data load has completed. */
+    private var hasData = false
+
     protected fun setState(state: UiState<T>) {
+        if (state is UiState.Success) hasData = true
         _uiState.value = state
     }
 
@@ -24,9 +28,14 @@ abstract class BaseViewModel<T> : ViewModel() {
         }
     }
 
+    /**
+     * Runs [block] to load data.
+     * Only emits Loading on the very first call; subsequent calls keep showing
+     * the current data while refreshing silently (no empty-state flash).
+     */
     protected fun launchDataLoad(block: suspend () -> T) {
         viewModelScope.launch {
-            setState(UiState.Loading)
+            if (!hasData) setState(UiState.Loading)
             try {
                 val result = block()
                 setState(UiState.Success(result))
