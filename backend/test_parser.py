@@ -10,6 +10,7 @@ from app.services.resume_service import (
     _detect_experience_years,
     _match_skills_in_text,
     _extract_skills_section_fallback,
+    normalize_skill_aliases,
 )
 
 SEP = "-" * 60
@@ -123,6 +124,26 @@ for text, expected_min in samples:
         assert result >= expected_min, f"FAIL: expected >= {expected_min}, got {result}"
 
 print("TEST 3 PASSED ✅\n")
+
+# ─────────────────────────────────────────────────────────────
+# Test 4 — Skill alias normalisation
+# ─────────────────────────────────────────────────────────────
+print(SEP)
+print("TEST 4 — Skill alias normalisation")
+print(SEP)
+
+RESUME_4 = "Worked on ReactJS and NodeJS backend"
+normalized = normalize_skill_aliases(RESUME_4)
+print(f"Original text     : {RESUME_4!r}")
+print(f"Normalized text   : {normalized!r}")
+
+skills4 = _match_skills_in_text(normalized)
+all_skills4 = [s for v in skills4.values() for s in v]
+print(f"Skills matched    : {all_skills4}")
+assert "React" in all_skills4, "FAIL: React not matched from ReactJS"
+assert "Node.js" in all_skills4, "FAIL: Node.js not matched from NodeJS"
+
+print("TEST 4 PASSED ✅\n")
 
 print(SEP)
 print("ALL TESTS PASSED ✅")

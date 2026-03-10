@@ -137,6 +137,44 @@ QUESTION_ELIGIBLE_CATEGORIES = {
 }
 
 # ---------------------------------------------------------------------------
+# Skill Normalisation (Aliases)
+# ---------------------------------------------------------------------------
+SKILL_ALIASES: dict[str, list[str]] = {
+    "React": ["ReactJS", "React JS", "React-JS"],
+    "Node.js": ["NodeJS", "Node JS", "Node"],
+    "PostgreSQL": ["Postgres", "Postgre SQL"],
+    "JavaScript": ["JS", "Javascript"],
+    "TypeScript": ["TS"],
+    "C++": ["CPP"],
+}
+
+def normalize_skill_aliases(text: str) -> str:
+    """
+    Normalises skill name variations to their canonical forms
+    so the regex dictionary matcher catches them accurately.
+    Uses a single-pass regex to avoid cascading replacements (e.g. Node.js -> Node.JavaScript).
+    """
+    alias_map = {}
+    for canonical, aliases in SKILL_ALIASES.items():
+        for alias in aliases:
+            alias_map[alias.lower()] = canonical
+
+    if not alias_map:
+        return text
+
+    # Sort by length descending so 'React JS' matches before 'React' or 'JS'
+    sorted_aliases = sorted(alias_map.keys(), key=len, reverse=True)
+    escaped_aliases = [re.escape(a) for a in sorted_aliases]
+    
+    # \b matches word boundaries
+    pattern = r"\b(" + "|".join(escaped_aliases) + r")\b"
+    
+    def replacer(match):
+        return alias_map[match.group(1).lower()]
+
+    return re.sub(pattern, replacer, text, flags=re.IGNORECASE)
+
+# ---------------------------------------------------------------------------
 # Question Bank
 # ---------------------------------------------------------------------------
 QUESTION_BANK: dict[str, list[str]] = {
@@ -636,6 +674,10 @@ def process_resume(file, user_id: int) -> dict:
     _validate_file(file, raw)
 
     full_text = _extract_text(raw)
+    
+    # Normalise skill aliases (e.g., NodeJS -> Node.js) before any matching
+    full_text = normalize_skill_aliases(full_text)
+    
     lines     = full_text.splitlines()
 
     # ── Step 1: Dynamic section detection ────────────────────────────────────
