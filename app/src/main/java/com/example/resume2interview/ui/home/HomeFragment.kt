@@ -1,10 +1,13 @@
 package com.example.resume2interview.ui.home
 
 import android.graphics.Color
+import android.widget.TextView
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import com.airbnb.lottie.LottieAnimationView
+import com.airbnb.lottie.LottieDrawable
 import com.bumptech.glide.Glide
 import com.example.resume2interview.R
 import com.example.resume2interview.data.network.ApiClient
@@ -12,7 +15,10 @@ import com.example.resume2interview.data.repository.ProfileRepository
 import com.example.resume2interview.databinding.FragmentHomeBinding
 import com.example.resume2interview.ui.base.BaseFragment
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -27,6 +33,9 @@ class HomeFragment : BaseFragment<FragmentHomeBinding, HomeViewModel>(
     @Inject
     lateinit var profileRepository: ProfileRepository
 
+    // Live tip list updated from generatedTips when showContent() fires
+    private var liveTips: List<String> = emptyList()
+
     override fun onResume() {
         super.onResume()
         viewModel.loadHomeData()
@@ -34,35 +43,30 @@ class HomeFragment : BaseFragment<FragmentHomeBinding, HomeViewModel>(
 
     override fun setupUI() {
 
-        // Tap anywhere on the avatar area → go to Profile
+        // Navigation click listeners
         binding.frameAvatar.setOnClickListener {
             findNavController().navigate(R.id.action_homeFragment_to_profileFragment)
         }
-
         binding.cardProgress.setOnClickListener {
             findNavController().navigate(R.id.action_homeFragment_to_interviewProgressFragment)
         }
-
         binding.cardUpdateResume.setOnClickListener {
             findNavController().navigate(R.id.action_homeFragment_to_uploadResumeFragment)
         }
-
         binding.cardStartInterview.setOnClickListener {
             findNavController().navigate(R.id.action_homeFragment_to_interviewFragment)
         }
 
-        // Observe profile cache to update name and avatar photo in real time
+        // Real-time profile/avatar observer
         viewLifecycleOwner.lifecycleScope.launchWhenStarted {
             profileRepository.cachedProfile.collectLatest { profile ->
                 profile?.let {
-                    // Update welcome greeting with real name
                     val name = it.name?.takeIf { n -> n.isNotBlank() }
                         ?: it.email?.substringBefore('@')
                         ?: "User"
-                    binding.tvWelcome.text = "Hello, $name \uD83D\uDC4B"
+                    binding.tvWelcome.text = HomeTipEngine().greeting(name)
                     binding.tvAvatar.text = name.firstOrNull()?.uppercaseChar()?.toString() ?: "U"
 
-                    // Load profile photo if available
                     val photoUrl = it.profilePhotoUrl
                     if (!photoUrl.isNullOrBlank()) {
                         val fullUrl = "${ApiClient.BASE_URL.trimEnd('/')}$photoUrl"
@@ -81,22 +85,68 @@ class HomeFragment : BaseFragment<FragmentHomeBinding, HomeViewModel>(
                 }
             }
         }
+
+        // ── Animated Tip Rotation ───────────────────────────
+        var tipIndex = 0
+        binding.sparkleIcon.alpha = 1f // Initialize sparkle to be visible
+        
+        viewLifecycleOwner.lifecycleScope.launch {
+            while (isActive) {
+                val tips = liveTips.ifEmpty { listOf("Let's get you job-ready today") }
+                val tip  = tips[tipIndex % tips.size]
+                
+                // Type text out (suspends until finished)
+                // Sparkle animation blinks during typing and stops afterwards
+                typeWriter(binding.tvSubtitle, binding.sparkleIcon, tip)
+                
+                // Wait 5 seconds AFTER typing finishes
+                delay(5000)
+                
+                tipIndex++
+            }
+        }
     }
+
+    // ── Animation Helpers ─────────────────────────────────────────────────────
+
+    /** Types text character by character while keeping sparkle stable, then blinks after. */
+    private suspend fun typeWriter(textView: TextView, lottie: LottieAnimationView, text: String) {
+        textView.text = ""
+        
+        // Stable while typing
+        lottie.pauseAnimation()
+        lottie.progress = 0f 
+        
+        text.forEachIndexed { index, _ ->
+            delay(38)
+            textView.text = text.substring(0, index + 1)
+        }
+        
+        // Blink during the 5 second wait
+        lottie.repeatCount = LottieDrawable.INFINITE
+        lottie.playAnimation()
+    }
+
+    // ── Content Binding ───────────────────────────────────────────────────────
 
     override fun showContent(data: Any?) {
         val uiData = data as? HomeUiData ?: return
 
-        // Update welcome text (profile observer handles name/photo; this is the fallback)
+        // Time-aware greeting (fallback if profile observer hasn't fired yet)
         if (profileRepository.cachedProfile.value == null) {
-            binding.tvWelcome.text = "Hello, ${uiData.userName} \uD83D\uDC4B"
+            binding.tvWelcome.text = uiData.greeting
             binding.tvAvatar.text = uiData.userName.firstOrNull()?.uppercaseChar()?.toString() ?: "A"
+        }
+
+        // Push analytics-generated tips into the rotation list
+        if (uiData.generatedTips.isNotEmpty()) {
+            liveTips = uiData.generatedTips
         }
 
         binding.cardStartInterview.setCardBackgroundColor(Color.parseColor("#1976D2"))
         binding.ivStartInterviewIcon.setColorFilter(Color.WHITE)
         binding.tvStartInterview.setTextColor(Color.WHITE)
 
-        // Intercept logic removed - standard routing handled in setupUI
         if (uiData.isResumeActive) {
             binding.cardResumeStatus.setOnClickListener {
                 findNavController().navigate(R.id.action_homeFragment_to_resumeSkillsFragment)
@@ -112,7 +162,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding, HomeViewModel>(
             val sdf = SimpleDateFormat("M/dd/yyyy", Locale.getDefault())
             val displayDate = uiData.resumeUploadedAt?.let {
                 try {
-                    val iso = java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault())
+                    val iso = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault())
                     sdf.format(iso.parse(it) ?: Date())
                 } catch (e: Exception) { sdf.format(Date()) }
             } ?: sdf.format(Date())
@@ -133,24 +183,23 @@ class HomeFragment : BaseFragment<FragmentHomeBinding, HomeViewModel>(
         binding.tvSessionCount.text = uiData.interviewSessionCount.toString()
         binding.tvLatestScore.text  = if (uiData.latestScore > 0) "${uiData.latestScore}/100" else "--/100"
 
-        // Show real last session date from analytics/last-five
-        val sdfOut = java.text.SimpleDateFormat("M/d/yyyy", java.util.Locale.getDefault())
-        val sdfIn  = java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", java.util.Locale.getDefault())
+        // Last session date
+        val sdfOut = SimpleDateFormat("M/d/yyyy", Locale.getDefault())
+        val sdfIn  = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault())
         val dateStr = uiData.lastSessionDate?.let {
-            try { sdfOut.format(sdfIn.parse(it) ?: java.util.Date()) }
+            try { sdfOut.format(sdfIn.parse(it) ?: Date()) }
             catch (e: Exception) { null }
         }
-        val tvDate = view?.findViewById<android.widget.TextView>(R.id.tv_last_session_date)
+        val tvDate = view?.findViewById<TextView>(R.id.tv_last_session_date)
         tvDate?.text = dateStr ?: "--"
         tvDate?.isVisible = dateStr != null
 
-        // Dynamically set Focus Areas
+        // Focus areas
         if (uiData.focusAreas.isNotEmpty()) {
-            val tvFocus1 = view?.findViewById<android.widget.TextView>(R.id.tv_focus_1)
+            val tvFocus1 = view?.findViewById<TextView>(R.id.tv_focus_1)
             tvFocus1?.text = uiData.focusAreas[0]
-            
             if (uiData.focusAreas.size > 1) {
-                val tvFocus2 = view?.findViewById<android.widget.TextView>(R.id.tv_focus_2)
+                val tvFocus2 = view?.findViewById<TextView>(R.id.tv_focus_2)
                 tvFocus2?.text = uiData.focusAreas[1]
                 binding.cardFocus2.isVisible = true
             } else {

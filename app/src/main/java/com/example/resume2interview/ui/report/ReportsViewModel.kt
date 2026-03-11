@@ -42,12 +42,15 @@ class ReportsViewModel @Inject constructor(
                     "Unknown"
                 }
                 
-                // Assuming skills are attached or default to "Mixed Interview"
-                val topSkill = interview.skills.firstOrNull()?.skillName ?: "General Interview"
-                
+                // Prefer the role the candidate applied for, fall back to top skill
+                val title = interview.roleAppliedFor
+                    ?.takeIf { it.isNotBlank() }
+                    ?: interview.skills.firstOrNull()?.skillName
+                    ?: "General Interview"
+
                 ReportItem(
                     id = interview.id.toString(),
-                    title = topSkill,
+                    title = title,
                     date = dateStr,
                     score = interview.score,
                     status = interview.feedbackLevel

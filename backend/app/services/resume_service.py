@@ -16,6 +16,7 @@ from __future__ import annotations
 import io
 import re
 from typing import Optional
+from difflib import SequenceMatcher
 
 import pdfplumber
 from werkzeug.exceptions import BadRequest, RequestEntityTooLarge, UnprocessableEntity
@@ -177,77 +178,77 @@ def normalize_skill_aliases(text: str) -> str:
 # ---------------------------------------------------------------------------
 # Question Bank
 # ---------------------------------------------------------------------------
-QUESTION_BANK: dict[str, list[str]] = {
-    "Python":      ["Explain your experience with Python and describe the projects you built with it.",
-                    "Which Python frameworks or libraries have you used, and what were your reasons for choosing them?"],
-    "Java":        ["Describe a Java project you worked on and the design patterns you applied.",
-                    "How do you manage memory and performance in a Java application?"],
-    "Kotlin":      ["What advantages does Kotlin offer over Java for Android development?",
-                    "Describe how you use Kotlin coroutines for asynchronous programming."],
-    "C++":         ["Explain memory management in C++ and how you avoid common pitfalls.",
-                    "How do you handle multi-threading safely in C++?"],
-    "C#":          ["Describe your experience with the .NET ecosystem using C#.",
-                    "How do you apply SOLID principles in a C# project?"],
-    "C":           ["Explain pointer arithmetic and how it differs from higher-level languages.",
-                    "How do you manage dynamic memory allocation in C?"],
-    "Go":          ["What makes Go well-suited for concurrent systems?",
-                    "Describe a service you built using Go and the challenges you faced."],
-    "Rust":        ["Explain Rust's ownership model and how it prevents memory errors.",
-                    "When would you choose Rust over C++ for a systems project?"],
-    "Swift":       ["How does Swift's optional system improve safety compared to Objective-C?",
-                    "Describe your experience building an iOS application with Swift."],
-    "PHP":         ["How do you structure a scalable PHP application?",
-                    "Explain how you secure a PHP application against SQL injection and XSS."],
-    "Ruby":        ["What makes Ruby on Rails productive for web development?",
-                    "How do you test a Ruby application effectively?"],
-    "JavaScript":  ["Explain the event loop and how asynchronous JavaScript works.",
-                    "How do you manage state in a large JavaScript application?"],
-    "TypeScript":  ["How does TypeScript's type system improve large codebase maintainability?",
-                    "Describe a scenario where strict TypeScript types caught a runtime bug early."],
-    "Django":      ["How would you design a REST API using Django REST Framework?",
-                    "How does Django's ORM differ from raw SQL queries?"],
-    "Flask":       ["Describe the architecture of a Flask application you built.",
-                    "How do you handle authentication and authorisation in Flask?"],
-    "FastAPI":     ["How does FastAPI's dependency injection system work?",
-                    "Why would you choose FastAPI over Flask for a new project?"],
-    "Spring Boot": ["Explain how Spring Boot auto-configuration works.",
-                    "How do you secure a Spring Boot REST API?"],
-    "Express":     ["How do you structure middleware in an Express application?",
-                    "Describe how you handle errors globally in Express."],
-    "Node.js":     ["How does Node.js handle concurrency without multiple threads?",
-                    "When should you use Node.js over a multi-threaded server?"],
-    "Laravel":     ["Describe the request lifecycle in a Laravel application.",
-                    "How do you use Eloquent ORM to handle complex relationships?"],
-    "ASP.NET":     ["How does ASP.NET Core's middleware pipeline work?",
-                    "Explain how dependency injection is configured in ASP.NET Core."],
-    "React":       ["Explain the virtual DOM and how React's reconciliation works.",
-                    "How do you manage global state in a React application?"],
-    "Angular":     ["Describe Angular's component lifecycle hooks and when you use them.",
-                    "How does Angular's dependency injection differ from other frameworks?"],
-    "Vue":         ["How does Vue's reactivity system work?",
-                    "Describe how you would structure a large-scale Vue application."],
-    "Next.js":     ["Explain the difference between SSR and SSG in Next.js.",
-                    "How does Next.js improve SEO for a React application?"],
-    "MySQL":       ["Can you walk me through optimising a slow MySQL query?",
-                    "Explain the difference between INNER JOIN, LEFT JOIN, and RIGHT JOIN."],
-    "PostgreSQL":  ["What PostgreSQL-specific features have you used and why?",
-                    "How do you handle database migrations in a production PostgreSQL system?"],
-    "MongoDB":     ["When would you choose MongoDB over a relational database?",
-                    "How do you model relationships in MongoDB?"],
-    "SQLite":      ["What are the limitations of SQLite for production systems?",
-                    "How did you use SQLite in a mobile or embedded project?"],
-    "Firebase":    ["Describe how you have used Firestore for real-time data synchronisation.",
-                    "How do you handle Firebase security rules effectively?"],
-    "Redis":       ["What use cases make Redis the right choice over a relational DB?",
-                    "How would you use Redis for session management or caching?"],
-    "System Design":  ["How would you design a scalable REST API to serve millions of users?",
-                       "Describe the trade-offs between SQL and NoSQL databases at scale."],
-    "Microservices":  ["How do microservices communicate with each other reliably?",
-                       "What challenges have you faced managing distributed data in microservices?"],
-    "REST API":       ["What principles make a REST API truly RESTful?",
-                       "How do you version and document a public REST API?"],
-    "GraphQL":        ["What problems does GraphQL solve that REST cannot?",
-                       "How do you prevent over-fetching and under-fetching in a GraphQL schema?"],
+QUESTION_BANK: dict[str, list[dict[str, str]]] = {
+    "Python":      [{"main": "Explain your experience with Python and describe the projects you built with it.",
+                     "follow_up": "Which Python frameworks or libraries have you used, and what were your reasons for choosing them?"}],
+    "Java":        [{"main": "Describe a Java project you worked on and the design patterns you applied.",
+                     "follow_up": "How do you manage memory and performance in a Java application?"}],
+    "Kotlin":      [{"main": "What advantages does Kotlin offer over Java for Android development?",
+                     "follow_up": "Describe how you use Kotlin coroutines for asynchronous programming."}],
+    "C++":         [{"main": "Explain memory management in C++ and how you avoid common pitfalls.",
+                     "follow_up": "How do you handle multi-threading safely in C++?"}],
+    "C#":          [{"main": "Describe your experience with the .NET ecosystem using C#.",
+                     "follow_up": "How do you apply SOLID principles in a C# project?"}],
+    "C":           [{"main": "Explain pointer arithmetic and how it differs from higher-level languages.",
+                     "follow_up": "How do you manage dynamic memory allocation in C?"}],
+    "Go":          [{"main": "What makes Go well-suited for concurrent systems?",
+                     "follow_up": "Describe a service you built using Go and the challenges you faced."}],
+    "Rust":        [{"main": "Explain Rust's ownership model and how it prevents memory errors.",
+                     "follow_up": "When would you choose Rust over C++ for a systems project?"}],
+    "Swift":       [{"main": "How does Swift's optional system improve safety compared to Objective-C?",
+                     "follow_up": "Describe your experience building an iOS application with Swift."}],
+    "PHP":         [{"main": "How do you structure a scalable PHP application?",
+                     "follow_up": "Explain how you secure a PHP application against SQL injection and XSS."}],
+    "Ruby":        [{"main": "What makes Ruby on Rails productive for web development?",
+                     "follow_up": "How do you test a Ruby application effectively?"}],
+    "JavaScript":  [{"main": "Explain the event loop and how asynchronous JavaScript works.",
+                     "follow_up": "How do you manage state in a large JavaScript application?"}],
+    "TypeScript":  [{"main": "How does TypeScript's type system improve large codebase maintainability?",
+                     "follow_up": "Describe a scenario where strict TypeScript types caught a runtime bug early."}],
+    "Django":      [{"main": "How would you design a REST API using Django REST Framework?",
+                     "follow_up": "How does Django's ORM differ from raw SQL queries?"}],
+    "Flask":       [{"main": "Describe the architecture of a Flask application you built.",
+                     "follow_up": "How do you handle authentication and authorisation in Flask?"}],
+    "FastAPI":     [{"main": "How does FastAPI's dependency injection system work?",
+                     "follow_up": "Why would you choose FastAPI over Flask for a new project?"}],
+    "Spring Boot": [{"main": "Explain how Spring Boot auto-configuration works.",
+                     "follow_up": "How do you secure a Spring Boot REST API?"}],
+    "Express":     [{"main": "How do you structure middleware in an Express application?",
+                     "follow_up": "Describe how you handle errors globally in Express."}],
+    "Node.js":     [{"main": "How does Node.js handle concurrency without multiple threads?",
+                     "follow_up": "When should you use Node.js over a multi-threaded server?"}],
+    "Laravel":     [{"main": "Describe the request lifecycle in a Laravel application.",
+                     "follow_up": "How do you use Eloquent ORM to handle complex relationships?"}],
+    "ASP.NET":     [{"main": "How does ASP.NET Core's middleware pipeline work?",
+                     "follow_up": "Explain how dependency injection is configured in ASP.NET Core."}],
+    "React":       [{"main": "Explain the virtual DOM and how React's reconciliation works.",
+                     "follow_up": "How do you manage global state in a React application?"}],
+    "Angular":     [{"main": "Describe Angular's component lifecycle hooks and when you use them.",
+                     "follow_up": "How does Angular's dependency injection differ from other frameworks?"}],
+    "Vue":         [{"main": "How does Vue's reactivity system work?",
+                     "follow_up": "Describe how you would structure a large-scale Vue application."}],
+    "Next.js":     [{"main": "Explain the difference between SSR and SSG in Next.js.",
+                     "follow_up": "How does Next.js improve SEO for a React application?"}],
+    "MySQL":       [{"main": "Can you walk me through optimising a slow MySQL query?",
+                     "follow_up": "Explain the difference between INNER JOIN, LEFT JOIN, and RIGHT JOIN."}],
+    "PostgreSQL":  [{"main": "What PostgreSQL-specific features have you used and why?",
+                     "follow_up": "How do you handle database migrations in a production PostgreSQL system?"}],
+    "MongoDB":     [{"main": "When would you choose MongoDB over a relational database?",
+                     "follow_up": "How do you model relationships in MongoDB?"}],
+    "SQLite":      [{"main": "What are the limitations of SQLite for production systems?",
+                     "follow_up": "How did you use SQLite in a mobile or embedded project?"}],
+    "Firebase":    [{"main": "Describe how you have used Firestore for real-time data synchronisation.",
+                     "follow_up": "How do you handle Firebase security rules effectively?"}],
+    "Redis":       [{"main": "What use cases make Redis the right choice over a relational DB?",
+                     "follow_up": "How would you use Redis for session management or caching?"}],
+    "System Design":  [{"main": "How would you design a scalable REST API to serve millions of users?",
+                        "follow_up": "Describe the trade-offs between SQL and NoSQL databases at scale."}],
+    "Microservices":  [{"main": "How do microservices communicate with each other reliably?",
+                        "follow_up": "What challenges have you faced managing distributed data in microservices?"}],
+    "REST API":       [{"main": "What principles make a REST API truly RESTful?",
+                        "follow_up": "How do you version and document a public REST API?"}],
+    "GraphQL":        [{"main": "What problems does GraphQL solve that REST cannot?",
+                        "follow_up": "How do you prevent over-fetching and under-fetching in a GraphQL schema?"}],
 }
 
 # ---------------------------------------------------------------------------
@@ -486,32 +487,106 @@ def _detect_experience_years(text: str) -> Optional[int]:
 # ❺  Question Generation
 # ---------------------------------------------------------------------------
 
-def _generate_questions(tech_skills: dict[str, list[str]], applied_role: Optional[str] = None, weakest_category: Optional[str] = None, experience: int = 0) -> list[dict]:
+def _generate_questions(tech_skills: dict[str, list[str]], applied_role: Optional[str] = None, weakest_category: Optional[str] = None, weak_score: float = 100.0, experience: int = 0) -> list[dict]:
+    # Calculate dynamic weakness quota
+    if weakest_category and weak_score is not None:
+        if weak_score < 40:
+            weakness_quota = 5
+        elif weak_score < 60:
+            weakness_quota = 4
+        elif weak_score < 80:
+            weakness_quota = 3
+        else:
+            weakness_quota = 2
+    else:
+        weakness_quota = 0
+
     # ── Try Gemini AI first ──
     flat_skills = [s for cat, cat_skills in tech_skills.items() if cat != "misc" for s in cat_skills]
     if flat_skills:
+        weak_skills = []
+        if weakest_category:
+            for cat, skills in tech_skills.items():
+                if cat.lower() == weakest_category.lower():
+                    weak_skills.extend(skills)
+
+        role_skills = []
+        priority_orders = ROLE_PRIORITIES.get(applied_role, list(QUESTION_ELIGIBLE_CATEGORIES)) if applied_role else list(QUESTION_ELIGIBLE_CATEGORIES)
+        
+        for cat in priority_orders:
+            for s in tech_skills.get(cat, []):
+                if s not in weak_skills:
+                    role_skills.append(s)
+
+        remaining_skills = [s for s in flat_skills if s not in weak_skills and s not in role_skills]
+
+        weak_count = weakness_quota if weak_skills else 0
+        rem = MAX_QUESTIONS - weak_count
+        primary_count = int(rem * 0.6) if remaining_skills else rem
+        secondary_count = rem - primary_count
+
+        question_plan = {
+            "weak_skills": weak_skills,
+            "primary_skills": role_skills,
+            "secondary_skills": remaining_skills,
+            "distribution": {
+                "weak": weak_count,
+                "primary": primary_count,
+                "secondary": secondary_count
+            }
+        }
+
         ai_questions = llm_service.generate_questions(
-            skills=flat_skills,
+            question_plan=question_plan,
             role=applied_role or "Software Engineer",
             experience=experience,
-            count=MAX_QUESTIONS,
-            weakest_category=weakest_category
+            count=MAX_QUESTIONS
         )
         if ai_questions and len(ai_questions) > 0:
-            return ai_questions
+            final_ai = []
+            for q in ai_questions:
+                main_q = {
+                    "question": q.get("main_question", ""),
+                    "category": q.get("category", ""),
+                    "type": "main"
+                }
+                follow_up_q = {
+                    "question": q.get("follow_up_question", ""),
+                    "category": q.get("category", ""),
+                    "type": "follow_up"
+                }
+
+                if main_q["question"] and not any(SequenceMatcher(None, main_q["question"], ex["question"]).ratio() > 0.85 for ex in final_ai):
+                    final_ai.append(main_q)
+                    if len(final_ai) >= MAX_QUESTIONS: break
+
+                if follow_up_q["question"] and not any(SequenceMatcher(None, follow_up_q["question"], ex["question"]).ratio() > 0.85 for ex in final_ai):
+                    final_ai.append(follow_up_q)
+                    if len(final_ai) >= MAX_QUESTIONS: break
+
+            print(f"[InterviewEngine] Main questions: {sum(1 for q in final_ai if q['type'] == 'main')}")
+            print(f"[InterviewEngine] Follow-up questions: {sum(1 for q in final_ai if q['type'] == 'follow_up')}")
+            print(f"[InterviewEngine] Total questions: {len(final_ai)}")
+            return final_ai
 
     # ── Fallback to Static Question Bank ──
     questions: list[dict] = []
     
-    # Adaptive Weighting: Pre-allocate extra questions for weakest category
-    adaptive_quota = 0
-    if weakest_category and weakest_category.lower() in [k.lower() for k in QUESTION_ELIGIBLE_CATEGORIES]:
-        # +30% weight out of MAX_QUESTIONS -> 3 extra questions allocated to weakest cat
-        adaptive_quota = int(MAX_QUESTIONS * 0.3) 
+    def is_similar(new_q: str) -> bool:
+        return any(SequenceMatcher(None, new_q, ex["question"]).ratio() > 0.85 for ex in questions)
+    
+    def add_question_pair(q_pair: dict, skill: str) -> None:
+        if len(questions) < MAX_QUESTIONS and not is_similar(q_pair["main"]):
+            questions.append({"question": q_pair["main"], "category": skill, "type": "main"})
+        if len(questions) < MAX_QUESTIONS and not is_similar(q_pair["follow_up"]):
+            questions.append({"question": q_pair["follow_up"], "category": skill, "type": "follow_up"})
+
+    # Adaptive Weighting: Use the dynamic weakness quota calculated earlier (quota represents pairs so divide by 2)
+    adaptive_quota_pairs = max(1, weakness_quota // 2) if (weakest_category and weakest_category.lower() in [k.lower() for k in QUESTION_ELIGIBLE_CATEGORIES]) else 0
     
     # Find exact casing of weakest category
     weakest_cat_exact = None
-    if adaptive_quota > 0:
+    if adaptive_quota_pairs > 0:
         for cat in tech_skills.keys():
             if cat.lower() == weakest_category.lower() and tech_skills[cat]:
                 weakest_cat_exact = cat
@@ -540,38 +615,35 @@ def _generate_questions(tech_skills: dict[str, list[str]], applied_role: Optiona
             q_list = lowercase_q_bank.get(skill_lower, [])
             # Fallback to general generic if not found
             if not q_list:
-                q_list = [
-                    f"Describe your experience with {skill} in a production environment.",
-                    f"What are the most challenging aspects of working with {skill}?"
-                ]
-            for q_text in q_list:
-                if adaptive_quota == 0:
+                q_list = [{
+                    "main": f"Describe your experience with {skill} in a production environment.",
+                    "follow_up": f"What are the most challenging aspects of working with {skill}?"
+                }]
+            for q_pair in q_list:
+                if adaptive_quota_pairs <= 0:
                     break
-                # Only add if we haven't maxed out overall
+                add_question_pair(q_pair, skill)
+                adaptive_quota_pairs -= 1
                 if len(questions) >= MAX_QUESTIONS:
-                    return questions
-                questions.append({"question": q_text, "category": skill})
-                adaptive_quota -= 1
+                    break
 
     # Phase 2: Distribute remaining questions across all categories
     for category in categories_to_query:
+        if len(questions) >= MAX_QUESTIONS:
+            break
         for skill in tech_skills.get(category, []):
             skill_lower = skill.lower()
             q_list = lowercase_q_bank.get(skill_lower, [])
             # Dynamic generic generation if missing from static bank
             if not q_list:
-                q_list = [
-                    f"Can you walk me through a complex problem you solved using {skill}?",
-                    f"How do you stay updated with the latest developments in {skill}?"
-                ]
-            for q_text in q_list:
-                # We skip adding duplicates if the adaptive logic already grabbed this exact question
-                if any(q["question"] == q_text for q in questions):
-                    continue
-                    
+                q_list = [{
+                    "main": f"Can you walk me through a complex problem you solved using {skill}?",
+                    "follow_up": f"How do you stay updated with the latest developments in {skill}?"
+                }]
+            for q_pair in q_list:
                 if len(questions) >= MAX_QUESTIONS:
-                    return questions
-                questions.append({"question": q_text, "category": skill})
+                    break
+                add_question_pair(q_pair, skill)
                 
     # Phase 3: If we still don't have enough questions and we have custom/unknown skills
     # because they didn't match the eligible categories, iterate over ALL skills
@@ -587,18 +659,53 @@ def _generate_questions(tech_skills: dict[str, list[str]], applied_role: Optiona
                 continue
                 
             skill_lower = skill.lower()
-            q_list = lowercase_q_bank.get(skill_lower, [
-                f"How would you explain the core concepts of {skill} to a junior engineer?",
-                f"Describe a time you had to optimize performance related to {skill}."
-            ])
+            q_list = lowercase_q_bank.get(skill_lower, [{
+                "main": f"How would you explain the core concepts of {skill} to a junior engineer?",
+                "follow_up": f"Describe a time you had to optimize performance related to {skill}."
+            }])
             
-            for q_text in q_list:
+            for q_pair in q_list:
                 if len(questions) >= MAX_QUESTIONS:
                     break
-                if not any(q["question"] == q_text for q in questions):
-                    questions.append({"question": q_text, "category": skill})
+                add_question_pair(q_pair, skill)
                     
+    print(f"[InterviewEngine] Main questions: {sum(1 for q in questions if q['type'] == 'main')}")
+    print(f"[InterviewEngine] Follow-up questions: {sum(1 for q in questions if q['type'] == 'follow_up')}")
+    print(f"[InterviewEngine] Total questions: {len(questions)}")
+    
     return questions
+
+# ---------------------------------------------------------------------------
+# Unknown Skills Detection
+# ---------------------------------------------------------------------------
+
+def detect_unknown_skills(text: str, known_skills: set[str]) -> list[str]:
+    """
+    Captures technical keywords that may represent valid skills but are missing
+    from the static dictionary (e.g. emerging technologies).
+    """
+    # Look for capitalized words with numbers or special chars common in tech (e.g. Next.js, C++)
+    candidates = re.findall(r"\b[A-Z][a-zA-Z0-9\.\+\#]{2,}\b", text)
+    unknown = []
+    
+    # Common noise words in resumes
+    noise_words = {
+        "January", "February", "March", "April", "May", "June", "July", "August", "September",
+        "October", "November", "December", "University", "College", "Degree", "Bachelor",
+        "Master", "Ph.D", "School", "Institute", "Academy", "Engineering", "Science",
+        "Technology", "Management", "Application", "Developer", "Engineer", "Manager",
+        "Project", "Product", "System", "Software", "Hardware", "Network", "Database",
+        "Server", "Client", "Frontend", "Backend", "Fullstack", "Agile", "Scrum",
+        "Company", "Inc", "LLC", "Ltd", "Corp", "Corporation", "Technologies", "Solutions",
+    }
+    
+    known_lower = {k.lower() for k in known_skills}
+    
+    for word in candidates:
+        if word.lower() not in known_lower and word not in noise_words:
+            unknown.append(word)
+            
+    return list(set(unknown))
 
 # ---------------------------------------------------------------------------
 # ❻  Role Extraction
@@ -743,8 +850,20 @@ def process_resume(file, user_id: int) -> dict:
     
     analytics_data = analytics_service.get_category_performance_data(user_id)
     weakest_category = analytics_data.get("weakest_category")
+    # Get the score so we can pass it down for dynamic weakness quota calculation
+    weak_score = 100.0
+    if weakest_category and "category_scores" in analytics_data:
+        scores = [cat["score"] for cat in analytics_data["category_scores"] if cat["category"] == weakest_category]
+        if scores:
+            weak_score = scores[0]
     
-    questions = _generate_questions(tech_skills, applied_role=fallback_role, weakest_category=weakest_category, experience=experience)
+    questions = _generate_questions(
+        tech_skills, 
+        applied_role=fallback_role, 
+        weakest_category=weakest_category, 
+        weak_score=weak_score,
+        experience=experience
+    )
 
     # ── Step 7: tools_frameworks (web + devops + testing, flat, deduped) ─────
     tools_set: list[str] = []
@@ -754,10 +873,21 @@ def process_resume(file, user_id: int) -> dict:
             if skill.lower() not in seen_tools:
                 seen_tools.add(skill.lower())
                 tools_set.append(skill)
+                
+    # ── Step 8: Unknown Skills Detection ─────────────────────────────────────
+    # Build complete known skills set
+    all_known_skills = set()
+    for cat_skills in TECH_SKILLS_DB.values():
+        all_known_skills.update(cat_skills)
+    for aliases in SKILL_ALIASES.values():
+        all_known_skills.update(aliases)
+        
+    unknown_skills = detect_unknown_skills(full_text, all_known_skills)
 
     logger.info(f"[ResumeParser] Tech skills found: "
           f"{ {k: len(v) for k, v in technical_skills.items() if v} }")
     logger.info(f"[ResumeParser] Soft skills found: {all_soft}")
+    logger.info(f"[ResumeParser] Unknown skills detected: {unknown_skills}")
     logger.info(f"[ResumeParser] Experience years : {experience}")
     logger.info(f"[ResumeParser] Questions generated: {len(questions)}")
 
@@ -765,6 +895,7 @@ def process_resume(file, user_id: int) -> dict:
         "technical_skills":          technical_skills,
         "tools_frameworks":          tools_set,
         "soft_skills":               all_soft,
+        "unknown_skills":            unknown_skills,
         "detected_experience_years": experience,
         "previous_role":             previous_role,
         "inferred_target_role":      inferred_target_role,

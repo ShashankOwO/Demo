@@ -23,7 +23,8 @@ data class InterviewUiData(
     val questionText: String = "",
     val isRecording: Boolean = false,
     val timerText: String = "00:00",
-    val transcribedText: String = ""
+    val transcribedText: String = "",
+    val isFollowUp: Boolean = false
 )
 
 @HiltViewModel
@@ -35,12 +36,13 @@ class InterviewViewModel @Inject constructor(
 
     // Default fallback questions in case there is no resume loaded (e.g., debug testing)
     private val _fallbackQuestions = listOf(
-        InterviewQuestion("Tell me about a time you had to handle a difficult conflict with a coworker. How did you resolve it?", "Behavioral"),
-        InterviewQuestion("Where do you see yourself in 5 years?", "Behavioral"),
-        InterviewQuestion("What is your greatest professional strength?", "Behavioral")
+        InterviewQuestion("Tell me about a time you had to handle a difficult conflict with a coworker. How did you resolve it?", "Behavioral", "main"),
+        InterviewQuestion("Where do you see yourself in 5 years?", "Behavioral", "main"),
+        InterviewQuestion("What is your greatest professional strength?", "Behavioral", "main")
     )
 
     private var _questions: List<InterviewQuestion> = emptyList()
+    private var _targetRole: String? = null
 
     // Store the answers for submission at the end
     private val _userResponses = mutableListOf<QuestionAnswerIn>()
@@ -108,6 +110,7 @@ class InterviewViewModel @Inject constructor(
             if (response.isSuccess) {
                 val profile = response.getOrNull()
                 targetRole = profile?.targetRole
+                _targetRole = profile?.targetRole
                 val skillsJson = profile?.skillsJson
                 android.util.Log.d("InterviewViewModel", "Profile loaded. targetRole=$targetRole, raw skillsJson=$skillsJson")
                 if (!skillsJson.isNullOrBlank()) {
@@ -144,7 +147,8 @@ class InterviewViewModel @Inject constructor(
                             currentQuestionIndex = 1,
                             totalQuestions = _questions.size,
                             questionText = _questions[0].question,
-                            timerText = "00:00"
+                            timerText = "00:00",
+                            isFollowUp = _questions[0].type == "follow_up"
                         )
                     } else {
                         android.util.Log.e("InterviewViewModel", "genResult success but freshAnalysis is empty or null")
@@ -164,7 +168,8 @@ class InterviewViewModel @Inject constructor(
                 currentQuestionIndex = 1,
                 totalQuestions = _questions.size,
                 questionText = _questions[0].question,
-                timerText = "00:00"
+                timerText = "00:00",
+                isFollowUp = _questions[0].type == "follow_up"
             )
         }
     }
@@ -177,7 +182,8 @@ class InterviewViewModel @Inject constructor(
                 totalQuestions = _questions.size,
                 questionText = _questions[index].question,
                 timerText = "00:00",
-                isRecording = false
+                isRecording = false,
+                isFollowUp = _questions[index].type == "follow_up"
             )
         }
     }
@@ -228,7 +234,7 @@ class InterviewViewModel @Inject constructor(
         // _isFinished.value = true can be called AFTER submission succeeds.
         
         viewModelScope.launch {
-            val result = interviewRepository.submitInterview(_userResponses)
+            val result = interviewRepository.submitInterview(_userResponses, _targetRole)
             // Always navigate to success (even on submission failure)
             _isFinished.postValue(true)
         }

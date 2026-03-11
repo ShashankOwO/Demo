@@ -32,6 +32,7 @@ data class TechnicalSkills(
 data class InterviewQuestion(
     @SerializedName("question") val question: String,
     @SerializedName("category") val category: String,
+    @SerializedName("type")     val type: String = "main",
 )
 
 /**
@@ -85,7 +86,8 @@ data class SkillOut(
 )
 
 data class InterviewCreate(
-    @SerializedName("responses") val responses: List<QuestionAnswerIn>,
+    @SerializedName("responses")        val responses:        List<QuestionAnswerIn>,
+    @SerializedName("role_applied_for") val roleAppliedFor:   String? = null,
 )
 
 data class InterviewOut(
@@ -94,6 +96,7 @@ data class InterviewOut(
     @SerializedName("feedback_level")   val feedbackLevel:   String,
     @SerializedName("summary")          val summary:         String?,
     @SerializedName("created_at")       val createdAt:       String,
+    @SerializedName("role_applied_for") val roleAppliedFor:  String? = null,
     @SerializedName("question_answers") val questionAnswers: List<QuestionAnswerOut> = emptyList(),
     @SerializedName("skills")           val skills:          List<SkillOut>          = emptyList(),
 )

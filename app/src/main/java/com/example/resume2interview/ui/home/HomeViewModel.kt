@@ -11,14 +11,17 @@ import javax.inject.Inject
 
 data class HomeUiData(
     val userName: String,
+    val greeting: String,
     val resumeStatus: String,
     val interviewSessionCount: Int,
     val latestScore: Int,
+    val avgScore: Int = 0,
     val focusAreas: List<String>,
     val extractedSkills: Int = 0,
     val isResumeActive: Boolean = false,
-    val resumeUploadedAt: String? = null,   // ISO date string from resume upload
-    val lastSessionDate: String? = null     // ISO date string from last-five endpoint
+    val resumeUploadedAt: String? = null,
+    val lastSessionDate: String? = null,
+    val generatedTips: List<String> = emptyList()
 )
 
 @HiltViewModel
@@ -92,15 +95,53 @@ class HomeViewModel @Inject constructor(
             resumePreferences.setResumeUploaded(userEmail, isResumeActive)
             HomeStaticState.isResumeUploaded = isResumeActive
 
+            val tipEngine = HomeTipEngine()
+
+            // Flat list of resume skills for skill-based tips
+            val resumeSkillsList: List<String> = withContext(Dispatchers.Default) {
+                val skills = mutableListOf<String>()
+                if (!skillsJsonStr.isNullOrBlank() && skillsJsonStr != "{}" && skillsJsonStr != "[]") {
+                    try {
+                        val jsonObj = org.json.JSONObject(skillsJsonStr)
+                        val keys = jsonObj.keys()
+                        while (keys.hasNext()) {
+                            val key = keys.next()
+                            val arr = jsonObj.optJSONArray(key)
+                            if (arr != null) {
+                                for (i in 0 until arr.length()) {
+                                    skills.add(arr.getString(i))
+                                }
+                            }
+                        }
+                    } catch (e: Exception) { /* ignore */ }
+                }
+                skills
+            }
+
+            val analyticsData = HomeAnalyticsData(
+                avgScore         = summary?.averageScore?.toInt() ?: 0,
+                interviewCount   = summary?.totalSessions ?: lastFive.size,
+                todaySessions    = 0, // Reserved for future daily session tracking
+                weakestCategory  = performance?.weakestCategory,
+                strongestCategory = performance?.strongestCategory,
+                resumeSkills     = resumeSkillsList
+            )
+
+            val generatedTips  = tipEngine.generateTips(analyticsData)
+            val greeting       = tipEngine.greeting(userName)
+
             HomeUiData(
-                userName           = userName,
-                resumeStatus       = if (isResumeActive) "Active" else "Action Needed",
+                userName              = userName,
+                greeting              = greeting,
+                resumeStatus          = if (isResumeActive) "Active" else "Action Needed",
                 interviewSessionCount = summary?.totalSessions ?: lastFive.size,
-                latestScore        = latestScore,
-                focusAreas         = focusAreas,
-                extractedSkills    = extractedSkillsCount,
-                isResumeActive     = isResumeActive,
-                lastSessionDate    = lastSessionDate
+                latestScore           = latestScore,
+                avgScore              = summary?.averageScore?.toInt() ?: 0,
+                focusAreas            = focusAreas,
+                extractedSkills       = extractedSkillsCount,
+                isResumeActive        = isResumeActive,
+                lastSessionDate       = lastSessionDate,
+                generatedTips         = generatedTips
             )
         }
     }

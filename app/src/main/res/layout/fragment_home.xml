@@ -64,16 +64,31 @@
             app:layout_constraintEnd_toStartOf="@+id/frame_avatar"
             app:layout_constraintTop_toTopOf="parent" />
 
+        <!-- Twinkle Lottie sparkle (plays on each tip transition) -->
+        <com.airbnb.lottie.LottieAnimationView
+            android:id="@+id/sparkle_icon"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            app:lottie_rawRes="@raw/twinkle"
+            app:lottie_autoPlay="false"
+            app:lottie_loop="false"
+            android:alpha="0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/tv_subtitle"
+            app:layout_constraintBottom_toBottomOf="@+id/tv_subtitle" />
+
+        <!-- Animated tip subtitle -->
         <TextView
             android:id="@+id/tv_subtitle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginStart="6dp"
             android:layout_marginEnd="16dp"
-            android:text="Let's get you job-ready today."
+            android:text="Let's get you job-ready today"
             android:textColor="@color/text_secondary"
             android:textSize="14sp"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/sparkle_icon"
             app:layout_constraintEnd_toStartOf="@+id/frame_avatar"
             app:layout_constraintTop_toBottomOf="@+id/tv_welcome" />
 

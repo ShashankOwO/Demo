@@ -22,12 +22,14 @@ class InterviewQuestionSchema(Schema):
     """A single generated interview question."""
     question = fields.String(required=True)
     category = fields.String(required=True)
+    type = fields.String(required=True)
 
 class ResumeAnalysisOutSchema(Schema):
     """Full response returned by POST /resume/upload."""
     technical_skills = fields.Nested(TechnicalSkillsSchema, required=True)
     tools_frameworks = fields.List(fields.String(), missing=list)
     soft_skills = fields.List(fields.String(), missing=list)
+    unknown_skills = fields.List(fields.String(), missing=list)
     detected_experience_years = fields.Integer(missing=0)
     inferred_target_role = fields.String(missing=None)
     previous_role = fields.String(missing=None)

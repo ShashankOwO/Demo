@@ -16,9 +16,12 @@ class InterviewRepository @Inject constructor(
      * Submits all Q&A pairs from the completed interview session.
      * Returns the scored [InterviewOut] with feedback level and score.
      */
-    suspend fun submitInterview(responses: List<QuestionAnswerIn>): Result<InterviewOut> =
+    suspend fun submitInterview(
+        responses: List<QuestionAnswerIn>,
+        roleAppliedFor: String? = null
+    ): Result<InterviewOut> =
         runCatching {
-            val response = api.createInterview(InterviewCreate(responses))
+            val response = api.createInterview(InterviewCreate(responses, roleAppliedFor))
             if (response.isSuccessful && response.body() != null) {
                 response.body()!!
             } else {

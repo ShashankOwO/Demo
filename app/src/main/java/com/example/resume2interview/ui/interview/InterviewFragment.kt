@@ -314,6 +314,7 @@ class InterviewFragment : BaseFragment<FragmentInterviewBinding, InterviewViewMo
             "Question ${uiData.currentQuestionIndex} of ${uiData.totalQuestions}"
         binding.tvQuestion.text = "\u201c ${uiData.questionText} \u201d"
         binding.tvTimer.text = uiData.timerText
+        binding.tvFollowUpLabel.visibility = if (uiData.isFollowUp) View.VISIBLE else View.GONE
 
         // Progress bar: out of 10
         binding.progressBar.max = uiData.totalQuestions

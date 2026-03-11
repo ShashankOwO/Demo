@@ -159,30 +159,50 @@ class InterviewProgressFragment : BaseFragment<FragmentInterviewProgressBinding,
         chart.animateY(1000)
 
         // Setup the LineChart
-        bindLineChart(entries, dateLabels)
+        bindLineChart(entries, dateLabels, maxScore, minScore)
     }
 
-    private fun bindLineChart(barEntries: List<BarEntry>, dateLabels: List<String>) {
+    private fun bindLineChart(
+        barEntries: List<BarEntry>,
+        dateLabels: List<String>,
+        maxScore: Int,
+        minScore: Int
+    ) {
         val lineChart = binding.lineChart
         if (barEntries.isEmpty()) {
             lineChart.clear()
             return
         }
 
-        // Convert BarEntry to LineChart Entry
-        val entries = ArrayList<Entry>()
+        // Convert BarEntry to LineChart Entry and compute per-dot colors
+        val entries       = ArrayList<Entry>()
+        val circleColors  = ArrayList<Int>()
+
+        val colorGreen = Color.parseColor("#4CAF50") // Highest
+        val colorRed   = Color.parseColor("#F44336") // Lowest
+        val colorBlue  = Color.parseColor("#4285F4") // Normal
+
         barEntries.forEach { barEntry ->
             entries.add(Entry(barEntry.x, barEntry.y))
+            val score = barEntry.y.toInt()
+            circleColors.add(
+                when {
+                    score == maxScore && maxScore != minScore -> colorGreen
+                    score == minScore                        -> colorRed
+                    else                                     -> colorBlue
+                }
+            )
         }
 
         val dataSet = LineDataSet(entries, "Trend")
-        dataSet.color = Color.parseColor("#4285F4")
-        dataSet.lineWidth = 3f
+        dataSet.color          = Color.parseColor("#4285F4")
+        dataSet.lineWidth      = 3f
         dataSet.setDrawCircles(true)
-        dataSet.setCircleColor(Color.parseColor("#4285F4"))
-        dataSet.circleRadius = 5f
+        dataSet.circleColors   = circleColors          // Per-entry dot colors
+        dataSet.circleRadius   = 6f
         dataSet.setDrawCircleHole(true)
-        dataSet.circleHoleColor = Color.WHITE
+        dataSet.circleHoleRadius = 3f
+        dataSet.circleHoleColor  = Color.WHITE
         dataSet.setDrawValues(false) // Hide numbers on the line itself
         dataSet.mode = LineDataSet.Mode.CUBIC_BEZIER // Smooth curves
 

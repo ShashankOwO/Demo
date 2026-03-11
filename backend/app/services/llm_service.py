@@ -89,32 +89,55 @@ def evaluate_answer(question: str, answer: str, category: str, role: str = None)
         return fallback_response
 
 
-def generate_questions(skills: list[str], role: str, experience: int, count: int, weakest_category: str = None) -> list[dict]:
+def generate_questions(question_plan: dict, role: str, experience: int, count: int) -> list[dict]:
     """
-    Generates tailored interview questions using Gemini based on the user's resume signals.
+    Generates tailored interview questions using Gemini based on the structured question_plan.
     Returns an empty list if it fails or if no API key is provided, so callers can fallback.
     """
     if not settings.gemini_api_key:
         return []
 
-    role_str = f"'{role}' role" if role else "Software Engineering role"
-    weakness_rule = (
-        f"Ensure at least 30% of the questions focus heavily on '{weakest_category}' "
-        f"as the candidate needs more practice there."
-    ) if weakest_category else ""
+    dist = question_plan.get("distribution", {})
+    # Since we now generate pairs, dist values are halved (e.g. 2 weak = 2 pairs = 4 total questions)
+    weak_count = max(1, dist.get("weak", 0) // 2) if dist.get("weak", 0) > 0 else 0
+    primary_count = max(1, dist.get("primary", 0) // 2) if dist.get("primary", 0) > 0 else 0
+    
+    # We need exactly 5 question pairs. The remaining belong to secondary.
+    secondary_count = max(0, 5 - weak_count - primary_count)
+    
+    # If the user requested count=10 originally, count represents 10 questions. But we need 5 pairs.
+    pair_count = max(1, count // 2)
+
+    weak_skills = ", ".join(question_plan.get("weak_skills", [])) or "None"
+    primary_skills = ", ".join(question_plan.get("primary_skills", [])) or "None"
+    secondary_skills = ", ".join(question_plan.get("secondary_skills", [])) or "None"
 
     system_instruction = (
-        f"You are an expert technical interviewer preparing questions for a candidate.\n"
-        f"The candidate has {experience} years of experience and is applying for a {role_str}.\n"
-        f"Their detected technical skills include: {', '.join(skills)}.\n"
-        f"{weakness_rule}\n\n"
-        f"Generate {count} distinct technical interview questions tailored to their skills and experience level.\n"
-        f"You MUST return ONLY a valid JSON array matching this schema exactly, "
-        f"and absolutely NO markdown formatting or other text:\n"
-        f'[{{"question": "string", "category": "string"}}]'
+        f"Generate a realistic technical interview with exactly {pair_count} main technical questions.\n\n"
+        f"Use the following distribution for the main questions:\n\n"
+        f"Weak skills → {weak_count} questions\n"
+        f"Primary role skills → {primary_count} questions\n"
+        f"Secondary skills → {secondary_count} questions\n\n"
+        f"Skills:\n\n"
+        f"Weak Skills:\n{weak_skills}\n\n"
+        f"Primary Skills:\n{primary_skills}\n\n"
+        f"Secondary Skills:\n{secondary_skills}\n\n"
+        f"Experience:\n{experience} years\n\n"
+        f"Rules\n\n"
+        f"• Produce exactly {pair_count} main technical questions\n"
+        f"• Each question must include one follow-up question\n"
+        f"• Follow-up questions must probe deeper into the same topic\n"
+        f"• Questions must match the candidate experience level\n"
+        f"• Prioritize weak skills first\n"
+        f"• Avoid duplicate topics\n"
+        f"• Cover multiple technologies\n"
+        f"• Return JSON format\n\n"
+        f"[\n"
+        f' {{\n   "main_question": "...",\n   "follow_up_question": "...",\n   "category": "..."\n }}\n'
+        f"]"
     )
 
-    prompt = f"Generate {count} questions."
+    prompt = f"Generate exactly {pair_count} question pairs according to the system instructions."
 
     try:
         client = _get_client()
