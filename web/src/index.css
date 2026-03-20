@@ -1,0 +1,84 @@
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Core palette */
+    --color-primary:      #6C63FF;
+    --color-primary-dim:  #4F46E5;
+    --color-bg:           #0A0F1E;
+    --color-surface:      #111827;
+    --color-surface-2:    #1F2937;
+    --color-surface-3:    #374151;
+    --color-border:       #1F2937;
+    --color-text:         #F9FAFB;
+    --color-text-muted:   #9CA3AF;
+    --color-text-dim:     #6B7280;
+
+    --sidebar-w: 72px; /* closed default */
+  }
+
+  :root.sidebar-open {
+    --sidebar-w: 240px;
+  }
+}
+
+@layer base {
+  *, *::before, *::after {
+    box-sizing: border-box;
+    border-color: var(--color-border);
+  }
+
+  html {
+    @apply antialiased;
+    font-family: "DM Sans", sans-serif;
+    background-color: var(--color-bg);
+    color: var(--color-text);
+  }
+
+  body {
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: "Syne", sans-serif;
+  }
+
+  /* Form control fixes */
+  input, textarea, select {
+    color: var(--color-text);
+    background-color: var(--color-surface-3);
+  }
+  input::placeholder, textarea::placeholder {
+    color: var(--color-text-dim);
+  }
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus {
+    -webkit-text-fill-color: var(--color-text);
+    -webkit-box-shadow: 0 0 0 1000px var(--color-surface-3) inset;
+    transition: background-color 5000s ease-in-out 0s;
+  }
+
+  /* YouTube Sidebar Nav Items */
+  .nav-label {
+    font-size: 14px; 
+    font-weight: 500;
+    opacity: 1; 
+    transition: opacity 150ms ease;
+    white-space: nowrap;
+  }
+  
+  :root:not(.sidebar-open) .nav-label,
+  :root:not(.sidebar-open) .sidebar-logo-text { 
+    opacity: 0; 
+    pointer-events: none;
+    width: 0;
+    overflow: hidden;
+  }
+}

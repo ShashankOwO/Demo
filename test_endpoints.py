@@ -1,0 +1,114 @@
+import urllib.request
+import json
+import uuid
+
+BASE_URL = "http://127.0.0.1:5000"
+
+def make_request(url, method="GET", data=None, headers=None):
+    if headers is None:
+        headers = {}
+    
+    if data:
+        data = json.dumps(data).encode('utf-8')
+        headers['Content-Type'] = 'application/json'
+        
+    req = urllib.request.Request(url, data=data, headers=headers, method=method)
+    try:
+        res = urllib.request.urlopen(req)
+        body = res.read().decode('utf-8')
+        try:
+            return res.getcode(), json.loads(body)
+        except json.JSONDecodeError:
+            return res.getcode(), body
+    except urllib.error.HTTPError as e:
+        body = e.read().decode('utf-8')
+        try:
+            return e.code, json.loads(body)
+        except json.JSONDecodeError:
+            return e.code, body
+
+def run_tests():
+    # 1. Register a new user
+    print("--- Test 1/4: Register User ---")
+    test_email = f"test_{uuid.uuid4().hex[:8]}@test.com"
+    status, res = make_request(f"{BASE_URL}/auth/register", "POST", {"email": test_email, "password": "password123"})
+    print(f"Status: {status}\nResponse: {res}")
+    
+    # 2. Login to get token
+    print("\n--- Test 2/4: Login to get token ---")
+    status, res = make_request(f"{BASE_URL}/auth/login", "POST", {"email": test_email, "password": "password123"})
+    print(f"Status: {status}\nResponse: {res}")
+    
+    if status != 200 or 'access_token' not in res:
+        print("Login failed, aborting tests.")
+        return
+        
+    token = res['access_token']
+    auth_headers = {"Authorization": f"Bearer {token}"}
+    
+    # 3. Create an Interview
+    print("\n--- Test 3/4: Create Interview ---")
+    interview_data = {
+        "responses": [
+            {"question": "What is Python?", "answer": "A programming language.", "category": "Technical"}
+        ],
+        "role_applied_for": "Backend Engineer"
+    }
+    status, res = make_request(f"{BASE_URL}/interviews/", "POST", interview_data, auth_headers)
+    print(f"Status: {status}\nResponse: {res}")
+    
+    # 4. Generate Questions from Preferences
+    print("\n--- Test 4/5: Generate Questions from Preferences (Checks Skill Persistence) ---")
+    gen_data = {
+        "skills": ["python", "django", "aws", "CustomSkillPersist"],
+        "target_role": "Backend Engineer",
+        "experience_years": 3
+    }
+    status, res = make_request(f"{BASE_URL}/resume/generate-questions", "POST", gen_data, auth_headers)
+    print(f"Status: {status}")
+    if status == 200:
+        questions = res.get("generated_questions", [])
+        print(f"Generated {len(questions)} questions.")
+    else:
+        print(f"Response: {res}")
+        
+    print("\n--- Checking if Skill Persistence worked (Profile skills_json should not be null) ---")
+    status, res = make_request(f"{BASE_URL}/profile/me", "GET", headers=auth_headers)
+    print(f"Status (Profile Check): {status}")
+    if res.get("skills_json"):
+        print("Success! skills_json is populated.")
+        print(res.get("skills_json")[:150] + "...")
+    else:
+        print(f"Failure! skills_json is NULL. Full profile: {res}")
+
+    # 5. Get Interviews
+    print("\n--- Test 4/4: Get Interviews ---")
+    status, res = make_request(f"{BASE_URL}/interviews/", "GET", headers=auth_headers)
+    print(f"Status: {status}\nResponse: {json.dumps(res, indent=2)}")
+    
+    # Check Analytics
+    print("\n--- Check: Analytics Role Consistency Endpoint ---")
+    status, res = make_request(f"{BASE_URL}/analytics/role-consistency", "GET", headers=auth_headers)
+    print(f"Status: {status}\nResponse: {json.dumps(res, indent=2)}")
+
+    # 5. Get Profile (Empty)
+    print("\n--- Test 5/6: Get My Profile (Should be empty shell) ---")
+    status, res = make_request(f"{BASE_URL}/profile/me", "GET", headers=auth_headers)
+    print(f"Status: {status}\nResponse: {json.dumps(res, indent=2)}")
+    
+    # 6. Update Profile
+    print("\n--- Test 6/6: Update My Profile ---")
+    profile_update_data = {
+        "name": "Jane Doe",
+        "email": test_email,
+        "title": "Lead Android Engineer",
+        "location": "London, UK",
+        "bio": "I write bug-free code.",
+        "profile_photo_url": "https://example.com/photo.jpg"
+    }
+    status, res = make_request(f"{BASE_URL}/profile/me", "PUT", profile_update_data, auth_headers)
+    print(f"Status: {status}\nResponse: {json.dumps(res, indent=2)}")
+
+
+if __name__ == "__main__":
+    run_tests()
