@@ -1,0 +1,522 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Premium light Home -->
+<androidx.core.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_page">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:animateLayoutChanges="true"
+        android:paddingHorizontal="20dp"
+        android:paddingTop="28dp"
+        android:paddingBottom="100dp">
+
+        <!-- Avatar: shows profile photo (or initials if no photo) -->
+        <FrameLayout
+            android:id="@+id/frame_avatar"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@drawable/bg_gradient_circle"
+            android:padding="2dp"
+            android:stateListAnimator="@animator/scale_on_press"
+            android:clickable="true"
+            android:focusable="true"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <!-- Photo layer -->
+            <ImageView
+                android:id="@+id/iv_avatar"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/bg_gradient_circle"
+                android:scaleType="centerCrop"
+                android:visibility="gone" />
+
+            <!-- Initials fallback -->
+            <TextView
+                android:id="@+id/tv_avatar"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/bg_gradient_circle"
+                android:gravity="center"
+                android:text="A"
+                android:textColor="@color/text_on_accent"
+                android:textStyle="bold"
+                android:textSize="18sp" />
+        </FrameLayout>
+
+        <TextView
+            android:id="@+id/tv_welcome"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="12dp"
+            android:text="Hello, Alex 👋"
+            android:textColor="@color/text_primary"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:letterSpacing="-0.02"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/frame_avatar"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="@+id/frame_avatar" />
+
+        <!-- Twinkle Lottie sparkle (plays on each tip transition) -->
+        <com.airbnb.lottie.LottieAnimationView
+            android:id="@+id/sparkle_icon"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            app:lottie_rawRes="@raw/twinkle"
+            app:lottie_autoPlay="false"
+            app:lottie_loop="false"
+            android:alpha="0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/tv_subtitle"
+            app:layout_constraintBottom_toBottomOf="@+id/tv_subtitle" />
+
+        <!-- Animated tip subtitle -->
+        <TextView
+            android:id="@+id/tv_subtitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:layout_marginStart="6dp"
+            android:layout_marginEnd="4dp"
+            android:text="Let's get you job-ready today"
+            android:textColor="@color/text_secondary"
+            android:textSize="13sp"
+            android:lineSpacingMultiplier="1.2"
+            app:layout_constraintStart_toEndOf="@+id/sparkle_icon"
+            app:layout_constraintEnd_toStartOf="@+id/frame_avatar"
+            app:layout_constraintTop_toBottomOf="@+id/tv_welcome" />
+
+        <!-- Practice Streak Card -->
+        <androidx.cardview.widget.CardView
+            android:id="@+id/card_streak"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="4dp"
+            app:cardBackgroundColor="@color/bg_white"
+            app:layout_constraintTop_toBottomOf="@+id/tv_subtitle">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <!-- Indigo top accent bar -->
+                <View android:layout_width="match_parent" android:layout_height="4dp"
+                    android:background="@drawable/bg_gradient_button" />
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="20dp">
+
+                    <FrameLayout
+                        android:id="@+id/frame_streak_icon"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:background="@drawable/bg_accent_badge"
+                        android:padding="6dp"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent">
+
+                        <com.airbnb.lottie.LottieAnimationView
+                            android:id="@+id/sparkle_streak_icon"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:scaleType="centerCrop"
+                            app:lottie_rawRes="@raw/fire_streak_orange"
+                            app:lottie_autoPlay="true"
+                            app:lottie_loop="true" />
+                    </FrameLayout>
+
+                    <TextView
+                        android:id="@+id/tv_streak_title"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="14dp"
+                        android:text="0 Day Streak"
+                        android:textColor="@color/text_primary"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        app:layout_constraintStart_toEndOf="@+id/frame_streak_icon"
+                        app:layout_constraintBottom_toBottomOf="@+id/frame_streak_icon"
+                        app:layout_constraintTop_toTopOf="@+id/frame_streak_icon" />
+
+                <!-- Week Activity Row -->
+                <LinearLayout
+                    android:id="@+id/layout_week_days"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="24dp"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    app:layout_constraintTop_toBottomOf="@+id/frame_streak_icon">
+                    <include layout="@layout/item_streak_day" android:id="@+id/streak_day_1"/>
+                    <include layout="@layout/item_streak_day" android:id="@+id/streak_day_2"/>
+                    <include layout="@layout/item_streak_day" android:id="@+id/streak_day_3"/>
+                    <include layout="@layout/item_streak_day" android:id="@+id/streak_day_4"/>
+                    <include layout="@layout/item_streak_day" android:id="@+id/streak_day_5"/>
+                    <include layout="@layout/item_streak_day" android:id="@+id/streak_day_6"/>
+                    <include layout="@layout/item_streak_day" android:id="@+id/streak_day_7"/>
+                </LinearLayout>
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- Resume Status Card -->
+        <androidx.cardview.widget.CardView
+            android:id="@+id/card_resume_status"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:stateListAnimator="@animator/scale_on_press"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="4dp"
+            app:cardBackgroundColor="@color/bg_white"
+            app:layout_constraintTop_toBottomOf="@+id/card_streak">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <!-- Indigo top accent bar -->
+                <View android:layout_width="match_parent" android:layout_height="4dp"
+                    android:background="@drawable/bg_gradient_button" />
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="20dp">
+
+                    <ImageView android:id="@+id/iv_resume_icon"
+                        android:layout_width="42dp" android:layout_height="42dp"
+                        android:background="@drawable/bg_accent_badge" android:padding="10dp"
+                        android:src="@drawable/ic_document" app:tint="@color/accent_indigo"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView android:id="@+id/tv_status_badge"
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:background="@drawable/bg_accent_badge"
+                        android:paddingHorizontal="12dp" android:paddingVertical="5dp"
+                        android:text="⚠ Action Needed" android:textColor="@color/accent_indigo"
+                        android:textSize="11sp" android:textStyle="bold"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView android:id="@+id/tv_resume_title"
+                        android:layout_width="0dp" android:layout_height="wrap_content"
+                        android:layout_marginTop="14dp" android:layout_marginEnd="12dp"
+                        android:text="Resume Status"
+                        android:textColor="@color/text_primary"
+                        android:textSize="17sp" android:textStyle="bold"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toStartOf="@+id/iv_resume_arrow"
+                        app:layout_constraintTop_toBottomOf="@+id/iv_resume_icon" />
+
+                    <TextView android:id="@+id/tv_resume_status"
+                        android:layout_width="0dp" android:layout_height="wrap_content"
+                        android:layout_marginTop="5dp" android:layout_marginEnd="12dp"
+                        android:text="Upload your resume to generate personalized interview questions."
+                        android:textColor="@color/text_secondary" android:textSize="13sp"
+                        android:lineSpacingMultiplier="1.4"
+                        app:layout_constraintEnd_toStartOf="@+id/iv_resume_arrow"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/tv_resume_title" />
+
+                    <TextView android:id="@+id/tv_last_updated"
+                        android:layout_width="0dp" android:layout_height="wrap_content"
+                        android:layout_marginTop="3dp" android:text="Last updated: 2/11/2026"
+                        android:textColor="@color/text_muted" android:textSize="11sp"
+                        android:visibility="gone"
+                        app:layout_constraintEnd_toStartOf="@+id/iv_resume_arrow"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/tv_resume_status" />
+
+                    <ImageView android:id="@+id/iv_resume_arrow"
+                        android:layout_width="22dp" android:layout_height="22dp"
+                        android:src="@drawable/ic_arrow_right" app:tint="@color/text_muted"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/tv_resume_title" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- Interview Progress Card -->
+        <androidx.cardview.widget.CardView
+            android:id="@+id/card_progress"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="2dp"
+            app:cardBackgroundColor="@color/bg_white"
+            app:layout_constraintTop_toBottomOf="@+id/card_resume_status">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="20dp">
+
+                <ImageView android:id="@+id/iv_chart_icon"
+                    android:layout_width="42dp" android:layout_height="42dp"
+                    android:background="@drawable/bg_accent_badge" android:padding="10dp"
+                    android:src="@drawable/ic_chart" app:tint="@color/accent_indigo"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView android:id="@+id/tv_last_session_date"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="2/8/2026" android:textColor="@color/text_muted"
+                    android:textSize="12sp"
+                    app:drawableStartCompat="@drawable/ic_calendar"
+                    app:drawableTint="@color/text_muted"
+                    android:drawablePadding="6dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView android:id="@+id/tv_progress_title"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:text="Interview Progress"
+                    android:textColor="@color/text_primary"
+                    android:textSize="17sp" android:textStyle="bold"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/iv_chart_icon" />
+
+                <TextView android:id="@+id/tv_session_count"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp" android:text="5"
+                    android:textColor="@color/accent_indigo" android:textSize="42sp"
+                    android:textStyle="bold"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/tv_progress_title" />
+
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp" android:text="sessions completed"
+                    android:textColor="@color/text_secondary" android:textSize="14sp"
+                    app:layout_constraintBaseline_toBaselineOf="@+id/tv_session_count"
+                    app:layout_constraintStart_toEndOf="@+id/tv_session_count" />
+
+                <!-- Score pill -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:background="@color/bg_surface_alt"
+                    android:padding="14dp"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    app:layout_constraintTop_toBottomOf="@+id/tv_session_count">
+
+                    <ImageView android:layout_width="20dp" android:layout_height="20dp"
+                        android:src="@drawable/ic_trending_up"
+                        app:tint="@color/accent_emerald" />
+
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:layout_marginStart="10dp" android:text="Latest score:"
+                        android:textColor="@color/text_secondary" android:textSize="13sp"/>
+
+                    <TextView android:id="@+id/tv_latest_score"
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp" android:text="--/100"
+                        android:textColor="@color/accent_emerald" android:textStyle="bold"
+                        android:textSize="15sp"/>
+                </LinearLayout>
+
+                <ImageView android:id="@+id/iv_progress_arrow"
+                    android:layout_width="22dp" android:layout_height="22dp"
+                    android:src="@drawable/ic_arrow_right" app:tint="@color/text_muted"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/tv_progress_title" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- Focus Areas -->
+        <TextView android:id="@+id/tv_focus_title"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_marginTop="24dp" android:text="Focus Areas"
+            android:textColor="@color/text_primary" android:textSize="18sp"
+            android:textStyle="bold" android:drawablePadding="10dp"
+            app:drawableStartCompat="@drawable/ic_target"
+            app:drawableTint="@color/accent_indigo"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/card_progress" />
+
+        <androidx.cardview.widget.CardView android:id="@+id/card_focus_1"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="12dp" app:cardCornerRadius="14dp" app:cardElevation="1dp"
+            app:cardBackgroundColor="@color/bg_white"
+            app:layout_constraintTop_toBottomOf="@+id/tv_focus_title">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:padding="16dp" android:orientation="horizontal" android:gravity="center_vertical">
+                <View android:layout_width="8dp" android:layout_height="8dp"
+                    android:background="@drawable/circle_red" android:layout_marginEnd="14dp"/>
+                <TextView android:id="@+id/tv_focus_1" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="System design scalability"
+                    android:textColor="@color/text_secondary" android:textSize="14sp"/>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView android:id="@+id/card_focus_2"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="8dp" app:cardCornerRadius="14dp" app:cardElevation="1dp"
+            app:cardBackgroundColor="@color/bg_white"
+            app:layout_constraintTop_toBottomOf="@+id/card_focus_1">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:padding="16dp" android:orientation="horizontal" android:gravity="center_vertical">
+                <View android:layout_width="8dp" android:layout_height="8dp"
+                    android:background="@drawable/circle_red" android:layout_marginEnd="14dp"/>
+                <TextView android:id="@+id/tv_focus_2" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="Edge case handling"
+                    android:textColor="@color/text_secondary" android:textSize="14sp"/>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- CTA Row: Update Resume + Start Interview -->
+        <LinearLayout
+            android:id="@+id/row_cta"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:orientation="horizontal"
+            android:weightSum="2"
+            app:layout_constraintTop_toBottomOf="@+id/card_focus_2">
+
+            <!-- Update Resume card -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/card_update_resume"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginEnd="8dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:stateListAnimator="@animator/scale_on_press"
+                app:cardCornerRadius="18dp"
+                app:cardElevation="4dp"
+                app:cardBackgroundColor="@color/bg_white">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:paddingVertical="20dp"
+                    android:paddingHorizontal="12dp">
+
+                    <ImageView android:layout_width="38dp" android:layout_height="38dp"
+                        android:src="@drawable/ic_document" app:tint="@color/accent_indigo"
+                        android:background="@drawable/bg_accent_badge" android:padding="8dp"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp" android:text="Update Resume"
+                        android:textColor="@color/text_primary" android:textStyle="bold"
+                        android:textSize="13sp" android:gravity="center"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp" android:text="Upload your CV"
+                        android:textColor="@color/text_muted" android:textSize="11sp"
+                        android:gravity="center"/>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Start Interview card — gradient -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/card_start_interview"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="8dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:stateListAnimator="@animator/scale_on_press"
+                app:cardCornerRadius="18dp"
+                app:cardElevation="8dp"
+                app:cardBackgroundColor="@color/accent_indigo">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:paddingVertical="20dp"
+                    android:paddingHorizontal="12dp"
+                    android:background="@drawable/bg_gradient_button">
+
+                    <ImageView
+                        android:id="@+id/iv_start_interview_icon"
+                        android:layout_width="38dp" android:layout_height="38dp"
+                        android:src="@drawable/ic_mic" app:tint="@color/text_on_accent"
+                        android:background="#33FFFFFF" android:padding="8dp"/>
+                    <TextView
+                        android:id="@+id/tv_start_interview"
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp" android:text="Start Interview"
+                        android:textColor="@color/text_on_accent" android:textStyle="bold"
+                        android:textSize="13sp" android:gravity="center"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp" android:text="10 questions"
+                        android:textColor="#CCFFFFFF" android:textSize="11sp"
+                        android:gravity="center"/>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+        </LinearLayout>
+
+        <!-- ── Recent Activity Section ──────────────────────────────────── -->
+        <TextView
+            android:id="@+id/tv_recent_activity_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="28dp"
+            android:text="Recent Activity"
+            android:textColor="@color/text_primary"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:drawablePadding="10dp"
+            app:drawableStartCompat="@drawable/ic_chart"
+            app:drawableTint="@color/accent_indigo"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/row_cta" />
+
+        <!-- Dynamic container: rows inflated in HomeFragment -->
+        <LinearLayout
+            android:id="@+id/ll_recent_activity"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:orientation="vertical"
+            app:layout_constraintTop_toBottomOf="@+id/tv_recent_activity_title" />
+
+        <!-- Empty state: shown when list is empty -->
+        <TextView
+            android:id="@+id/tv_activity_empty"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:gravity="center"
+            android:padding="20dp"
+            android:text="No activity yet — complete an interview or upload your resume!"
+            android:textColor="@color/text_muted"
+            android:textSize="13sp"
+            android:lineSpacingMultiplier="1.4"
+            android:visibility="gone"
+            app:layout_constraintTop_toBottomOf="@+id/ll_recent_activity" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.core.widget.NestedScrollView>

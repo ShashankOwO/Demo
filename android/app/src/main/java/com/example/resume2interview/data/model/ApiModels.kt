@@ -1,0 +1,178 @@
+package com.example.resume2interview.data.model
+
+import com.google.gson.annotations.SerializedName
+
+// ── Resume ────────────────────────────────────────────────────────────────────
+// Matches: POST /resume/upload → ResumeAnalysisOut
+
+/**
+ * Categorised technical skills returned by the backend.
+ * Each field maps directly to a skill category.
+ */
+data class TechnicalSkills(
+    @SerializedName("languages")    val languages:    List<String> = emptyList(),
+    @SerializedName("backend")      val backend:      List<String> = emptyList(),
+    @SerializedName("frontend")     val frontend:     List<String> = emptyList(),
+    @SerializedName("mobile")       val mobile:       List<String> = emptyList(),
+    @SerializedName("database")     val database:     List<String> = emptyList(),
+    @SerializedName("devops")       val devops:       List<String> = emptyList(),
+    @SerializedName("ai")           val ai:           List<String> = emptyList(),
+    @SerializedName("architecture") val architecture: List<String> = emptyList(),
+    @SerializedName("testing")      val testing:      List<String> = emptyList(),
+) {
+    /** Flat list of all tech skills across every category (for question driving). */
+    fun allSkills(): List<String> =
+        languages + backend + frontend + mobile + database +
+        devops + ai + architecture + testing
+}
+
+/**
+ * A single generated interview question with its source category.
+ */
+data class InterviewQuestion(
+    @SerializedName("question") val question: String,
+    @SerializedName("category") val category: String,
+    @SerializedName("type")     val type: String = "main",
+)
+
+/**
+ * Full response from POST /resume/upload.
+ */
+data class ResumeAnalysisOut(
+    @SerializedName("technical_skills")          val technicalSkills:         TechnicalSkills,
+    @SerializedName("tools_frameworks")          val toolsFrameworks:         List<String>          = emptyList(),
+    @SerializedName("soft_skills")               val softSkills:              List<String>          = emptyList(),
+    @SerializedName("detected_experience_years") val detectedExperienceYears: Int                   = 0,
+    @SerializedName("experience_level")          val experienceLevel:         String?               = null,
+    @SerializedName("inferred_target_role")      val inferredTargetRole:      String?               = null,
+    @SerializedName("generated_questions")       val generatedQuestions:      List<InterviewQuestion> = emptyList(),
+)
+
+data class GenerateQuestionsRequest(
+    @SerializedName("skills")           val skills:          List<String>,
+    @SerializedName("soft_skills")      val softSkills:      List<String> = emptyList(),
+    @SerializedName("tools_frameworks") val toolsFrameworks: List<String> = emptyList(),
+    @SerializedName("target_role")      val targetRole:      String?,
+    @SerializedName("experience_years") val experienceYears: Int?,
+    @SerializedName("difficulty")       val difficulty:      String? = null
+)
+
+data class GenerateQuestionsResponse(
+    @SerializedName("generated_questions") val generatedQuestions: List<InterviewQuestion>
+)
+
+data class VerifyRegistrationRequest(
+    @SerializedName("email") val email: String,
+    @SerializedName("otp")   val otp: String
+)
+
+// ── Interview ─────────────────────────────────────────────────────────────────
+// Matches: POST /interviews/  →  body: InterviewCreate, response: InterviewOut
+//          GET  /interviews/  →  List<InterviewOut>
+//          GET  /interviews/{id}  →  InterviewOut
+
+data class QuestionAnswerIn(
+    @SerializedName("question") val question: String,
+    @SerializedName("answer")   val answer:   String,
+    @SerializedName("category") val category: String,
+)
+
+data class QuestionAnswerOut(
+    @SerializedName("id")           val id:          Int,
+    @SerializedName("interview_id") val interviewId: Int,
+    @SerializedName("question")     val question:    String,
+    @SerializedName("answer")       val answer:      String,
+    @SerializedName("category")     val category:    String,
+    @SerializedName("score")        val score:       Int = 0,
+    @SerializedName("strengths")    val strengths:   String? = null,
+    @SerializedName("improvements") val improvements: String? = null,
+    @SerializedName("suggestions")  val suggestions:  String? = null,
+)
+
+data class SkillOut(
+    @SerializedName("id")           val id:          Int,
+    @SerializedName("interview_id") val interviewId: Int,
+    @SerializedName("skill_name")   val skillName:   String,
+)
+
+data class InterviewCreate(
+    @SerializedName("responses")        val responses:        List<QuestionAnswerIn>,
+    @SerializedName("role_applied_for") val roleAppliedFor:   String? = null,
+)
+
+data class InterviewOut(
+    @SerializedName("id")               val id:              Int,
+    @SerializedName("score")            val score:           Int,
+    @SerializedName("feedback_level")   val feedbackLevel:   String,
+    @SerializedName("summary")          val summary:         String?,
+    @SerializedName("created_at")       val createdAt:       String,
+    @SerializedName("role_applied_for") val roleAppliedFor:  String? = null,
+    @SerializedName("question_answers") val questionAnswers: List<QuestionAnswerOut> = emptyList(),
+    @SerializedName("skills")           val skills:          List<SkillOut>          = emptyList(),
+)
+
+// ── Analytics ─────────────────────────────────────────────────────────────────
+// Matches: GET /analytics/last-five     →  List<LastFiveEntry>
+//          GET /analytics/summary       →  AnalyticsSummary
+//          GET /analytics/skills-practiced → List<SkillPracticed>
+
+data class LastFiveEntry(
+    @SerializedName("id")               val id:            Int,
+    @SerializedName("score")            val score:         Int,
+    @SerializedName("created_at")       val createdAt:     String,
+    @SerializedName("role_applied_for") val roleAppliedFor: String? = null,
+)
+
+// ── Recent Activity ──────────────────────────────────────────────────────────
+// Matches: GET /analytics/recent-activity → List<RecentActivityItem>
+
+data class RecentActivityItem(
+    @SerializedName("type")             val type:          String,   // "interview" | "resume"
+    @SerializedName("date")             val date:          String?,
+    @SerializedName("score")            val score:         Int?      = null,
+    @SerializedName("role_applied_for") val roleAppliedFor: String?  = null,
+    @SerializedName("interview_id")     val interviewId:   Int?      = null,
+)
+
+data class AnalyticsSummary(
+    @SerializedName("average_score")     val averageScore:      Float,
+    @SerializedName("highest_score")     val highestScore:      Int,
+    @SerializedName("lowest_score")      val lowestScore:       Int,
+    @SerializedName("latest_score")      val latestScore:       Int,
+    @SerializedName("trend_percentage")  val trendPercentage:   Float,
+    @SerializedName("total_sessions")    val totalSessions:     Int    = 0,
+)
+
+data class SkillPracticed(
+    @SerializedName("category")      val category:     String,
+    @SerializedName("session_count") val sessionCount: Int,
+)
+
+data class CategoryPerformanceResponse(
+    @SerializedName("category_averages")  val categoryAverages:  Map<String, Int> = emptyMap(),
+    @SerializedName("weakest_category")   val weakestCategory:   String? = null,
+    @SerializedName("strongest_category") val strongestCategory: String? = null,
+    @SerializedName("trend")              val trend:             Float? = null
+)
+
+// ── Roles ─────────────────────────────────────────────────────────────────────
+// Matches: GET /roles/suggest  →  SuggestedRolesResponse
+
+data class SuggestedRoleEntry(
+    @SerializedName("role")        val role:       String,
+    @SerializedName("match_score") val matchScore: Int,
+)
+
+data class SuggestedRolesResponse(
+    @SerializedName("suggested_roles") val suggestedRoles: List<SuggestedRoleEntry> = emptyList(),
+)
+
+data class InterviewStreakResponse(
+    @SerializedName("current_streak") val currentStreak: Int,
+    @SerializedName("week_activity") val weekActivity: List<DayActivity> = emptyList()
+)
+
+data class DayActivity(
+    @SerializedName("day") val day: String,
+    @SerializedName("completed") val completed: Boolean
+)

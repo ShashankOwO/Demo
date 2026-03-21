@@ -1,0 +1,91 @@
+package com.example.resume2interview
+
+import android.os.Bundle
+import android.view.View
+import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.NavController
+import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.ui.setupWithNavController
+import com.example.resume2interview.databinding.ActivityMainBinding
+import com.example.resume2interview.utils.TokenManager
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
+import javax.inject.Inject
+
+@AndroidEntryPoint
+class MainActivity : AppCompatActivity() {
+
+    @Inject
+    lateinit var tokenManager: TokenManager
+
+    private lateinit var binding: ActivityMainBinding
+    private lateinit var navController: NavController
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        val navHostFragment = supportFragmentManager
+            .findFragmentById(R.id.nav_host_fragment) as NavHostFragment
+        navController = navHostFragment.navController
+
+        binding.bottomNavigation.setupWithNavController(navController)
+
+        // Prevent reloading the same fragment when clicking the active tab again
+        binding.bottomNavigation.setOnItemReselectedListener { /* no-op */ }
+
+        // Hide bottom nav on auth/sub-page screens
+        val hiddenDestinations = setOf(
+            R.id.splashFragment,
+            R.id.loginFragment,
+            R.id.signupFragment,
+            R.id.verifyRegistrationFragment,
+            R.id.forgotPasswordFragment,
+            R.id.resetPasswordFragment,
+            R.id.interviewFragment,
+            R.id.interviewSuccessFragment,
+            R.id.uploadResumeFragment,
+            R.id.resumeSkillsFragment,
+            R.id.editProfileFragment,
+            R.id.reportDetailFragment,
+            R.id.interviewProgressFragment,
+            R.id.notificationsFragment,
+            R.id.preferencesFragment,
+            R.id.privacyPolicyFragment
+        )
+
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            val nav = binding.bottomNavigation
+            if (destination.id in hiddenDestinations) {
+                nav.animate().translationY(nav.height.toFloat()).setDuration(200).withEndAction {
+                    nav.visibility = View.GONE
+                }.start()
+            } else {
+                nav.visibility = View.VISIBLE
+                nav.animate().translationY(0f).setDuration(250).start()
+            }
+        }
+
+        // Listen for 401 Unauthorized events and force logout
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                tokenManager.unauthorizedEvent.collect {
+                    // isGuestMode = true when user pressed Skip — don't redirect
+                    if (navController.currentDestination?.id != R.id.loginFragment) {
+                        navController.navigate(
+                            R.id.loginFragment,
+                            null,
+                            androidx.navigation.NavOptions.Builder()
+                                .setPopUpTo(R.id.homeFragment, true)
+                                .build()
+                        )
+                    }
+                }
+            }
+        }
+    }
+}

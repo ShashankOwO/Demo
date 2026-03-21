@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Premium light Profile -->
+<androidx.core.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_page">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:animateLayoutChanges="true"
+        android:paddingHorizontal="20dp"
+        android:paddingTop="28dp"
+        android:paddingBottom="100dp">
+
+        <TextView
+            android:id="@+id/tv_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Profile"
+            android:textColor="@color/text_primary"
+            android:textSize="26sp"
+            android:textStyle="bold"
+            android:letterSpacing="-0.02"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <!-- Avatar: circular photo with gradient ring border -->
+        <FrameLayout
+            android:id="@+id/frame_avatar"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_marginTop="24dp"
+            android:background="@drawable/bg_gradient_circle"
+            android:padding="3dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tv_title">
+
+            <ImageView
+                android:id="@+id/iv_avatar"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/bg_gradient_circle"
+                android:padding="18dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_user"
+                app:tint="@color/accent_indigo" />
+        </FrameLayout>
+
+        <TextView android:id="@+id/tv_name"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_marginTop="16dp" android:text=""
+            android:textColor="@color/text_primary" android:textSize="22sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/frame_avatar" />
+
+        <TextView android:id="@+id/tv_email"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_marginTop="4dp" android:text=""
+            android:textColor="@color/text_secondary" android:textSize="14sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tv_name" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_edit_profile"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Edit Profile"
+            android:textAllCaps="false"
+            android:textColor="@color/accent_indigo"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:stateListAnimator="@animator/scale_on_press"
+            app:backgroundTint="@color/accent_indigo_light"
+            app:cornerRadius="20dp"
+            app:strokeColor="@color/border_focused"
+            app:strokeWidth="1dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tv_email" />
+
+        <!-- Stats row -->
+        <androidx.cardview.widget.CardView android:id="@+id/card_stats"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="24dp" app:cardCornerRadius="20dp"
+            app:cardElevation="4dp" app:cardBackgroundColor="@color/bg_white"
+            app:layout_constraintTop_toBottomOf="@+id/btn_edit_profile">
+
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="horizontal" android:weightSum="3" android:padding="20dp">
+
+                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                    android:layout_weight="1" android:gravity="center" android:orientation="vertical">
+                    <TextView android:id="@+id/tv_stat_interviews" android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" android:text="--"
+                        android:textColor="@color/accent_indigo" android:textSize="22sp"
+                        android:textStyle="bold"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="Interviews" android:textColor="@color/text_muted"
+                        android:textSize="12sp" android:layout_marginTop="4dp"/>
+                </LinearLayout>
+
+                <View android:layout_width="1dp" android:layout_height="match_parent"
+                    android:background="@color/border_default" android:layout_marginVertical="4dp"/>
+
+                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                    android:layout_weight="1" android:gravity="center" android:orientation="vertical">
+                    <TextView android:id="@+id/tv_stat_score" android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" android:text="--"
+                        android:textColor="@color/accent_emerald" android:textSize="22sp"
+                        android:textStyle="bold"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="Avg Score" android:textColor="@color/text_muted"
+                        android:textSize="12sp" android:layout_marginTop="4dp"/>
+                </LinearLayout>
+
+                <View android:layout_width="1dp" android:layout_height="match_parent"
+                    android:background="@color/border_default" android:layout_marginVertical="4dp"/>
+
+                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                    android:layout_weight="1" android:gravity="center" android:orientation="vertical">
+                    <TextView android:id="@+id/tv_stat_resumes" android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" android:text="1"
+                        android:textColor="@color/accent_violet" android:textSize="22sp"
+                        android:textStyle="bold"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="Resumes" android:textColor="@color/text_muted"
+                        android:textSize="12sp" android:layout_marginTop="4dp"/>
+                </LinearLayout>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- Settings card -->
+        <androidx.cardview.widget.CardView android:id="@+id/card_settings"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="16dp" app:cardCornerRadius="20dp"
+            app:cardElevation="4dp" app:cardBackgroundColor="@color/bg_white"
+            app:layout_constraintTop_toBottomOf="@+id/card_stats">
+
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="vertical" android:padding="8dp">
+
+                <TextView android:id="@+id/tv_notifications"
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:padding="16dp" android:text="Notifications"
+                    android:textColor="@color/text_primary" android:textSize="15sp"
+                    android:background="?attr/selectableItemBackground"
+                    app:drawableEndCompat="@drawable/ic_arrow_right"
+                    app:drawableStartCompat="@drawable/ic_bell"
+                    android:drawablePadding="16dp"/>
+
+                <View android:layout_width="match_parent" android:layout_height="1dp"
+                    android:background="@color/border_default"
+                    android:layout_marginHorizontal="16dp"/>
+
+                <TextView android:id="@+id/tv_preferences"
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:padding="16dp" android:text="Preferences"
+                    android:textColor="@color/text_primary" android:textSize="15sp"
+                    android:background="?attr/selectableItemBackground"
+                    app:drawableEndCompat="@drawable/ic_arrow_right"
+                    app:drawableStartCompat="@drawable/ic_settings"
+                    android:drawablePadding="16dp"/>
+
+                <View android:layout_width="match_parent" android:layout_height="1dp"
+                    android:background="@color/border_default"
+                    android:layout_marginHorizontal="16dp"/>
+
+                <TextView android:id="@+id/tv_help_center"
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:padding="16dp" android:text="Help Center"
+                    android:textColor="@color/text_primary" android:textSize="15sp"
+                    android:background="?attr/selectableItemBackground"
+                    app:drawableEndCompat="@drawable/ic_arrow_right"
+                    app:drawableStartCompat="@drawable/ic_help"
+                    app:drawableTint="@color/text_primary"
+                    android:drawablePadding="16dp"/>
+
+                <View android:layout_width="match_parent" android:layout_height="1dp"
+                    android:background="@color/border_default"
+                    android:layout_marginHorizontal="16dp"/>
+
+                <TextView android:id="@+id/tv_privacy_policy"
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:padding="16dp" android:text="Privacy Policy"
+                    android:textColor="@color/text_primary" android:textSize="15sp"
+                    android:background="?attr/selectableItemBackground"
+                    app:drawableEndCompat="@drawable/ic_arrow_right"
+                    app:drawableStartCompat="@drawable/ic_lock"
+                    android:drawablePadding="16dp"/>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- Sign Out — redesigned as a prominent rose button -->
+        <androidx.cardview.widget.CardView android:id="@+id/btn_sign_out"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:stateListAnimator="@animator/scale_on_press"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="2dp"
+            app:cardBackgroundColor="#FFEBEE"
+            app:layout_constraintTop_toBottomOf="@+id/card_settings">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:gravity="center" android:orientation="horizontal"
+                android:padding="18dp" android:background="?attr/selectableItemBackground">
+                <ImageView android:layout_width="20dp" android:layout_height="20dp"
+                    android:src="@drawable/ic_arrow_right" app:tint="@color/accent_rose"
+                    android:layout_marginEnd="10dp"/>
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="Sign Out" android:textColor="@color/accent_rose"
+                    android:textSize="15sp" android:textStyle="bold"/>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.core.widget.NestedScrollView>

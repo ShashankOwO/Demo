@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths>
+    <!-- Allow sharing files in getCacheDir() — uCrop writes cropped images here -->
+    <cache-path name="cropped_images" path="." />
+    <!-- Also allow external cache if device writes there -->
+    <external-cache-path name="external_cropped" path="." />
+</paths>
