@@ -130,7 +130,7 @@ const Home: React.FC = () => {
       {/* ── ROW 1: Hero Greeting ─────────────────────────── */}
       <div className="mb-[24px] anim-fade-up" style={{ animationDelay: '0ms' }}>
         <h1 className="text-[26px] font-bold tracking-tight mb-1 flex items-center gap-2" style={{ color: 'var(--color-text)' }}>
-          {getGreeting(user?.name ? user.name.split(' ')[0] : 'there')} 👋
+          {getGreeting(user?.name ? user.name.split(' ')[0] : 'there')}
         </h1>
         <p className={`text-[14px] text-primary font-medium transition-opacity duration-500 max-w-xl ${fadeState === "out" ? "opacity-0" : "opacity-100"}`}>
           💡 Tip: {currentTip}<span className="animate-pulse">|</span>
@@ -201,18 +201,18 @@ const Home: React.FC = () => {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full h-full">
             {/* Total Sessions Stat */}
-            <div className="bg-white/[0.03] rounded-[12px] p-[16px_20px] flex flex-col justify-center border border-transparent hover:border-white/5 transition-colors">
-              <div className="text-[11px] text-[#64748b] font-medium mb-1 uppercase tracking-[0.1em]">Total Sessions</div>
+            <div className="bg-white/[0.03] theme-bg rounded-[12px] p-[16px_20px] flex flex-col justify-center border border-white/10 theme-border hover:border-white/20 transition-colors">
+              <div className="text-[11px] text-[#64748b] theme-text-muted font-medium mb-1 uppercase tracking-[0.1em]">Total Sessions</div>
               <div className="text-[40px] font-bold text-[#10b981] leading-none">{summary?.total_sessions || 0}</div>
             </div>
 
             {/* Latest Score Stat */}
-            <div className="bg-white/[0.03] rounded-[12px] p-[16px_20px] flex flex-col justify-center relative border border-transparent hover:border-white/5 transition-colors">
+            <div className="bg-white/[0.03] theme-bg rounded-[12px] p-[16px_20px] flex flex-col justify-center relative border border-white/10 theme-border hover:border-white/20 transition-colors">
               <div className="absolute top-4 right-4"><Sparkles className="w-5 h-5 text-[#818cf8]/30" /></div>
-              <div className="text-[11px] text-[#64748b] font-medium mb-1 uppercase tracking-[0.1em]">Latest Score</div>
+              <div className="text-[11px] text-[#64748b] theme-text-muted font-medium mb-1 uppercase tracking-[0.1em]">Latest Score</div>
               <div className="flex items-baseline gap-2 mb-1.5">
                 <span className="text-[40px] font-bold text-[#818cf8] leading-none">{summary?.latest_score ?? '--'}</span>
-                <span className="text-[14px] text-slate-500 font-medium">/100</span>
+                <span className="text-[14px] text-slate-500 theme-text-muted font-medium">/100</span>
               </div>
               {summary && summary.total_sessions > 1 && (
                 <div className="flex items-center gap-1.5">
@@ -284,12 +284,12 @@ const Home: React.FC = () => {
             {targetAreasList.slice(0, 4).map((item, idx) => {
               const color = skillColors[idx % skillColors.length];
               return (
-                <div key={idx} className="bg-white/[0.03] border border-white/[0.08] rounded-[10px] px-[14px] py-[10px] flex items-center justify-between group hover:border-[#6c63ff]/30 hover:bg-[#6c63ff]/10 transition-colors">
+                <div key={idx} className="bg-white/[0.03] theme-bg border border-white/[0.08] theme-border rounded-[10px] px-[14px] py-[10px] flex items-center justify-between group hover:border-[#6c63ff]/30 hover:bg-[#6c63ff]/10 transition-colors">
                   <div className="flex items-center gap-2.5 truncate">
                     <div className="w-[6px] h-[6px] rounded-full flex-shrink-0" style={{ backgroundColor: color }}></div>
-                    <span className="text-[13px] font-medium text-slate-200 truncate">{item.category}</span>
+                    <span className="text-[13px] font-medium text-slate-200 theme-text truncate">{item.category}</span>
                   </div>
-                  <span className="text-[13px] font-semibold text-[#94a3b8] group-hover:text-white transition-colors">{item.avg_score}</span>
+                  <span className="text-[13px] font-semibold text-[#94a3b8] theme-text-muted group-hover:text-primary transition-colors">{item.avg_score}</span>
                 </div>
               );
             })}
@@ -342,11 +342,11 @@ const Home: React.FC = () => {
                 return (
                   <div key={idx} className="flex items-center gap-[8px] py-[6px]">
                     <div className="w-[8px] h-[8px] rounded-full flex-shrink-0" style={{ backgroundColor: color }}></div>
-                    <span className="text-[13px] font-medium text-slate-200 flex-1 truncate">{skill.category}</span>
-                    <span className="text-[12px] text-[#64748b] min-w-[24px] text-right font-medium">
+                    <span className="text-[13px] font-medium text-slate-200 theme-text flex-1 truncate">{skill.category}</span>
+                    <span className="text-[12px] text-[#64748b] theme-text-muted min-w-[24px] text-right font-medium">
                       {skill.session_count}
                     </span>
-                    <div className="h-[4px] rounded-[2px] bg-white/10 w-[80px] overflow-hidden">
+                    <div className="h-[4px] rounded-[2px] bg-white/10 theme-bg w-[80px] overflow-hidden border border-white/5 theme-border">
                       {/* Using inline style for width expansion animation on mount */}
                       <div 
                         className="h-full bg-[#6c63ff] rounded-[2px] w-0" 
