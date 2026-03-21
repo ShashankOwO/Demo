@@ -46,6 +46,7 @@ export const authService = {
       name: profileRes.data.name || email.split('@')[0],
       email: profileRes.data.email || email,
       createdAt: new Date().toISOString(),
+      skills_json: profileRes.data.skills_json,
     }
     return { token, user }
   },
@@ -71,6 +72,7 @@ export const profileService = {
       name: profileRes.data.name || 'User',
       email: profileRes.data.email || 'user@example.com',
       createdAt: new Date().toISOString(),
+      skills_json: profileRes.data.skills_json,
     }
   },
   async updateProfile(data: Partial<User>): Promise<User> {
@@ -83,6 +85,7 @@ export const profileService = {
       name: res.data.name || 'User',
       email: res.data.email || 'user@example.com',
       createdAt: new Date().toISOString(),
+      skills_json: res.data.skills_json,
     }
   },
 }
@@ -186,22 +189,25 @@ export const resumeService = {
       headers: { 'Content-Type': 'multipart/form-data' },
     })
 
-    const skills = res.data.technical_skills
-    const flattenedSkills = [];
-    if (skills && typeof skills === 'object') {
-       for (const key of Object.keys(skills)) {
-         if (Array.isArray(skills[key])) {
-           flattenedSkills.push(...skills[key])
-         }
-       }
-    }
+    const t_skills = res.data.technical_skills || {}
+    const tools = res.data.tools_frameworks || []
+    const soft = res.data.soft_skills || []
+
+    const categorized: Record<string, string[]> = { ...t_skills }
+    if (tools.length > 0) categorized['tools_frameworks'] = tools
+    if (soft.length > 0) categorized['soft_skills'] = soft
+
+    const flattenedSkills: string[] = []
+    Object.values(categorized).forEach((arr: any) => {
+      if (Array.isArray(arr)) flattenedSkills.push(...arr)
+    })
 
     return {
       id: Math.random().toString(36).substring(7),
       fileName: file.name,
       uploadDate: new Date().toLocaleDateString(),
       skillsExtracted: flattenedSkills,
-      categorizedSkills: typeof skills === 'object' ? skills : undefined,
+      categorizedSkills: categorized,
       isActive: true,
       targetRole: res.data.inferred_target_role,
       experienceYears: res.data.detected_experience_years,

@@ -185,20 +185,17 @@ export default function ResumeSkills() {
       const techArr: string[] = [];
       const toolsArr: string[] = [];
       const softArr: string[] = [];
-      const miscArr: string[] = [];
 
       Object.entries(categorizedSkills).forEach(([cat, skills]) => {
         if (!Array.isArray(skills)) return;
         if (TECH_CATS.includes(cat)) techArr.push(...skills);
         else if (TOOLS_CATS.includes(cat)) toolsArr.push(...skills);
-        else if (SOFT_CATS.includes(cat)) softArr.push(...skills);
-        else miscArr.push(...skills);
+        else softArr.push(...skills);
       });
 
       if (techArr.length)  normalizedSkills['languages']       = techArr;
       if (toolsArr.length) normalizedSkills['tools_frameworks'] = toolsArr;
       if (softArr.length)  normalizedSkills['soft_skills']     = softArr;
-      if (miscArr.length)  normalizedSkills['misc']            = miscArr;
 
       await profileApi.updateProfile({
         skills_json: JSON.stringify(normalizedSkills),

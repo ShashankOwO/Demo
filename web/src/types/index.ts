@@ -4,6 +4,10 @@ export interface User {
   email: string
   avatarUrl?: string
   createdAt: string
+  skills_json?: any
+  experience_level?: string
+  experience_years?: number
+  target_role?: string
 }
 
 export interface LoginStreak {
