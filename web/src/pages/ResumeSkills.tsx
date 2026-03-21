@@ -114,10 +114,12 @@ export default function ResumeSkills() {
       setIsGenerating(true);
       toast("Generating custom questions. This takes ~15-30s...", { icon: '⏳', duration: 5000 });
       
+      const difficulty = localStorage.getItem('interview_difficulty') || 'intermediate';
       const payload = {
         skills: selectedSkills,
         target_role: targetRole,
-        experience_years: experienceYears
+        experience_years: experienceYears,
+        difficulty
       };
       
       const res = await resumeApi.generateQuestions(payload);

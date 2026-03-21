@@ -194,7 +194,7 @@ def evaluate_answer(question: str, answer: str, category: str, role: str | None 
         return fallback_response
 
 
-def generate_questions(question_plan: dict, role: str, experience: int, count: int) -> list:
+def generate_questions(question_plan: dict, role: str, experience: int, difficulty: str, count: int) -> list:
     """
     Generates tailored interview questions using NVIDIA NIM → Gemini.
     Returns an empty list on complete failure so callers can use static fallbacks.
@@ -219,7 +219,8 @@ def generate_questions(question_plan: dict, role: str, experience: int, count: i
         f"  Weak:      {weak_skills}\n"
         f"  Primary:   {primary_skills}\n"
         f"  Secondary: {secondary_skills}\n\n"
-        f"Experience: {experience} years\n\n"
+        f"Experience: {experience} years\n"
+        f"Difficulty: The candidate requested {difficulty.upper()} level questions. Ensure questions challenge the candidate strictly according to this difficulty.\n\n"
         f"Rules:\n"
         f"- Exactly {pair_count} main technical questions\n"
         f"- Each must have one follow-up question probing deeper\n"

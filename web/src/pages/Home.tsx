@@ -9,14 +9,12 @@ import { formatDistanceToNow } from 'date-fns';
 import {
   TrendingUp, Target, FileText, Calendar, ArrowRight, Check, Mic, Activity, Sparkles, Flame, X
 } from 'lucide-react';
-
 import { useAuthStore } from '@/store/authStore';
-import { getGreeting } from '@/lib/tipEngine';
-import { SkillsPracticedItem } from '@/types/analytics.types';
+import { getGreeting, generateTips, HomeAnalyticsData } from '@/lib/tipEngine';
 
 const PremiumCard: React.FC<{ children: React.ReactNode; className?: string; style?: React.CSSProperties }> = ({ children, className = '', style }) => (
   <div 
-    className={`relative bg-[#0d1220] border border-white/[0.07] rounded-[16px] p-[20px] md:p-[24px] overflow-hidden transition-all duration-220 ease-out hover:border-[#6c63ff]/30 hover:shadow-[0_4px_24px_rgba(0,0,0,0.3)] ${className}`}
+    className={`relative bg-surface border border-[var(--glass-border)] rounded-[16px] p-[20px] md:p-[24px] overflow-hidden transition-all duration-220 ease-out hover:border-primary/30 hover:shadow-[0_4px_24px_rgba(0,0,0,0.1)] ${className}`}
     style={style}
   >
     <div className="absolute top-0 left-[15%] right-[15%] h-[1px] bg-gradient-to-r from-transparent via-[#6c63ff]/35 to-transparent" />
@@ -35,10 +33,59 @@ const Home: React.FC = () => {
   const { data: streak } = useQuery({ queryKey: ['analytics', 'interview-streak'], queryFn: analyticsApi.getInterviewStreak });
   const { data: skillsPracticed, isLoading: isLoadingSkills } = useQuery({ queryKey: ['analytics', 'skills-practiced'], queryFn: analyticsApi.getSkillsPracticed });
 
-  // Debug logging per instructions
+  const analyticsData: HomeAnalyticsData = React.useMemo(() => {
+    return {
+       avgScore: summary?.latest_score ?? 0,
+       interviewCount: summary?.total_sessions ?? 0,
+       todaySessions: streak?.week_activity?.[6]?.completed ? 1 : 0, 
+       weakestCategory: categoryData?.weakest_category ?? null,
+       strongestCategory: categoryData?.strongest_category ?? null,
+       resumeSkills: Object.keys(categoryData?.category_averages ?? {})
+    };
+  }, [summary, streak, categoryData]);
+
+  const generatedTips = React.useMemo(() => {
+    const tips = generateTips(analyticsData);
+    return tips.length > 0 ? tips : ["Let's get you job-ready today"];
+  }, [analyticsData]);
+
+  const [currentTip, setCurrentTip] = React.useState("");
+  const [tipIndex, setTipIndex] = React.useState(0);
+  const [fadeState, setFadeState] = React.useState<"in" | "out">("in");
+
+  // Typewriter effect controller
   React.useEffect(() => {
-    // console.log('[SkillsPracticed] skills data:', skillsPracticed);
-  }, [skillsPracticed]);
+    const fadeOutTimer = setTimeout(() => {
+      setFadeState("out");
+    }, 6500);
+
+    const intervalTimer = setTimeout(() => {
+      setTipIndex(prev => (prev + 1) % generatedTips.length);
+      setFadeState("in");
+    }, 7000);
+
+    return () => {
+      clearTimeout(fadeOutTimer);
+      clearTimeout(intervalTimer);
+    };
+  }, [tipIndex, generatedTips]);
+
+  const currentFullText = generatedTips[tipIndex];
+
+  React.useEffect(() => {
+    setCurrentTip("");
+    let charIndex = 0;
+    const typeInterval = setInterval(() => {
+      if (charIndex < currentFullText.length) {
+        // use function callback to ensure correct closure
+        setCurrentTip(prev => currentFullText.substring(0, charIndex + 1));
+        charIndex++;
+      } else {
+        clearInterval(typeInterval);
+      }
+    }, 35);
+    return () => clearInterval(typeInterval);
+  }, [currentFullText]);
 
   const targetAreasList = React.useMemo(() => {
     if (!categoryData?.category_averages) return [];
@@ -85,8 +132,8 @@ const Home: React.FC = () => {
         <h1 className="text-[26px] font-bold text-white tracking-tight mb-1 flex items-center gap-2">
           {getGreeting(user?.name ? user.name.split(' ')[0] : 'there')} 👋
         </h1>
-        <p className="text-[14px] text-[#64748b]">
-          Here is your latest interview performance and progress summary.
+        <p className={`text-[14px] text-primary font-medium transition-opacity duration-500 max-w-xl ${fadeState === "out" ? "opacity-0" : "opacity-100"}`}>
+          💡 Tip: {currentTip}<span className="animate-pulse">|</span>
         </p>
       </div>
 
@@ -94,17 +141,17 @@ const Home: React.FC = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-[16px] mb-[16px]">
         {/* Resume Context */}
         <PremiumCard className="anim-fade-up cursor-pointer group flex items-start gap-4 !border-l-[3px] !border-l-[#818cf8]" style={{ animationDelay: '0ms' }}>
-          <div className="w-[44px] h-[44px] rounded-[12px] bg-white/10 flex items-center justify-center shrink-0">
+          <div className="w-[44px] h-[44px] rounded-[12px] bg-[var(--icon-bg)] flex items-center justify-center shrink-0">
             <FileText className="w-5 h-5 text-[#818cf8]" />
           </div>
           <div className="flex-1" onClick={() => navigate('/upload-resume')}>
             <div className="flex items-center gap-2 mb-1">
-              <h3 className="text-[18px] font-semibold text-white">Resume Context</h3>
+              <h3 className="text-[18px] font-semibold text-foreground">Resume Context</h3>
               {user?.experience_level && (
                 <span className="bg-[#10b981]/15 text-[#10b981] text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-[0.1em]">Active</span>
               )}
             </div>
-            <p className="text-[13px] text-[#64748b] leading-[1.4] mt-1.5">
+            <p className="text-[13px] text-muted-foreground leading-[1.4] mt-1.5">
               {user?.experience_level
                 ? 'Your resume is loaded. Tap here to upload a new one and recalibrate your focus.'
                 : 'Upload your resume to generate personalized interview questions.'}

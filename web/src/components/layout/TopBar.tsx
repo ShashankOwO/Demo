@@ -2,6 +2,7 @@ import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/store/authStore';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { getImageUrl } from '@/lib/utils';
 import { Menu } from 'lucide-react';
 
 const routeTitles: Record<string, string> = {
@@ -53,11 +54,10 @@ export const TopBar: React.FC = () => {
           className="flex items-center gap-[12px] p-[4px] pr-[12px] rounded-[10px] hover:bg-white/[0.04] transition-colors"
         >
           <div className="flex flex-col text-right hidden lg:flex">
-            <span className="text-[13px] font-medium leading-[1] mb-[4px] text-white">{user?.name}</span>
-            <span className="text-[11px] text-[#64748b] leading-[1]">{user?.title || 'User'}</span>
+            <span className="text-[13px] font-medium leading-[1] text-white">{user?.name}</span>
           </div>
           <Avatar className="h-[32px] w-[32px] ring-2 ring-transparent hover:ring-[#6c63ff]/30 transition-all border border-white/10">
-            <AvatarImage src={user?.profile_photo_url || ''} alt={user?.name || 'User'} />
+            <AvatarImage src={getImageUrl(user?.profile_photo_url)} alt={user?.name || 'User'} />
             <AvatarFallback className="bg-[#6c63ff]/20 text-[#6c63ff] text-[11px] font-bold">
               {user?.name?.charAt(0).toUpperCase() || 'U'}
             </AvatarFallback>

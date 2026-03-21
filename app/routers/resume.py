@@ -128,6 +128,7 @@ def generate_questions():
         skills=req_data["skills"],
         role=req_data.get("target_role"),
         experience=req_data.get("experience_years", 0),
+        difficulty=req_data.get("difficulty", "intermediate"),
         user_id=current_user.id
     )
     

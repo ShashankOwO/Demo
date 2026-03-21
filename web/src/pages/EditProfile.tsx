@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { getImageUrl } from '@/lib/utils';
 import { Loader2, Upload } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -105,7 +106,7 @@ const EditProfile: React.FC = () => {
             {/* Photo Upload */}
             <div className="flex items-center gap-6">
               <Avatar className="h-20 w-20 ring-2 ring-border">
-                <AvatarImage src={avatarSrc || ''} alt={user?.name || 'User'} />
+                <AvatarImage src={getImageUrl(avatarSrc)} alt={user?.name || 'User'} />
                 <AvatarFallback className="bg-primary/10 text-primary text-2xl font-syne">
                   {user?.name?.charAt(0).toUpperCase() || 'U'}
                 </AvatarFallback>

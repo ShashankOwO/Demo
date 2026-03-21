@@ -921,6 +921,7 @@ def _generate_questions(
     weakest_category: Optional[str] = None,
     weak_score: float = 100.0,
     experience: int = 0,
+    difficulty: str = "intermediate",
 ) -> list[dict]:
 
     if weakest_category and weak_score is not None:
@@ -975,6 +976,7 @@ def _generate_questions(
             question_plan=question_plan,
             role=applied_role or "Software Engineer",
             experience=experience,
+            difficulty=difficulty,
             count=MAX_QUESTIONS,
         )
         if ai_questions:
@@ -1263,6 +1265,7 @@ def generate_questions_from_preferences(
     skills: list[str],
     role: Optional[str] = None,
     experience: int = 0,
+    difficulty: str = "intermediate",
     user_id: Optional[int] = None,
 ) -> list[dict]:
     if not skills:
@@ -1283,4 +1286,5 @@ def generate_questions_from_preferences(
         applied_role=role,
         weakest_category=weakest_category,
         experience=experience,
+        difficulty=difficulty,
     )
