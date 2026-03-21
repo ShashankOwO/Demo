@@ -77,8 +77,7 @@ export const profileService = {
   },
   async updateProfile(data: Partial<User>): Promise<User> {
     const res = await apiClient.put('/profile/me', {
-      name: data.name,
-      email: data.email,
+      ...data
     })
     return {
       id: res.data.user_id?.toString() || '1',
@@ -246,21 +245,32 @@ export const interviewService = {
   async startInterview(): Promise<InterviewSession> {
     // Fetch profile to get skills
     const profileRes = await apiClient.get('/profile/me')
-    let skillsSet = ['General']
+    let skillsSet: string[] = ['General']
+    let softSkills: string[] = []
+    let toolsFrameworks: string[] = []
     let targetRole = profileRes.data.target_role || 'Software Engineer'
 
     if (profileRes.data.skills_json) {
        const s = profileRes.data.skills_json
-       let list: string[] = []
-       Object.values(s).forEach((arr: any) => {
-         if (Array.isArray(arr)) list.push(...arr)
-       })
-       if (list.length > 0) skillsSet = list
+       if (typeof s === 'object') {
+         softSkills = s['soft_skills'] || []
+         toolsFrameworks = s['tools_frameworks'] || []
+         
+         const extractedTech: string[] = []
+         Object.keys(s).forEach(key => {
+           if (key !== 'soft_skills' && key !== 'tools_frameworks' && Array.isArray(s[key])) {
+             extractedTech.push(...s[key])
+           }
+         })
+         if (extractedTech.length > 0) skillsSet = extractedTech
+       }
     }
 
     // Generate questions
     const genRes = await apiClient.post('/resume/generate-questions', {
       skills: skillsSet.slice(0, 15), // prevent overflowing
+      soft_skills: softSkills,
+      tools_frameworks: toolsFrameworks,
       target_role: targetRole,
       experience_years: profileRes.data.experience_years || 2,
     })
