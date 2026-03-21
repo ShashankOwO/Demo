@@ -47,6 +47,9 @@ export const authService = {
       email: profileRes.data.email || email,
       createdAt: new Date().toISOString(),
       skills_json: profileRes.data.skills_json,
+      experience_level: profileRes.data.experience_level,
+      experience_years: profileRes.data.experience_years,
+      target_role: profileRes.data.target_role,
     }
     return { token, user }
   },
@@ -73,6 +76,9 @@ export const profileService = {
       email: profileRes.data.email || 'user@example.com',
       createdAt: new Date().toISOString(),
       skills_json: profileRes.data.skills_json,
+      experience_level: profileRes.data.experience_level,
+      experience_years: profileRes.data.experience_years,
+      target_role: profileRes.data.target_role,
     }
   },
   async updateProfile(data: Partial<User>): Promise<User> {
@@ -85,6 +91,9 @@ export const profileService = {
       email: res.data.email || 'user@example.com',
       createdAt: new Date().toISOString(),
       skills_json: res.data.skills_json,
+      experience_level: res.data.experience_level,
+      experience_years: res.data.experience_years,
+      target_role: res.data.target_role,
     }
   },
 }
