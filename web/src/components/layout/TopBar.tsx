@@ -31,19 +31,26 @@ export const TopBar: React.FC = () => {
   };
 
   return (
-    <header className="fixed top-0 left-0 right-0 h-[56px] bg-[rgba(8,12,24,0.95)] backdrop-blur-[12px] border-b border-white/[0.06] z-[200] flex items-center px-[16px] gap-[12px]">
+    <header
+      className="fixed top-0 left-0 right-0 h-[56px] backdrop-blur-[12px] z-[200] flex items-center px-[16px] gap-[12px] transition-colors duration-300"
+      style={{
+        backgroundColor: 'color-mix(in srgb, var(--color-surface) 96%, transparent)',
+        borderBottom: '1px solid var(--color-border)',
+      }}
+    >
       
-      {/* 1. Hamburger button -> ONLY PLACE FOR IT */}
+      {/* 1. Hamburger button */}
       <button 
         onClick={toggleSidebar} 
-        className="p-[8px] -ml-[8px] rounded-[8px] transition-colors text-slate-400 hover:text-white hover:bg-slate-800/50"
+        className="p-[8px] -ml-[8px] rounded-[8px] transition-colors hover:bg-primary/10"
+        style={{ color: 'var(--color-text-muted)' }}
         aria-label="Toggle navigation menu"
       >
         <Menu size={20} />
       </button>
 
       {/* 2. Page Title */}
-      <h2 className="text-[15px] font-semibold tracking-tight m-0 text-slate-300">
+      <h2 className="text-[15px] font-semibold tracking-tight m-0" style={{ color: 'var(--color-text-muted)' }}>
         {pageTitle}
       </h2>
 
@@ -51,14 +58,15 @@ export const TopBar: React.FC = () => {
       <div className="ml-auto flex items-center">
         <button 
           onClick={() => navigate('/profile')}
-          className="flex items-center gap-[12px] p-[4px] pr-[12px] rounded-[10px] hover:bg-white/[0.04] transition-colors"
+          className="flex items-center gap-[12px] p-[4px] pr-[12px] rounded-[10px] transition-colors hover:bg-primary/5"
         >
           <div className="flex flex-col text-right hidden lg:flex">
-            <span className="text-[13px] font-medium leading-[1] text-white">{user?.name}</span>
+            <span className="text-[13px] font-medium leading-[1]" style={{ color: 'var(--color-text)' }}>{user?.name}</span>
           </div>
-          <Avatar className="h-[32px] w-[32px] ring-2 ring-transparent hover:ring-[#6c63ff]/30 transition-all border border-white/10">
+          <Avatar className="h-[32px] w-[32px] ring-2 ring-transparent hover:ring-primary/30 transition-all"
+                  style={{ border: '1px solid var(--color-border)' }}>
             <AvatarImage src={getImageUrl(user?.profile_photo_url)} alt={user?.name || 'User'} />
-            <AvatarFallback className="bg-[#6c63ff]/20 text-[#6c63ff] text-[11px] font-bold">
+            <AvatarFallback className="bg-primary/20 text-primary text-[11px] font-bold">
               {user?.name?.charAt(0).toUpperCase() || 'U'}
             </AvatarFallback>
           </Avatar>

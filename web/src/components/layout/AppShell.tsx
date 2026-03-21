@@ -9,10 +9,18 @@ export const AppShell: React.FC = () => {
     if (window.innerWidth >= 1024) {
       document.documentElement.classList.add('sidebar-open');
     }
+    // Restore persisted theme
+    const isLight = localStorage.getItem('theme_light') === 'true';
+    if (isLight) {
+      document.documentElement.classList.add('light');
+    } else {
+      document.documentElement.classList.remove('light');
+    }
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#0a0f1e] text-[#f9fafb] flex flex-col relative overflow-hidden">
+    <div className="min-h-screen flex flex-col relative overflow-hidden transition-colors duration-300"
+         style={{ backgroundColor: 'var(--color-bg)', color: 'var(--color-text)' }}>
       <TopBar />
       <Sidebar />
       

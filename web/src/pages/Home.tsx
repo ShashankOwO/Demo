@@ -129,7 +129,7 @@ const Home: React.FC = () => {
 
       {/* ── ROW 1: Hero Greeting ─────────────────────────── */}
       <div className="mb-[24px] anim-fade-up" style={{ animationDelay: '0ms' }}>
-        <h1 className="text-[26px] font-bold text-white tracking-tight mb-1 flex items-center gap-2">
+        <h1 className="text-[26px] font-bold tracking-tight mb-1 flex items-center gap-2" style={{ color: 'var(--color-text)' }}>
           {getGreeting(user?.name ? user.name.split(' ')[0] : 'there')} 👋
         </h1>
         <p className={`text-[14px] text-primary font-medium transition-opacity duration-500 max-w-xl ${fadeState === "out" ? "opacity-0" : "opacity-100"}`}>
