@@ -1,0 +1,8 @@
+bc20647 Refactor: Polished R2I logo and massive splash screen across Web and Android resource generation
+1c41a21 Fix: Propagate experience_level, experience_years, and target_role throughout web API client to ensure cross-platform synchronization with Android
+c2c7265 Fix: startInterview destructively flattening skills_json in backend profile when launching web interviews
+c081ff1 Fix web dropping soft skills and failing to categorize communication traits, wiping profile data on reloads
+9531051 Fix: Finalize Home.tsx dark mode theme integration and RecentActivity visibility
+7fda31e Feat: Full cross-platform theme - Light mode (Android palette) for Web, Dark mode (Web palette) for Android
+b74add3 Web & Backend UI enhancements: Theme Toggle, Dynamic Typewriter Tips, and fixes
+799a481 Fix skills extraction sync, profile UI, and report detail polished

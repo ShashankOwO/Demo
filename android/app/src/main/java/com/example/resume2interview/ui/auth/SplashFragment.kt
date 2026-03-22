@@ -18,24 +18,25 @@ class SplashFragment : BaseFragment<FragmentSplashBinding, SplashViewModel>(
 
     override fun setupUI() {
 
-        // 1. Arrow zigzag upward immediately
+        // Everything hidden at start
+        binding.ivLogo.alpha = 0f
+        binding.tvAppName.alpha = 0f
+        binding.tvTagline.alpha = 0f
+
+        // ── 1. Arrow zigzags up from bottom (0ms → 2000ms) ─────────────────
         val arrowAnim = AnimationUtils.loadAnimation(requireContext(), R.anim.arrow_zigzag)
-        binding.ivArrow.startAnimation(arrowAnim)   // ✅ matches id="@+id/ivArrow" in XML
+        binding.ivArrow.startAnimation(arrowAnim)
 
-        // 2. Logo reveals after arrow reaches top
-        val logoReveal = AnimationUtils.loadAnimation(requireContext(), R.anim.logo_reveal)
-        binding.ivLogo.startAnimation(logoReveal)
-
-        // 3. App name + tagline slide up
-        val textAnim = AnimationUtils.loadAnimation(requireContext(), R.anim.splash_text_enter)
+        // ── 2. Full R2I logo fades in — arrow is now inside the logo (2200ms)
         Handler(Looper.getMainLooper()).postDelayed({
             if (isAdded) {
-                binding.tvAppName.startAnimation(textAnim)
-                binding.tvTagline.startAnimation(textAnim)
+                binding.ivLogo.alpha = 1f
+                val logoAnim = AnimationUtils.loadAnimation(requireContext(), R.anim.logo_reveal)
+                binding.ivLogo.startAnimation(logoAnim)
             }
-        }, 1200)
+        }, 2200)
 
-        // 4. Fade out arrow once logo is visible
+        // ── 3. Standalone arrow fades out — logo arrow takes over (2400ms) ──
         Handler(Looper.getMainLooper()).postDelayed({
             if (isAdded) {
                 binding.ivArrow.animate()
@@ -43,7 +44,25 @@ class SplashFragment : BaseFragment<FragmentSplashBinding, SplashViewModel>(
                     .setDuration(300)
                     .start()
             }
-        }, 1100)
+        }, 2400)
+
+        // ── 4. App name slides up (2800ms) ──────────────────────────────────
+        Handler(Looper.getMainLooper()).postDelayed({
+            if (isAdded) {
+                binding.tvAppName.alpha = 1f
+                val textAnim = AnimationUtils.loadAnimation(requireContext(), R.anim.splash_text_enter)
+                binding.tvAppName.startAnimation(textAnim)
+            }
+        }, 2800)
+
+        // ── 5. Tagline slides up (3000ms) ────────────────────────────────────
+        Handler(Looper.getMainLooper()).postDelayed({
+            if (isAdded) {
+                binding.tvTagline.alpha = 1f
+                val textAnim = AnimationUtils.loadAnimation(requireContext(), R.anim.splash_text_enter)
+                binding.tvTagline.startAnimation(textAnim)
+            }
+        }, 3000)
     }
 
     override fun showContent(data: Any?) {
