@@ -8,7 +8,6 @@ import androidx.navigation.fragment.findNavController
 import com.example.resume2interview.R
 import com.example.resume2interview.databinding.FragmentSplashBinding
 import com.example.resume2interview.ui.base.BaseFragment
-import com.example.resume2interview.utils.UiState
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -18,20 +17,33 @@ class SplashFragment : BaseFragment<FragmentSplashBinding, SplashViewModel>(
     override val viewModel: SplashViewModel by viewModels()
 
     override fun setupUI() {
-        // ── Run entrance animations ─────────────────────────────────────────
-        val logoAnim = AnimationUtils.loadAnimation(requireContext(), R.anim.splash_logo_enter)
+
+        // 1. Arrow zigzag upward immediately
+        val arrowAnim = AnimationUtils.loadAnimation(requireContext(), R.anim.arrow_zigzag)
+        binding.ivArrow.startAnimation(arrowAnim)   // ✅ matches id="@+id/ivArrow" in XML
+
+        // 2. Logo reveals after arrow reaches top
+        val logoReveal = AnimationUtils.loadAnimation(requireContext(), R.anim.logo_reveal)
+        binding.ivLogo.startAnimation(logoReveal)
+
+        // 3. App name + tagline slide up
         val textAnim = AnimationUtils.loadAnimation(requireContext(), R.anim.splash_text_enter)
-
-        // Logo icon card
-        binding.ivLogo.startAnimation(logoAnim)
-
-        // App name + tagline slide up
         Handler(Looper.getMainLooper()).postDelayed({
             if (isAdded) {
                 binding.tvAppName.startAnimation(textAnim)
                 binding.tvTagline.startAnimation(textAnim)
             }
-        }, 100)
+        }, 1200)
+
+        // 4. Fade out arrow once logo is visible
+        Handler(Looper.getMainLooper()).postDelayed({
+            if (isAdded) {
+                binding.ivArrow.animate()
+                    .alpha(0f)
+                    .setDuration(300)
+                    .start()
+            }
+        }, 1100)
     }
 
     override fun showContent(data: Any?) {
