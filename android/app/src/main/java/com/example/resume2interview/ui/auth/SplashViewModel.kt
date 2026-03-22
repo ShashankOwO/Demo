@@ -21,10 +21,9 @@ class SplashViewModel @Inject constructor(
 
     private fun checkSession() {
         viewModelScope.launch {
-            delay(1500) // Simulate loading/splash delay
+            delay(3800) // ✅ Must be longer than total animation (3800ms)
             val token = tokenManager.getToken()
             launchDataLoad {
-                // Return true if logged in, false otherwise
                 !token.isNullOrEmpty()
             }
         }
