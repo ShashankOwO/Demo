@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--  res/anim/arrow_zigzag.xml  -->
+<!-- res/anim/arrow_zigzag.xml -->
 <set xmlns:android="http://schemas.android.com/apk/res/android"
     android:shareInterpolator="false">
- 
-    <!-- Arrow shoots upward -->
+
+    <!-- Slow rise from bottom -->
     <translate
-        android:fromYDelta="200%p"
+        android:fromYDelta="150%p"
         android:toYDelta="0%p"
-        android:duration="1200"
+        android:duration="2000"
         android:interpolator="@android:anim/decelerate_interpolator" />
- 
-    <!-- Zigzag: swing right then left repeatedly while rising -->
+
+    <!-- Zigzag side to side while rising -->
     <translate
         android:fromXDelta="0%p"
         android:toXDelta="8%p"
-        android:duration="200"
-        android:repeatCount="5"
+        android:duration="400"
+        android:repeatCount="4"
         android:repeatMode="reverse"
         android:interpolator="@android:anim/accelerate_decelerate_interpolator" />
- 
+
 </set>

@@ -1,34 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--  res/anim/logo_reveal.xml  -->
+<!-- res/anim/logo_reveal.xml -->
+<!-- Logo fades in after arrow lands — starts invisible -->
 <set xmlns:android="http://schemas.android.com/apk/res/android"
     android:shareInterpolator="false">
- 
-    <!-- Fade in -->
+
     <alpha
         android:fromAlpha="0.0"
         android:toAlpha="1.0"
+        android:startOffset="2200"
         android:duration="600"
-        android:startOffset="900"
         android:interpolator="@android:anim/decelerate_interpolator" />
- 
-    <!-- Scale up from center -->
+
     <scale
-        android:fromXScale="0.6"
+        android:fromXScale="0.85"
         android:toXScale="1.0"
-        android:fromYScale="0.6"
+        android:fromYScale="0.85"
         android:toYScale="1.0"
         android:pivotX="50%"
         android:pivotY="50%"
+        android:startOffset="2200"
         android:duration="600"
-        android:startOffset="900"
         android:interpolator="@android:anim/overshoot_interpolator" />
- 
-    <!-- Slide up slightly -->
-    <translate
-        android:fromYDelta="10%p"
-        android:toYDelta="0%p"
-        android:duration="600"
-        android:startOffset="900"
-        android:interpolator="@android:anim/decelerate_interpolator" />
- 
+
 </set>

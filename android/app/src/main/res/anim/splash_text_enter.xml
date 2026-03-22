@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Splash: text slide up + fade in -->
+<!-- res/anim/splash_text_enter.xml -->
 <set xmlns:android="http://schemas.android.com/apk/res/android"
-    android:interpolator="@android:anim/decelerate_interpolator">
-
-    <translate
-        android:fromYDelta="30%"
-        android:toYDelta="0%"
-        android:duration="600"
-        android:startOffset="500" />
+    android:shareInterpolator="false">
 
     <alpha
         android:fromAlpha="0.0"
         android:toAlpha="1.0"
-        android:duration="500"
-        android:startOffset="500" />
+        android:duration="600"
+        android:interpolator="@android:anim/decelerate_interpolator" />
+
+    <translate
+        android:fromYDelta="25%p"
+        android:toYDelta="0%p"
+        android:duration="600"
+        android:interpolator="@android:anim/decelerate_interpolator" />
 
 </set>
