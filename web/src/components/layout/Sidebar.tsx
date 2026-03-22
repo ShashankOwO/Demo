@@ -35,11 +35,9 @@ export const Sidebar: React.FC = () => {
       {/* SIDEBAR HEADER */}
       <div className="flex items-center px-[16px] py-[16px] overflow-hidden"
            style={{ borderBottom: '1px solid var(--color-border)' }}>
-        <img 
-          src="/logo.png" 
-          alt="R2I Logo" 
-          className="h-[28px] w-auto flex-shrink-0 mr-[12px] object-contain" 
-        />
+        <div className="w-[32px] h-[32px] rounded-[8px] bg-gradient-to-br from-[#6c63ff] to-[#4f46e5] flex items-center justify-center text-white font-syne font-bold text-[16px] flex-shrink-0 shadow-[0_2px_10px_rgba(108,99,255,0.4)] mr-[12px]">
+          R
+        </div>
         <span
           className="sidebar-app-name font-syne font-semibold text-[14px] whitespace-nowrap overflow-hidden opacity-100 transition-opacity duration-[180ms] ease-out block"
           style={{ color: 'var(--color-text)', width: 'calc(var(--sidebar-w) - 76px)' }}
