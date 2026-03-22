@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F5F7FA">
+    android:background="@color/bg_page">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -29,7 +29,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Interview Report"
-            android:textColor="#1A1C1E"
+            android:textColor="@color/text_primary"
             android:textSize="18sp"
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="@+id/btn_back"
@@ -55,7 +55,7 @@
             android:layout_marginTop="24dp"
             app:cardCornerRadius="16dp"
             app:cardElevation="4dp"
-            app:cardBackgroundColor="#FFFFFF"
+            app:cardBackgroundColor="@color/bg_white"
             app:layout_constraintTop_toBottomOf="@+id/tv_date">
 
             <androidx.constraintlayout.widget.ConstraintLayout
@@ -83,7 +83,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
                     android:text="Good"
-                    android:textColor="#1A1C1E"
+                    android:textColor="@color/text_primary"
                     android:textSize="18sp"
                     android:textStyle="bold"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -111,7 +111,7 @@
             android:layout_marginTop="16dp"
             app:cardCornerRadius="16dp"
             app:cardElevation="4dp"
-            app:cardBackgroundColor="#FFFFFF"
+            app:cardBackgroundColor="@color/bg_white"
             app:layout_constraintTop_toBottomOf="@+id/card_score">
             
             <LinearLayout
@@ -133,7 +133,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Strengths"
-                        android:textColor="#1A1C1E"
+                        android:textColor="@color/text_primary"
                         android:textStyle="bold"
                         android:textSize="16sp"
                         android:layout_marginStart="8dp"/>
@@ -155,7 +155,7 @@
             android:layout_marginTop="16dp"
             app:cardCornerRadius="16dp"
             app:cardElevation="4dp"
-            app:cardBackgroundColor="#FFFFFF"
+            app:cardBackgroundColor="@color/bg_white"
             app:layout_constraintTop_toBottomOf="@+id/card_strengths">
 
             <LinearLayout
@@ -177,7 +177,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Areas for Improvement"
-                        android:textColor="#1A1C1E"
+                        android:textColor="@color/text_primary"
                         android:textStyle="bold"
                         android:textSize="16sp"
                         android:layout_marginStart="8dp"/>
@@ -200,7 +200,7 @@
             android:layout_marginTop="16dp"
             app:cardCornerRadius="16dp"
             app:cardElevation="4dp"
-            app:cardBackgroundColor="#FFFFFF"
+            app:cardBackgroundColor="@color/bg_white"
             app:layout_constraintTop_toBottomOf="@+id/card_improvements">
 
             <LinearLayout
@@ -222,7 +222,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Suggestions"
-                        android:textColor="#1A1C1E"
+                        android:textColor="@color/text_primary"
                         android:textStyle="bold"
                         android:textSize="16sp"
                         android:layout_marginStart="8dp"/>

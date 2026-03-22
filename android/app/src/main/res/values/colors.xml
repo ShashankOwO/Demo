@@ -19,6 +19,7 @@
     <color name="accent_indigo">#5C6BC0</color>
     <color name="accent_indigo_dark">#3949AB</color>
     <color name="accent_indigo_light">#E8EAF6</color>
+    <color name="accent_indigo_border">#C5CAE9</color>
     <color name="accent_violet">#7C4DFF</color>
     <color name="gradient_start">#5C6BC0</color>
     <color name="gradient_end">#7C4DFF</color>
@@ -45,4 +46,5 @@
     <!-- ── Legacy status ── -->
     <color name="green_dark">#00897B</color>
     <color name="red_dark">#E53935</color>
+    <color name="ic_launcher_background">#12182c</color>
 </resources>
