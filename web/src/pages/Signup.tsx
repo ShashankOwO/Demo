@@ -78,9 +78,7 @@ const Signup: React.FC = () => {
       {/* Left Branding Panel */}
       <div className="hidden lg:flex w-[40%] bg-surface border-r border-border flex-col justify-between p-12">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded bg-primary flex items-center justify-center text-white font-bold font-syne text-xl">
-            R
-          </div>
+          <img src="/logo.png" alt="R2I Logo" className="h-10 w-auto object-contain flex-shrink-0" />
           <span className="font-syne font-bold text-2xl tracking-tight">
             Resume2<span className="text-primary">Interview</span>
           </span>
@@ -104,9 +102,7 @@ const Signup: React.FC = () => {
       <div className="flex-1 flex flex-col justify-center px-8 sm:px-16 md:px-24 lg:px-32 relative py-12">
         {/* Mobile Logo */}
         <div className="absolute top-8 left-8 flex items-center gap-2 lg:hidden">
-          <div className="w-8 h-8 rounded bg-primary flex items-center justify-center text-white font-bold font-syne text-lg">
-            R
-          </div>
+          <img src="/logo.png" alt="R2I Logo" className="h-8 w-auto object-contain flex-shrink-0" />
           <span className="font-syne font-bold text-xl tracking-tight">R2I</span>
         </div>
 

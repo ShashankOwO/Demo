@@ -281,12 +281,21 @@ def extract_resume_details(text: str) -> dict:
     Returns an empty dict on failure.
     """
     prompt = (
-        "You are an expert HR data extractor. Read the following resume text and extract:\n"
-        "1. Total years of professional work experience (as an integer). Exclude education/internships if possible.\n"
-        "2. The most appropriate target job role title based on their experience and skills.\n\n"
-        "Return ONLY a valid JSON object with these keys:\n"
+        "You are an expert HR recruiter extracting structured data from a resume.\n"
+        "Your job: extract ONLY professional/work experience years and the most suitable job role.\n\n"
+        "RULES (follow strictly):\n"
+        "1. Count ONLY paid work experience: full-time jobs, part-time jobs, freelance gigs.\n"
+        "2. DO NOT count any of these as experience:\n"
+        "   - School / High School / Secondary School / Junior College\n"
+        "   - Bachelor's / Master's / PhD / Engineering degrees / any college education\n"
+        "   - Internships, traineeships, apprenticeships\n"
+        "   - Certifications, courses, bootcamps\n"
+        "   - Any entry under sections named 'Education' or 'Certifications'\n"
+        "3. If the resume has NO paid work experience at all (e.g., a fresh graduate), return 0.\n"
+        "4. For target_role: infer the most relevant job title from their skills and any work experience.\n\n"
+        "Return ONLY valid JSON, no markdown, no explanation:\n"
         '{"experience_years": integer, "target_role": "string or null"}\n\n'
-        f"Resume Text:\n{str(text)[0:8000]}  # pyre-ignore"
+        f"Resume Text:\n{str(text)[0:8000]}"
     )
 
     try:

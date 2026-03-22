@@ -1154,8 +1154,8 @@ def process_resume(file, user_id: int) -> dict:
     if h_experience is None:
         h_experience = _detect_experience_years(full_text)
     
-    # Use AI experience if detected (non-zero), otherwise fallback to heuristic
-    experience = ai_exp if (ai_exp is not None and ai_exp > 0) else (h_experience or 0)
+    # Use AI experience if explicitly detected (including 0 for fresh grads), otherwise fallback to heuristic
+    experience = ai_exp if ai_exp is not None else (h_experience or 0)
 
     # ── Step 6: Role extraction (Heuristic Fallback) ─────────────────────────
     technical_skills = {

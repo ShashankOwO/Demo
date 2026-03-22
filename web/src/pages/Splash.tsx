@@ -38,9 +38,7 @@ const Splash: React.FC = () => {
       <nav className="sticky top-0 z-50 w-full bg-background/80 backdrop-blur-md border-b border-border">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-primary-foreground font-bold font-syne text-xl">
-              R
-            </div>
+            <img src="/logo.png" alt="R2I Logo" className="h-10 w-auto object-contain flex-shrink-0" />
             <span className="font-syne font-bold text-xl tracking-tight text-foreground">
               Resume2<span className="text-primary">Interview</span>
             </span>
