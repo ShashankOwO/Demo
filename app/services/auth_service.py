@@ -39,11 +39,34 @@ def register_user(email: str, password: str, name: str | None = None) -> None:
     send_otp_email(
         to_email=email, 
         otp=otp, 
-        subject=f"Resume2Interview - Verify your account ({otp})", 
+        subject="Verify your Resume2Interview account", 
         title="Verify Your Account", 
         instructions="Thank you for registering! Please enter the following 6-digit code to activate your account."
     )
     return None
+
+def resend_registration_otp(email: str) -> None:
+    """Re-generate & re-send the OTP for a pending (unverified) registration."""
+    import random
+    from datetime import datetime, timezone, timedelta
+
+    if email not in pending_registrations:
+        # Silently succeed — don't reveal whether the email is known
+        return
+
+    otp = str(random.randint(100000, 999999))
+    expires_at = datetime.now(timezone.utc) + timedelta(minutes=15)
+    pending_registrations[email]['otp'] = otp
+    pending_registrations[email]['expires_at'] = expires_at
+
+    from app.services.email_service import send_otp_email
+    send_otp_email(
+        to_email=email,
+        otp=otp,
+        subject="New Resume2Interview verification code",
+        title="New Verification Code",
+        instructions="Here is your new 6-digit verification code. The previous code has been invalidated."
+    )
 
 def verify_registration(email: str, otp: str) -> dict:
     from datetime import datetime, timezone
@@ -137,7 +160,7 @@ def request_password_reset(email: str) -> None:
     success = send_otp_email(
         to_email=email, 
         otp=code, 
-        subject=f"Resume2Interview - Password Reset ({code})", 
+        subject="Resume2Interview Password Reset", 
         title="Password Reset", 
         instructions="We received a request to reset the password for your account. Please enter the following 6-digit code in the app to proceed:"
     )

@@ -18,4 +18,9 @@ export const resumeApi = {
     const res = await api.post<GenerateQuestionsResponse>('/resume/generate-questions', data);
     return res.data;
   },
+
+  regenerateQuestion: async (data: { current_question: string; skills: any; target_role?: string; experience_years?: number; difficulty?: string }) => {
+    const res = await api.post('/resume/generate-single-question', data);
+    return res.data;
+  },
 };

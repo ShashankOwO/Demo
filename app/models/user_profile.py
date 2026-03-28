@@ -25,6 +25,7 @@ class UserProfile(db.Model):
     target_role: Mapped[str] = mapped_column(String(100), nullable=True)
     experience_years: Mapped[int] = mapped_column(Integer, nullable=True)
     experience_level: Mapped[str] = mapped_column(String(50), nullable=True)
+    preferred_difficulty: Mapped[str] = mapped_column(String(20), nullable=True, default="beginner")
 
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),

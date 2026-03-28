@@ -19,6 +19,7 @@ export default function ResumeSkills() {
   const [targetRole, setTargetRole] = useState<string>('');
   const [experienceLevel, setExperienceLevel] = useState<string>('');
   const [experienceYears, setExperienceYears] = useState<number>(0);
+  const [difficulty, setDifficulty] = useState<string>('beginner'); // synced with profile
   const [categorizedSkills, setCategorizedSkills] = useState<Record<string, string[]>>({});
   const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -56,6 +57,36 @@ export default function ResumeSkills() {
           skillsBucket['soft_skills'] = parsed.soft_skills;
         }
         
+        // ── AI Fallback (Layer 7): merge any ai_classified_skills ─────────────
+        // The backend classifies unknown/niche skill candidates via AI after the
+        // 6 NLP passes. Merge them into the canonical keys so the groupedSkills
+        // memo routes them correctly with no additional UI changes.
+        if (parsed.ai_classified_skills) {
+          const ai = parsed.ai_classified_skills as {
+            technical_skills?: string[];
+            tools_frameworks?: string[];
+            soft_skills?: string[];
+          };
+          if (ai.technical_skills?.length) {
+            skillsBucket['languages'] = [
+              ...(skillsBucket['languages'] || []),
+              ...ai.technical_skills,
+            ].filter((v, i, a) => a.indexOf(v) === i);
+          }
+          if (ai.tools_frameworks?.length) {
+            skillsBucket['tools_frameworks'] = [
+              ...(skillsBucket['tools_frameworks'] || []),
+              ...ai.tools_frameworks,
+            ].filter((v, i, a) => a.indexOf(v) === i);
+          }
+          if (ai.soft_skills?.length) {
+            skillsBucket['soft_skills'] = [
+              ...(skillsBucket['soft_skills'] || []),
+              ...ai.soft_skills,
+            ].filter((v, i, a) => a.indexOf(v) === i);
+          }
+        }
+        
         setCategorizedSkills(skillsBucket);
         
         // Auto-select all by default
@@ -74,7 +105,9 @@ export default function ResumeSkills() {
     else if (user?.experience_level && user?.skills_json) {
       setTargetRole(user.target_role || 'Software Engineer');
       setExperienceLevel(user.experience_level);
-      setExperienceYears(user.experience_years || 3);
+      setExperienceYears(user.experience_years ?? 3);
+      // Restore difficulty from profile (DB-synced)
+      if ((user as any).preferred_difficulty) setDifficulty((user as any).preferred_difficulty);
       
       let skillsBucket: Record<string, string[]> = {};
       try {
@@ -114,9 +147,39 @@ export default function ResumeSkills() {
       setIsGenerating(true);
       toast("Generating custom questions. This takes ~15-30s...", { icon: '⏳', duration: 5000 });
       
-      const difficulty = localStorage.getItem('interview_difficulty') || 'intermediate';
+      // difficulty is now synced from profile (preferred_difficulty)
+      // no localStorage fallback needed
+
+      // ── Separate skills into correct buckets for the API payload ──────────────
+      // Sending soft skills in the flat 'skills' array causes bucket_skills() to
+      // put them in 'misc', which Android then treats as Technical Skills.
+      const SOFT_SKILL_CATS = ['soft_skills', 'interpersonal'];
+      const TOOLS_CATS = ['web', 'backend', 'frontend', 'mobile', 'devops', 'testing',
+                          'frameworks', 'tools', 'technologies', 'tools_frameworks'];
+
+      const softSelected: string[] = [];
+      const toolsSelected: string[] = [];
+      const techSelected: string[] = [];
+
+      Object.entries(categorizedSkills).forEach(([cat, catSkills]) => {
+        if (!Array.isArray(catSkills)) return;
+        catSkills.forEach(skill => {
+          if (!selectedSkills.includes(skill)) return;
+          if (SOFT_SKILL_CATS.includes(cat)) {
+            softSelected.push(skill);
+          } else if (TOOLS_CATS.includes(cat)) {
+            toolsSelected.push(skill);
+          } else {
+            // languages, database, ai, architecture, misc, etc. → technical
+            techSelected.push(skill);
+          }
+        });
+      });
+
       const payload = {
-        skills: selectedSkills,
+        skills: techSelected,
+        soft_skills: softSelected,
+        tools_frameworks: toolsSelected,
         target_role: targetRole,
         experience_years: experienceYears,
         difficulty
@@ -256,7 +319,7 @@ export default function ResumeSkills() {
         <Card className="bg-surface border-border md:col-span-1 border-l-4 border-l-emerald-500 shadow-sm h-fit">
           <CardContent className="p-6">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="font-syne font-semibold text-lg text-slate-200">Target Profile</h3>
+              <h3 className="font-syne font-semibold text-lg" style={{ color: 'var(--color-text)' }}>Target Profile</h3>
               <span className="bg-emerald-50 text-emerald-600 text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider border border-emerald-200">
                 Active
               </span>
@@ -300,10 +363,10 @@ export default function ResumeSkills() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
-                <h3 className="font-syne font-semibold text-lg">Skills Extracted</h3>
+                <h3 className="font-syne font-semibold text-lg" style={{ color: 'var(--color-text)' }}>Skills Extracted</h3>
                 <button 
                   onClick={() => setIsEditingSkills(!isEditingSkills)} 
-                  className={`p-1.5 rounded-md transition-colors ${isEditingSkills ? 'bg-[#6c63ff]/20 text-[#6c63ff]' : 'text-slate-400 hover:text-[#6c63ff] hover:bg-slate-800'}`}
+                  className={`p-1.5 rounded-md transition-colors ${isEditingSkills ? 'bg-[#6c63ff]/20 text-[#6c63ff]' : 'hover:text-[#6c63ff]'}`} style={{ color: isEditingSkills ? undefined : 'var(--color-text-muted)' }}
                   title="Edit Skills"
                 >
                   <Edit2 className="w-[14px] h-[14px]" />
@@ -341,13 +404,13 @@ export default function ResumeSkills() {
                       onChange={(e) => setNewSkillText(e.target.value)}
                       onKeyDown={(e) => e.key === 'Enter' && handleAddCustomSkill()}
                       placeholder="Add a custom skill missed by AI..." 
-                      className="flex-1 bg-transparent border-none text-sm text-slate-200 outline-none placeholder:text-slate-500 min-w-[200px]"
+                      className="flex-1 bg-transparent border-none text-sm outline-none min-w-[200px]" style={{ color: 'var(--color-text)' }}
                     />
                     <div className="flex items-center gap-2 w-full sm:w-auto">
                       <select 
                         value={newSkillCategory} 
                         onChange={e => setNewSkillCategory(e.target.value)} 
-                        className="bg-[#0f1523] border border-border rounded-md px-2 py-1.5 text-xs text-slate-300 focus:outline-none flex-1 sm:flex-none"
+                        className="border border-border rounded-md px-2 py-1.5 text-xs focus:outline-none flex-1 sm:flex-none" style={{ backgroundColor: 'var(--color-surface-2)', color: 'var(--color-text)' }}
                       >
                         <option value="soft_skills">Soft Skills</option>
                         <option value="languages">Technical Skills</option>
@@ -368,7 +431,7 @@ export default function ResumeSkills() {
 
                   return (
                     <div key={category}>
-                      <h4 className="text-sm font-semibold text-slate-200 mb-3 font-syne tracking-wide">
+                      <h4 className="text-sm font-semibold mb-3 font-syne tracking-wide" style={{ color: 'var(--color-text)' }}>
                         {category}
                       </h4>
                       <div className="flex flex-wrap gap-2">
@@ -377,9 +440,9 @@ export default function ResumeSkills() {
                           
                           if (isEditingSkills) {
                             return (
-                              <div key={skill} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium bg-surface-2 text-slate-300 border border-slate-700/50">
+                              <div key={skill} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium border" style={{ backgroundColor: 'var(--color-surface-2)', color: 'var(--color-text)', borderColor: 'var(--color-border)' }}>
                                 {skill}
-                                <button onClick={() => handleRemoveSkill(underlyingCategory, skill)} className="text-slate-500 hover:text-red-400 p-0.5 rounded-full hover:bg-red-400/10 transition-colors">
+                                <button onClick={() => handleRemoveSkill(underlyingCategory, skill)} className="hover:text-red-400 p-0.5 rounded-full hover:bg-red-400/10 transition-colors" style={{ color: 'var(--color-text-dim)' }}>
                                   <X className="w-3 h-3" />
                                 </button>
                               </div>
@@ -394,8 +457,9 @@ export default function ResumeSkills() {
                             className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-200 border 
                               ${isSelected 
                                 ? 'bg-indigo-500/10 text-indigo-600 border-indigo-500/30 hover:bg-indigo-500/20 shadow-sm' 
-                                : 'bg-surface-2 text-slate-500 border-border hover:border-slate-300 hover:text-slate-800'
+                                : 'border-border'
                               }`}
+                            style={!isSelected ? { backgroundColor: 'var(--color-surface-2)', color: 'var(--color-text-muted)' } : undefined}
                           >
                             {skill}
                           </button>

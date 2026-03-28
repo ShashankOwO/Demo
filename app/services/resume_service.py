@@ -1152,7 +1152,10 @@ def process_resume(file, user_id: int) -> dict:
     experience_section_text = sections.get("experience", full_text)
     h_experience = _detect_experience_years(experience_section_text)
     if h_experience is None:
-        h_experience = _detect_experience_years(full_text)
+        full_text_fallback = full_text
+        if "education" in sections:
+            full_text_fallback = full_text_fallback.replace(sections["education"], "")
+        h_experience = _detect_experience_years(full_text_fallback)
     
     # Use AI experience if explicitly detected (including 0 for fresh grads), otherwise fallback to heuristic
     experience = ai_exp if ai_exp is not None else (h_experience or 0)
@@ -1211,6 +1214,47 @@ def process_resume(file, user_id: int) -> dict:
 
     unknown_skills = detect_unknown_skills(full_text, all_known)
 
+    # ── Step 9: AI Fallback Classification of Unknown Skills ─────────────────
+    # Any candidate that survived all 6 NLP passes gets a final AI review.
+    # The AI classifies them into technical / tools / soft (or discards noise).
+    # Results are merged into the primary buckets so clients need no changes.
+    ai_classified: dict[str, list[str]] = {}
+    if unknown_skills:
+        try:
+            ai_classified = llm_service.ai_classify_unknown_skills(
+                candidates=unknown_skills[:20],
+                resume_snippet=full_text[:500],
+            )
+            # Merge technical_skills → languages bucket (catches langs like Rust, CUDA, etc.)
+            ai_tech = ai_classified.get("technical_skills", [])
+            existing_tech_lower = {s.lower() for sl in technical_skills.values() for s in sl}
+            for skill in ai_tech:
+                if skill.lower() not in existing_tech_lower:
+                    technical_skills.setdefault("languages", []).append(skill)
+                    existing_tech_lower.add(skill.lower())
+
+            # Merge tools_frameworks → tools_set
+            tools_lower = {s.lower() for s in tools_set}
+            for skill in ai_classified.get("tools_frameworks", []):
+                if skill.lower() not in tools_lower:
+                    tools_set.append(skill)
+                    tools_lower.add(skill.lower())
+
+            # Merge soft_skills → all_soft
+            soft_lower = {s.lower() for s in all_soft}
+            for skill in ai_classified.get("soft_skills", []):
+                if skill.lower() not in soft_lower:
+                    all_soft.append(skill)
+                    soft_lower.add(skill.lower())
+
+            logger.info(
+                f"[AI Classify] Added {len(ai_tech)} tech, "
+                f"{len(ai_classified.get('tools_frameworks', []))} tools, "
+                f"{len(ai_classified.get('soft_skills', []))} soft skills via AI fallback."
+            )
+        except Exception as _ai_err:
+            logger.warning(f"[AI Classify] Step 9 failed non-fatally: {_ai_err}")
+
     # Build a human-readable summary for the endpoint response
     total_tech = sum(len(v) for v in technical_skills.values())
 
@@ -1226,6 +1270,7 @@ def process_resume(file, user_id: int) -> dict:
         "tools_frameworks":          tools_set,
         "soft_skills":               all_soft,
         "unknown_skills":            unknown_skills,
+        "ai_classified_skills":      ai_classified,   # NEW: what Layer 7 identified
         "detected_experience_years": int(experience),
         "experience_level":          experience_level,
         "inferred_target_role":      inferred_target_role or "Not detected",
@@ -1288,3 +1333,40 @@ def generate_questions_from_preferences(
         experience=experience,
         difficulty=difficulty,
     )
+
+def generate_single_question_replacement(
+    current_question: str,
+    skills: list[str],
+    role: Optional[str] = None,
+    experience: int = 0,
+    difficulty: str = "intermediate"
+) -> dict:
+    """
+    Calls llm_service to generate exactly one new question replacing current_question.
+    Transforms it to match the standard UI format.
+    """
+    from app.services import llm_service
+    raw_q = llm_service.generate_single_question(
+        current_question=current_question,
+        role=role or "Software Engineer",
+        experience=experience,
+        difficulty=difficulty,
+        skills=skills
+    )
+    
+    cat = raw_q.get("category", "General")
+    mq = raw_q.get("main_question", "")
+    fq = raw_q.get("follow_up_question", "")
+    
+    # We return them in the exact same format as the UI array
+    # The UI doesn't actually split them into two steps right now for custom ones, 
+    # but let's provide the main question formatting.
+    formatted = f"{mq}"
+    if fq:
+        formatted += f"\nFollow-up: {fq}"
+        
+    return {
+        "question": formatted,
+        "category": cat,
+        "type": "main"  # the UI maps this just as a single string question block
+    }

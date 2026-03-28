@@ -13,6 +13,7 @@ class UserProfileSchema(Schema):
     target_role = fields.Str(allow_none=True)
     experience_years = fields.Int(allow_none=True)
     experience_level = fields.Str(allow_none=True)
+    preferred_difficulty = fields.Str(allow_none=True)
     updated_at = fields.DateTime(dump_only=True)
 
     def get_user_email(self, obj):
@@ -30,3 +31,4 @@ class UserProfileUpdateSchema(Schema):
     previous_role = fields.Str(allow_none=True)
     experience_years = fields.Int(allow_none=True)
     experience_level = fields.Str(allow_none=True)
+    preferred_difficulty = fields.Str(allow_none=True)

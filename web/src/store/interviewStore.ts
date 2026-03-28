@@ -6,6 +6,7 @@ interface InterviewState {
   answers: InterviewAnswer[];
   currentIndex: number;
   setQuestions: (questions: InterviewQuestion[]) => void;
+  replaceQuestion: (index: number, newQuestion: InterviewQuestion) => void;
   submitAnswer: (answer: string) => void;
   reset: () => void;
   targetRole: string;
@@ -22,6 +23,16 @@ export const useInterviewStore = create<InterviewState>((set) => ({
   
   setQuestions: (questions) => {
     set({ questions, answers: [], currentIndex: 0 });
+  },
+
+  replaceQuestion: (index, newQuestion) => {
+    set((state) => {
+      const updated = [...state.questions];
+      if (index >= 0 && index < updated.length) {
+        updated[index] = newQuestion;
+      }
+      return { questions: updated };
+    });
   },
   
   submitAnswer: (answerText) => {

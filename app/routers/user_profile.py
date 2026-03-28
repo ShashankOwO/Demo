@@ -31,6 +31,10 @@ def get_my_profile():
             "skills_json": None,
             "previous_role": None,
             "target_role": None,
+            "experience_level": None,
+            "experience_years": None,
+            "preferred_difficulty": "beginner",
+            "updated_at": None,
         }), 200
 
     return jsonify(profile_schema.dump(profile)), 200

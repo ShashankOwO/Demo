@@ -25,6 +25,15 @@ settings = get_settings()
 # ── NVIDIA NIM config ──────────────────────────────────────────────────────────
 NVIDIA_BASE_URL = "https://integrate.api.nvidia.com/v1"
 NVIDIA_MODEL = "meta/llama-3.3-70b-instruct"
+
+# ── Groq config ────────────────────────────────────────────────────────────────
+GROQ_BASE_URL = "https://api.groq.com/openai/v1"
+GROQ_MODEL = "llama-3.3-70b-versatile"
+
+# ── OpenRouter config ─────────────────────────────────────────────────────────
+OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1"
+OPENROUTER_MODEL = "meta-llama/llama-3.3-70b-instruct"
+
 GEMINI_MODEL = "gemini-2.0-flash-lite"
 
 # ── Internal client caches ─────────────────────────────────────────────────────
@@ -104,18 +113,75 @@ def _gemini_chat(prompt: str, max_retries: int = 3) -> str:
     raise last_err
 
 
+def _get_groq_client() -> OpenAI:
+    if not settings.groq_api_key:
+        raise RuntimeError("GROQ_API_KEY not set")
+    return OpenAI(base_url=GROQ_BASE_URL, api_key=settings.groq_api_key)
+
+
+def _get_openrouter_client() -> OpenAI:
+    if not settings.openrouter_api_key:
+        raise RuntimeError("OPENROUTER_API_KEY not set")
+    return OpenAI(base_url=OPENROUTER_BASE_URL, api_key=settings.openrouter_api_key)
+
+
+def _groq_chat(prompt: str, max_tokens: int = 1024) -> str:
+    client = _get_groq_client()
+    resp = client.chat.completions.create(
+        model=GROQ_MODEL,
+        messages=[{"role": "user", "content": prompt}],
+        max_tokens=max_tokens,
+        temperature=0.7,
+    )
+    text = (resp.choices[0].message.content or "").strip()
+    logger.debug("Groq key succeeded.")
+    return text
+
+
+def _openrouter_chat(prompt: str, max_tokens: int = 1024) -> str:
+    client = _get_openrouter_client()
+    referer = settings.origins_list[0] if settings.origins_list else "http://localhost"
+    resp = client.chat.completions.create(
+        model=OPENROUTER_MODEL,
+        messages=[{"role": "user", "content": prompt}],
+        max_tokens=max_tokens,
+        temperature=0.7,
+        extra_headers={
+            "HTTP-Referer": referer,
+            "X-Title": settings.app_name,
+        }
+    )
+    text = (resp.choices[0].message.content or "").strip()
+    logger.debug("OpenRouter key succeeded.")
+    return text
+
+
 def _call_llm(prompt: str, max_tokens: int = 1024) -> str:
     """
-    Unified entry point:  NVIDIA NIM  →  Gemini  →  raises RuntimeError.
+    Unified entry point: NVIDIA NIM → Groq → OpenRouter → Gemini → raises RuntimeError.
     """
     # 1. Try NVIDIA
     if settings.nvidia_api_keys:
         try:
             return _nvidia_chat(prompt, max_tokens=max_tokens)
         except Exception as e:
-            logger.error(f"All NVIDIA keys failed: {e}. Falling back to Gemini.")
+            logger.error(f"All NVIDIA keys failed: {e}. Falling back to Groq.")
 
-    # 2. Gemini fallback
+    # 2. Try Groq
+    if settings.groq_api_key:
+        try:
+            return _groq_chat(prompt, max_tokens=max_tokens)
+        except Exception as e:
+            logger.error(f"Groq failed: {e}. Falling back to OpenRouter.")
+
+    # 3. Try OpenRouter
+    if settings.openrouter_api_key:
+        try:
+            return _openrouter_chat(prompt, max_tokens=max_tokens)
+        except Exception as e:
+            logger.error(f"OpenRouter failed: {e}. Falling back to Gemini.")
+
+    # 4. Gemini fallback
     if settings.gemini_api_key:
         try:
             return _gemini_chat(prompt)
@@ -123,7 +189,7 @@ def _call_llm(prompt: str, max_tokens: int = 1024) -> str:
             logger.error(f"Gemini also failed: {e}")
             raise
 
-    raise RuntimeError("No LLM provider available (no NVIDIA keys or Gemini key configured).")
+    raise RuntimeError("No LLM provider available (no configured keys worked).")
 
 
 # ── JSON helpers ───────────────────────────────────────────────────────────────
@@ -244,6 +310,39 @@ def generate_questions(question_plan: dict, role: str, experience: int, difficul
         logger.error(f"LLM question generation failed: {e}")
         return []
 
+def generate_single_question(current_question: str, role: str, experience: int, difficulty: str, skills: list[str]) -> dict:
+    """
+    Generates exactly 1 new replacement technical interview question.
+    It MUST be completely different from the current question.
+    """
+    skills_str = ", ".join(skills) if skills else "General technical skills"
+    
+    prompt = (
+        f"You are a technical interviewer hiring for: {role}\n"
+        f"The candidate has {experience} years of experience. They requested {difficulty.upper()} difficulty.\n"
+        f"Their skills: {skills_str}\n\n"
+        f"They want to skip this current question:\n"
+        f"\"{current_question}\"\n\n"
+        f"Generate EXACTLY ONE new, different technical question.\n"
+        f"It must have one main question and one follow-up question probing deeper.\n"
+        f"The 'category' field MUST be the specific technical skill being tested.\n"
+        f"Return ONLY a valid JSON object (NOT an array), no markdown:\n"
+        f'{{"main_question": "...", "follow_up_question": "...", "category": "..."}}'
+    )
+
+    try:
+        raw = _call_llm(prompt, max_tokens=512)
+        result = cast(dict, json.loads(_clean_json(raw)))
+        return result
+    except Exception as e:
+        logger.error(f"LLM single question generation failed: {e}")
+        return {
+            "main_question": "Can you discuss a challenging technical problem you recently solved?",
+            "follow_up_question": "What specifically did you learn from that experience?",
+            "category": "Problem Solving"
+        }
+
+
 
 def generate_interview_summary(role: str, overall_score: int, feedback_level: str, category_scores: dict) -> str:
     """
@@ -275,6 +374,63 @@ def generate_interview_summary(role: str, overall_score: int, feedback_level: st
         return fallback_summary
 
 
+def ai_classify_unknown_skills(candidates: list, resume_snippet: str = "") -> dict:
+    """
+    Layer 7 (AI fallback): classify unknown candidate terms into one of the three
+    user-facing skill categories.
+
+    Parameters
+    ----------
+    candidates     : list of strings detected by detect_unknown_skills() but not
+                     matched by the DB-backed passes.
+    resume_snippet : first ~500 chars of resume text for context.
+
+    Returns
+    -------
+    dict with keys: "technical_skills", "tools_frameworks", "soft_skills"
+    Each value is a list[str].  Returns an empty dict on any failure so it is
+    always safe to call — it must never break the pipeline.
+    """
+    if not candidates:
+        return {}
+
+    empty: dict = {"technical_skills": [], "tools_frameworks": [], "soft_skills": []}
+
+    if not settings.nvidia_api_keys and not settings.gemini_api_key:
+        logger.warning("[AI Classify] No LLM provider available — skipping fallback classification.")
+        return empty
+
+    candidate_str = ", ".join(str(c) for c in candidates[:20])
+
+    prompt = (
+        "You are an expert resume parser. Classify each of the following skill candidates "
+        "into exactly one of four buckets based on the context of the resume snippet below.\n\n"
+        "Bucket definitions:\n"
+        "  technical_skills  - Core programming languages, CS concepts, algorithms, paradigms, "
+        "AI/ML frameworks (e.g. Rust, OOP, CUDA, Transformers)\n"
+        "  tools_frameworks  - Specific tools, libraries, platforms, cloud services, DevOps, "
+        "web frameworks, mobile SDKs (e.g. Langflow, BentoML, Streamlit, Chainlit, Expo)\n"
+        "  soft_skills       - Interpersonal or business skills (e.g. Negotiation, Mentoring)\n"
+        "  none              - Not a skill, noise, proper noun, company name, etc.\n\n"
+        f"Resume context (first 500 chars):\n{resume_snippet[:500]}\n\n"
+        f"Skill candidates to classify: {candidate_str}\n\n"
+        "Return ONLY a valid JSON object — no markdown, no explanation:\n"
+        '{"technical_skills": ["..."], "tools_frameworks": ["..."], "soft_skills": ["..."], "none": ["..."]}'
+    )
+
+    try:
+        raw = _call_llm(prompt, max_tokens=512)
+        result = cast(dict, json.loads(_clean_json(raw)))
+        return {
+            "technical_skills": [str(s) for s in result.get("technical_skills", [])],
+            "tools_frameworks": [str(s) for s in result.get("tools_frameworks", [])],
+            "soft_skills":      [str(s) for s in result.get("soft_skills", [])],
+        }
+    except Exception as e:
+        logger.warning(f"[AI Classify] Fallback skill classification failed: {e}")
+        return empty
+
+
 def extract_resume_details(text: str) -> dict:
     """
     Extracts experience years and target role from resume text via NVIDIA NIM → Gemini.
@@ -291,8 +447,9 @@ def extract_resume_details(text: str) -> dict:
         "   - Internships, traineeships, apprenticeships\n"
         "   - Certifications, courses, bootcamps\n"
         "   - Any entry under sections named 'Education' or 'Certifications'\n"
-        "3. If the resume has NO paid work experience at all (e.g., a fresh graduate), return 0.\n"
-        "4. For target_role: infer the most relevant job title from their skills and any work experience.\n\n"
+        "3. IF YOU SEE A SECTION NAMED 'EDUCATION', COMPLETELY IGNORE ALL DATES IN THAT SECTION.\n"
+        "4. If the resume has NO paid work experience at all (e.g., a fresh graduate), return 0.\n"
+        "5. For target_role: infer the most relevant job title from their skills and any work experience.\n\n"
         "Return ONLY valid JSON, no markdown, no explanation:\n"
         '{"experience_years": integer, "target_role": "string or null"}\n\n'
         f"Resume Text:\n{str(text)[0:8000]}"

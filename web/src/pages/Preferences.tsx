@@ -1,15 +1,14 @@
 import React from 'react';
 import { PageHeader } from '@/components/shared/PageHeader';
 import { Card, CardContent } from '@/components/ui/card';
-import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { profileApi } from '@/api/profile.api';
 
 const Preferences: React.FC = () => {
   const [darkMode, setDarkMode] = React.useState(true);
-  const [soundFeedback, setSoundFeedback] = React.useState(false);
-  const [difficulty, setDifficulty] = React.useState<string>('intermediate');
+  const [difficulty, setDifficulty] = React.useState<string>('beginner');
 
   const handleDarkModeSwitch = (isDark: boolean) => {
     setDarkMode(isDark);
@@ -23,15 +22,26 @@ const Preferences: React.FC = () => {
   };
 
   React.useEffect(() => {
-    const saved = localStorage.getItem('interview_difficulty');
-    if (saved) setDifficulty(saved);
+    // Load from backend profile first, fallback to localStorage, then 'beginner'
+    profileApi.getProfile().then((profile: any) => {
+      const pref = profile.preferred_difficulty || localStorage.getItem('interview_difficulty') || 'beginner';
+      setDifficulty(pref);
+      localStorage.setItem('interview_difficulty', pref);
+    }).catch(() => {
+      const saved = localStorage.getItem('interview_difficulty') || 'beginner';
+      setDifficulty(saved);
+    });
     const isLight = localStorage.getItem('theme_light') === 'true';
     if (isLight) setDarkMode(false);
   }, []);
 
-  const handleDifficultyChange = (val: string) => {
+  const handleDifficultyChange = async (val: string) => {
     setDifficulty(val);
     localStorage.setItem('interview_difficulty', val);
+    // Sync to backend so Android picks up the change
+    try {
+      await profileApi.updateProfile({ preferred_difficulty: val } as any);
+    } catch (_) { /* offline — localStorage is already updated */ }
   };
 
   const difficultyOptions = [
@@ -118,18 +128,6 @@ const Preferences: React.FC = () => {
                 {darkMode ? '🌙' : '☀️'}
               </span>
             </button>
-          </div>
-
-          <Separator className="bg-border/50" />
-
-          {/* ── Interview ───────────────────────────────── */}
-          <h3 className="font-syne font-semibold text-foreground">Interview</h3>
-          <div className="flex items-center justify-between">
-            <div>
-              <Label>Sound Feedback</Label>
-              <p className="text-xs text-muted-foreground mt-0.5">Play a chime when a question is ready.</p>
-            </div>
-            <Switch checked={soundFeedback} onCheckedChange={setSoundFeedback} />
           </div>
 
           <Separator className="bg-border/50" />

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Loader2, ArrowLeft, MailCheck } from 'lucide-react';
+import { Loader2, ArrowLeft, MailCheck, RefreshCw } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const emailSchema = z.object({
@@ -16,7 +16,7 @@ const emailSchema = z.object({
 });
 
 const resetSchema = z.object({
-  otp: z.string().length(6, { message: 'OTP must be exactly 6 characters' }),
+  code: z.string().length(6, { message: 'OTP must be exactly 6 digits' }),
   new_password: z.string().min(8, { message: 'Password must be at least 8 characters' }),
   confirm_password: z.string()
 }).refine((data) => data.new_password === data.confirm_password, {
@@ -32,9 +32,45 @@ const ForgotPassword: React.FC = () => {
   const [step, setStep] = useState<1 | 2>(1);
   const [email, setEmail] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [resendCooldown, setResendCooldown] = useState(60);
+  const [isResending, setIsResending] = useState(false);
+  const cooldownRef = useRef<ReturnType<typeof setInterval> | null>(null);
   
   const emailForm = useForm<EmailFormValues>({ resolver: zodResolver(emailSchema) });
   const resetForm = useForm<ResetFormValues>({ resolver: zodResolver(resetSchema) });
+
+  useEffect(() => {
+    if (step === 2) {
+      setResendCooldown(60);
+      cooldownRef.current = setInterval(() => {
+        setResendCooldown(prev => {
+          if (prev <= 1) { clearInterval(cooldownRef.current!); return 0; }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+    return () => { if (cooldownRef.current) clearInterval(cooldownRef.current); };
+  }, [step]);
+
+  const handleResend = async () => {
+    if (resendCooldown > 0 || isResending) return;
+    setIsResending(true);
+    try {
+      await authApi.requestReset(email);
+      toast.success('New OTP sent!');
+      setResendCooldown(60);
+      cooldownRef.current = setInterval(() => {
+        setResendCooldown(prev => {
+          if (prev <= 1) { clearInterval(cooldownRef.current!); return 0; }
+          return prev - 1;
+        });
+      }, 1000);
+    } catch {
+      toast.error('Failed to resend OTP');
+    } finally {
+      setIsResending(false);
+    }
+  };
 
   const onEmailSubmit = async (data: EmailFormValues) => {
     try {
@@ -51,7 +87,8 @@ const ForgotPassword: React.FC = () => {
   const onResetSubmit = async (data: ResetFormValues) => {
     try {
       setError(null);
-      await authApi.resetPassword({ email, otp: data.otp, new_password: data.new_password });
+      // Backend schema expects field named 'code', not 'otp'
+      await authApi.resetPassword({ email, code: data.code, new_password: data.new_password });
       toast.success('Password reset successfully! Please log in.');
       navigate('/login');
     } catch (err: any) {
@@ -136,15 +173,15 @@ const ForgotPassword: React.FC = () => {
                 )}
                 
                 <div className="space-y-2">
-                  <Label htmlFor="otp">6-Digit OTP</Label>
+                  <Label htmlFor="code">6-Digit OTP</Label>
                   <Input 
-                    id="otp" 
+                    id="code" 
                     placeholder="123456"
                     className="bg-surface-3 transition-colors h-11 font-mono tracking-widest text-lg"
                     maxLength={6}
-                    {...resetForm.register('otp')}
+                    {...resetForm.register('code')}
                   />
-                  {resetForm.formState.errors.otp && <p className="text-destructive text-xs mt-1">{resetForm.formState.errors.otp.message}</p>}
+                  {resetForm.formState.errors.code && <p className="text-destructive text-xs mt-1">{resetForm.formState.errors.code.message}</p>}
                 </div>
 
                 <div className="space-y-2">
@@ -178,6 +215,18 @@ const ForgotPassword: React.FC = () => {
                 >
                   {resetForm.formState.isSubmitting ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : 'Reset Password'}
                 </Button>
+
+                {/* Resend OTP */}
+                <button
+                  type="button"
+                  onClick={handleResend}
+                  disabled={resendCooldown > 0 || isResending}
+                  className="w-full text-center text-sm mt-3 inline-flex items-center justify-center gap-2 transition-colors"
+                  style={{ color: resendCooldown > 0 ? 'var(--muted-foreground)' : 'var(--primary)', opacity: resendCooldown > 0 ? 0.6 : 1 }}
+                >
+                  {isResending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />}
+                  {resendCooldown > 0 ? `Resend OTP in ${resendCooldown}s` : "Didn't receive a code? Resend OTP"}
+                </button>
               </form>
             </motion.div>
           )}

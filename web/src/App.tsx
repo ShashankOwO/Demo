@@ -8,6 +8,7 @@ import { ProtectedRoute } from './components/layout/ProtectedRoute';
 import { AppShell } from './components/layout/AppShell';
 
 // Lazy-loaded pages
+const Landing = lazy(() => import('./pages/Landing'));
 const Splash = lazy(() => import('./pages/Splash'));
 const Login = lazy(() => import('./pages/Login'));
 const Signup = lazy(() => import('./pages/Signup'));
@@ -34,7 +35,8 @@ function App() {
           <Suspense fallback={<div className="min-h-screen flex items-center justify-center text-muted-foreground">Loading Resume2Interview...</div>}>
             <Routes>
               {/* Public Routes */}
-              <Route path="/" element={<Splash />} />
+              <Route path="/" element={<Landing />} />
+              <Route path="/landing" element={<Landing />} />
               <Route path="/splash" element={<Splash />} />
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />

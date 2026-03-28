@@ -6,15 +6,19 @@ import { SpeechInput } from '@/components/interview/SpeechInput';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { interviewApi } from '@/api/interview.api';
+import { resumeApi } from '@/api/resume.api';
+import { useAuthStore } from '@/store/authStore';
 import { Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
 
 const Interview: React.FC = () => {
   const navigate = useNavigate();
-  const { questions, currentIndex, answers, submitAnswer, targetRole } = useInterviewStore();
+  const { questions, currentIndex, answers, submitAnswer, targetRole, replaceQuestion } = useInterviewStore();
+  const { user } = useAuthStore();
   
   const [isEvaluating, setIsEvaluating] = useState(false);
+  const [isRegenerating, setIsRegenerating] = useState(false);
   // Guard against double-submission (e.g. React StrictMode double effects)
   const isSubmittingRef = useRef(false);
   
@@ -67,6 +71,46 @@ const Interview: React.FC = () => {
       isSubmittingRef.current = false;
     } finally {
       setIsEvaluating(false);
+    }
+  };
+
+  const handleRegenerate = async () => {
+    if (isRegenerating || isEvaluating || !questions[currentIndex]) return;
+    try {
+      setIsRegenerating(true);
+      const loadingToast = toast.loading("Generating a new question...");
+      
+      let skillsData = [];
+      try {
+        if (user?.skills_json) {
+          skillsData = typeof user.skills_json === 'string' ? JSON.parse(user.skills_json) : user.skills_json;
+          // Flatten exactly how Backend handles it
+          const flat: string[] = [];
+          Object.values(skillsData).forEach((arr: any) => {
+             if (Array.isArray(arr)) flat.push(...arr);
+          });
+          skillsData = flat;
+        }
+      } catch (e) {}
+      
+      const payload = {
+        current_question: questions[currentIndex].question,
+        skills: skillsData.length > 0 ? skillsData : ["General Problem Solving"],
+        target_role: targetRole || user?.target_role,
+        experience_years: user?.experience_years || 0,
+        difficulty: (user as any)?.preferred_difficulty || "intermediate"
+      };
+      
+      const newQ = await resumeApi.regenerateQuestion(payload);
+      replaceQuestion(currentIndex, newQ);
+      
+      toast.dismiss(loadingToast);
+      toast.success("Question replaced!");
+    } catch (e: any) {
+      toast.dismiss();
+      toast.error(e.response?.data?.detail || "Failed to generate new question");
+    } finally {
+      setIsRegenerating(false);
     }
   };
 
@@ -142,6 +186,8 @@ const Interview: React.FC = () => {
             category={currentQ?.category || "General"}
             question={currentQ?.question || ""}
             isFollowUp={currentQ?.type === 'follow_up'}
+            onReload={handleRegenerate}
+            isReloading={isRegenerating}
           />
 
           {/* Bottom input area */}

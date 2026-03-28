@@ -51,11 +51,11 @@ def get_summary():
     if len(scores) >= 10:
         recent = scores[:5]
         older  = scores[5:10]
+        curr_avg = sum(recent) / len(recent)
         prev_avg = sum(older) / len(older)
-        trend = ((sum(recent) / len(recent)) - prev_avg) / prev_avg * 100 if prev_avg else 0.0
+        trend = analytics_service.compute_trend(curr_avg, prev_avg) or 0.0
     elif len(scores) >= 2:
-        prev = scores[1]  # Previous interview
-        trend = ((scores[0] - prev) / prev * 100) if prev else 0.0
+        trend = analytics_service.compute_trend(scores[0], scores[1]) or 0.0
     else:
         trend = 0.0
 

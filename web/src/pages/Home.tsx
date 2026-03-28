@@ -14,7 +14,7 @@ import { getGreeting, generateTips, HomeAnalyticsData } from '@/lib/tipEngine';
 
 const PremiumCard: React.FC<{ children: React.ReactNode; className?: string; style?: React.CSSProperties }> = ({ children, className = '', style }) => (
   <div 
-    className={`relative bg-surface border border-[var(--glass-border)] rounded-[16px] p-[20px] md:p-[24px] overflow-hidden transition-all duration-220 ease-out hover:border-primary/30 hover:shadow-[0_4px_24px_rgba(0,0,0,0.1)] ${className}`}
+    className={`relative bg-surface border border-[var(--glass-border)] theme-border rounded-[16px] p-[20px] md:p-[24px] overflow-hidden transition-all duration-220 ease-out hover:border-primary/30 hover:shadow-[0_4px_24px_rgba(0,0,0,0.1)] ${className}`}
     style={style}
   >
     <div className="absolute top-0 left-[15%] right-[15%] h-[1px] bg-gradient-to-r from-transparent via-[#6c63ff]/35 to-transparent" />
@@ -275,27 +275,29 @@ const Home: React.FC = () => {
       </div>
 
       {/* ── ROW 4: Focus Areas ──────────────────────────── */}
-      {targetAreasList.length > 0 && (
-        <PremiumCard className="anim-fade-up w-full mb-[16px]" style={{ animationDelay: '280ms' }}>
-          <h3 className="text-[18px] font-semibold text-white flex items-center gap-2 mb-4">
-            <Target className="w-5 h-5 text-[#818cf8]" /> Focus Areas
-          </h3>
+      <PremiumCard className="anim-fade-up w-full mb-[16px]" style={{ animationDelay: '280ms' }}>
+        <h3 className="text-[18px] font-semibold text-white flex items-center gap-2 mb-4">
+          <Target className="w-5 h-5 text-[#818cf8]" /> Focus Areas
+        </h3>
+        {targetAreasList.length > 0 ? (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
             {targetAreasList.slice(0, 4).map((item, idx) => {
               const color = skillColors[idx % skillColors.length];
               return (
-                <div key={idx} className="bg-white/[0.03] theme-bg border border-white/[0.08] theme-border rounded-[10px] px-[14px] py-[10px] flex items-center justify-between group hover:border-[#6c63ff]/30 hover:bg-[#6c63ff]/10 transition-colors">
-                  <div className="flex items-center gap-2.5 truncate">
-                    <div className="w-[6px] h-[6px] rounded-full flex-shrink-0" style={{ backgroundColor: color }}></div>
-                    <span className="text-[13px] font-medium text-slate-200 theme-text truncate">{item.category}</span>
-                  </div>
-                  <span className="text-[13px] font-semibold text-[#94a3b8] theme-text-muted group-hover:text-primary transition-colors">{item.avg_score}</span>
+                <div key={idx} className="bg-white/[0.03] theme-bg border border-white/[0.08] theme-border rounded-[10px] px-[14px] py-[10px] flex items-center gap-2.5 group hover:border-[#6c63ff]/30 hover:bg-[#6c63ff]/10 transition-colors">
+                  <div className="w-[6px] h-[6px] rounded-full flex-shrink-0" style={{ backgroundColor: color }}></div>
+                  <span className="text-[13px] font-medium text-slate-200 theme-text truncate">{item.category}</span>
                 </div>
               );
             })}
           </div>
-        </PremiumCard>
-      )}
+        ) : (
+          <div className="h-[60px] bg-white/[0.02] rounded-[12px] border border-white/[0.04] flex items-center justify-center text-[13px] text-[#64748b] p-4 text-center">
+            Complete an interview to see your focus areas.
+          </div>
+        )}
+      </PremiumCard>
+
 
       {/* ── ROW 5: Analytics 3-col ───────────────────────── */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-[16px] w-full items-start">
@@ -378,17 +380,17 @@ const Home: React.FC = () => {
             ) : recentActivity && recentActivity.length > 0 ? (
               <>
                 {recentActivity.slice(0, 4).map((activity, idx) => (
-                  <div key={idx} className="p-[10px_12px] rounded-[10px] bg-white/[0.03] hover:bg-white/[0.05] border-[1px] border-white/[0.02] hover:border-white/[0.08] transition-colors flex justify-between items-center group cursor-pointer" onClick={() => navigate('/reports')}>
+                  <div key={idx} className="p-[10px_12px] rounded-[10px] bg-white/[0.03] theme-bg hover:bg-white/[0.05] theme-surface border-[1px] border-white/[0.02] theme-border hover:border-white/[0.08] transition-colors flex justify-between items-center group cursor-pointer" onClick={() => navigate('/reports')}>
                     <div className="min-w-0 pr-2">
-                      <div className="text-[13px] font-medium text-slate-200 truncate capitalize">
+                      <div className="text-[13px] font-medium text-slate-200 theme-text truncate capitalize">
                         {activity.type === 'interview' ? (activity.role_applied_for || 'Interview Session') : 'Resume Upload'}
                       </div>
-                      <div className="text-[11px] text-[#64748b] mt-0.5">
+                      <div className="text-[11px] text-[#64748b] theme-text-muted mt-0.5">
                         {activity.date ? formatDistanceToNow(new Date(activity.date + (!activity.date.endsWith('Z') ? 'Z' : '')), { addSuffix: true }) : ''}
                       </div>
                     </div>
                     {activity.score !== null && (
-                      <div className="bg-white/5 text-[#a5b4fc] text-[11px] font-bold px-[8px] py-[3px] rounded-[6px] flex-shrink-0 group-hover:bg-[#6c63ff]/15 transition-colors">
+                      <div className="bg-white/5 border border-transparent theme-border text-[#a5b4fc] theme-text text-[11px] font-bold px-[8px] py-[3px] rounded-[6px] flex-shrink-0 group-hover:bg-[#6c63ff]/15 transition-colors">
                         {activity.score}/100
                       </div>
                     )}

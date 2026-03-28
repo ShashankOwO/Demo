@@ -25,6 +25,7 @@ export const useSpeech = (): UseSpeechReturn => {
   const [hasRecognitionSupport, setHasRecognitionSupport] = useState(false);
   
   const recognitionRef = useRef<any>(null);
+  const manualStopRef = useRef(false);
 
   useEffect(() => {
     // Check if window is defined (for SSR safety, though this is Vite SPA)
@@ -80,8 +81,19 @@ export const useSpeech = (): UseSpeechReturn => {
         };
 
         recognitionRef.current.onend = () => {
-          setIsListening(false);
-          setInterimTranscript('');
+          if (!manualStopRef.current && isListening) {
+             // Try to restart if we were listening and didn't manually stop
+             try {
+                recognitionRef.current.start();
+             } catch (e) {
+                console.error("Failed to auto-restart speech:", e);
+                setIsListening(false);
+                setInterimTranscript('');
+             }
+          } else {
+             setIsListening(false);
+             setInterimTranscript('');
+          }
         };
       }
     }
@@ -98,6 +110,7 @@ export const useSpeech = (): UseSpeechReturn => {
       try {
         setTranscript('');
         setInterimTranscript('');
+        manualStopRef.current = false;
         recognitionRef.current.start();
         setIsListening(true);
       } catch (e) {
@@ -108,6 +121,7 @@ export const useSpeech = (): UseSpeechReturn => {
 
   const stop = useCallback(() => {
     if (recognitionRef.current && isListening) {
+      manualStopRef.current = true;
       recognitionRef.current.stop();
       setIsListening(false);
       setInterimTranscript('');

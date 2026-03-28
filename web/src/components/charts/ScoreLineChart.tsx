@@ -45,7 +45,7 @@ export const ScoreLineChart: React.FC<ScoreLineChartProps> = ({ data }) => {
             <LineChart data={chartData} margin={{ top: 16, right: 16, left: -20, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--color-border)" />
               <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 11 }} />
-              <YAxis axisLine={false} tickLine={false} domain={[-5, 105]} tick={{ fill: '#94a3b8', fontSize: 11 }} />
+              <YAxis axisLine={false} tickLine={false} domain={[0, 100]} tick={{ fill: '#94a3b8', fontSize: 11 }} />
               <Tooltip
                 {...tooltipStyle}
                 formatter={(value) => [`${value}/100`, 'Score']}
@@ -79,7 +79,7 @@ export const ScoreLineChart: React.FC<ScoreLineChartProps> = ({ data }) => {
             <BarChart data={chartData} margin={{ top: 16, right: 16, left: -20, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--color-border)" />
               <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 11 }} />
-              <YAxis axisLine={false} tickLine={false} domain={[0, 105]} tick={{ fill: '#94a3b8', fontSize: 11 }} />
+              <YAxis axisLine={false} tickLine={false} domain={[0, 100]} tick={{ fill: '#94a3b8', fontSize: 11 }} />
               <Tooltip
                 {...tooltipStyle}
                 formatter={(value) => [`${value}/100`, 'Score']}

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Loader2, ArrowLeft, MailCheck } from 'lucide-react';
+import { Loader2, ArrowLeft, MailCheck, RefreshCw } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const signupSchema = z.object({
@@ -35,6 +35,9 @@ const Signup: React.FC = () => {
   const [step, setStep] = useState<1 | 2>(1);
   const [registeredEmail, setRegisteredEmail] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [resendCooldown, setResendCooldown] = useState(60);
+  const [isResending, setIsResending] = useState(false);
+  const cooldownRef = useRef<ReturnType<typeof setInterval> | null>(null);
   
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<SignupFormValues>({
     resolver: zodResolver(signupSchema),
@@ -42,16 +45,48 @@ const Signup: React.FC = () => {
 
   const otpForm = useForm<OtpFormValues>({ resolver: zodResolver(otpSchema) });
 
+  useEffect(() => {
+    if (step === 2) {
+      setResendCooldown(60);
+      cooldownRef.current = setInterval(() => {
+        setResendCooldown(prev => {
+          if (prev <= 1) { clearInterval(cooldownRef.current!); return 0; }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+    return () => { if (cooldownRef.current) clearInterval(cooldownRef.current); };
+  }, [step]);
+
+  const handleResend = async () => {
+    if (resendCooldown > 0 || isResending) return;
+    setIsResending(true);
+    try {
+      await authApi.resendOtp(registeredEmail);
+      toast.success('New OTP sent!');
+      setResendCooldown(60);
+      cooldownRef.current = setInterval(() => {
+        setResendCooldown(prev => {
+          if (prev <= 1) { clearInterval(cooldownRef.current!); return 0; }
+          return prev - 1;
+        });
+      }, 1000);
+    } catch {
+      toast.error('Failed to resend OTP');
+    } finally {
+      setIsResending(false);
+    }
+  };
+
   const onSubmit = async (data: SignupFormValues) => {
     try {
       setError(null);
       await authApi.register({ name: data.name, email: data.email, password: data.password });
-      
       setRegisteredEmail(data.email);
       setStep(2);
       toast.success("OTP sent to your email!");
     } catch (err: any) {
-      setError(err.response?.data?.message || err.response?.data?.detail || 'Failed to create account. Email may already be in use.');
+      setError(err.response?.data?.message || err.response?.data?.detail || 'Failed to create account.');
     }
   };
 
@@ -63,13 +98,12 @@ const Signup: React.FC = () => {
         localStorage.setItem('r2i_token', res.access_token);
         const { profileApi } = await import('@/api/profile.api');
         const user = await profileApi.getProfile();
-        
         login(res.access_token, user);
-        toast.success("Account verified and created successfully!");
+        toast.success("Account verified!");
         navigate('/home');
       }
     } catch (err: any) {
-        setError(err.response?.data?.message || 'Invalid OTP or verification failed.');
+      setError(err.response?.data?.message || 'Invalid OTP or verification failed.');
     }
   };
 
@@ -234,11 +268,23 @@ const Signup: React.FC = () => {
                 >
                   {otpForm.formState.isSubmitting ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : 'Verify Account'}
                 </Button>
+
+                {/* Resend OTP */}
+                <button
+                  type="button"
+                  onClick={handleResend}
+                  disabled={resendCooldown > 0 || isResending}
+                  className="w-full text-center text-sm mt-3 inline-flex items-center justify-center gap-2 transition-colors"
+                  style={{ color: resendCooldown > 0 ? 'var(--muted-foreground)' : 'var(--primary)', opacity: resendCooldown > 0 ? 0.6 : 1 }}
+                >
+                  {isResending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />}
+                  {resendCooldown > 0 ? `Resend OTP in ${resendCooldown}s` : "Didn't receive a code? Resend OTP"}
+                </button>
                 
                 <button 
                   type="button"
                   onClick={() => setStep(1)}
-                  className="w-full text-center text-sm text-muted-foreground hover:text-primary transition-colors mt-4 inline-flex items-center justify-center"
+                  className="w-full text-center text-sm text-muted-foreground hover:text-primary transition-colors mt-2 inline-flex items-center justify-center"
                 >
                   <ArrowLeft className="w-4 h-4 mr-1" />
                   Back to Registration

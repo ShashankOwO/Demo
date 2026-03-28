@@ -60,7 +60,7 @@ const Profile: React.FC = () => {
             <div className="pb-2 flex-1">
               <h2 className="text-2xl font-syne font-bold text-foreground">{displayProfile?.name}</h2>
               <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground mt-1">
-                <span className="flex items-center gap-1.5 text-slate-300 font-medium">
+                <span className="flex items-center gap-1.5 font-medium" style={{ color: 'var(--color-text-muted)' }}>
                   {displayProfile?.email || "Email not listed"}
                 </span>
                 {displayProfile?.location && (

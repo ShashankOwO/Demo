@@ -8,7 +8,8 @@ def update_user_profile(
     skills: dict,
     target_role: str | None,
     experience_years: int | None = None,
-    experience_level: str | None = None
+    experience_level: str | None = None,
+    preferred_difficulty: str | None = None
 ) -> UserProfile:
     profile = db.session.query(UserProfile).filter_by(user_id=user_id).first()
     
@@ -21,6 +22,8 @@ def update_user_profile(
             profile.experience_years = experience_years
         if experience_level is not None:
             profile.experience_level = experience_level
+        if preferred_difficulty is not None:
+            profile.preferred_difficulty = preferred_difficulty
     else:
         profile = UserProfile(
             user_id=user_id,
