@@ -1,0 +1,164 @@
+package com.example.resume2interview.ui.home
+
+import com.example.resume2interview.data.repository.AnalyticsRepository
+import com.example.resume2interview.data.repository.ProfileRepository
+import com.example.resume2interview.ui.base.BaseViewModel
+import com.example.resume2interview.utils.ResumePreferences
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import javax.inject.Inject
+
+data class HomeUiData(
+    val userName: String,
+    val greeting: String,
+    val resumeStatus: String,
+    val interviewSessionCount: Int,
+    val latestScore: Int,
+    val avgScore: Int = 0,
+    val trendPercentage: Double = 0.0,
+    val focusAreas: List<String>,
+    val extractedSkills: Int = 0,
+    val isResumeActive: Boolean = false,
+    val resumeUploadedAt: String? = null,
+    val lastSessionDate: String? = null,
+    val generatedTips: List<String> = emptyList(),
+    val currentStreak: Int = 0,
+    val weekActivity: List<com.example.resume2interview.data.model.DayActivity> = emptyList(),
+    val recentActivity: List<com.example.resume2interview.data.model.RecentActivityItem> = emptyList()
+)
+
+@HiltViewModel
+class HomeViewModel @Inject constructor(
+    private val profileRepository: ProfileRepository,
+    private val analyticsRepository: AnalyticsRepository,
+    private val resumePreferences: ResumePreferences
+) : BaseViewModel<HomeUiData>() {
+
+    init {
+        loadHomeData()
+    }
+
+    fun loadHomeData() {
+        launchDataLoad {
+            // ── 1. Profile ────────────────────────────────────────────────────
+            val profileResult = profileRepository.fetchProfile()
+            val profile = profileResult.getOrNull()
+
+            val userName = profile?.name?.takeIf { it.isNotBlank() }
+                ?: profile?.email?.substringBefore('@')
+                ?: "User"
+
+            // ── 2. Analytics summary (total sessions + avg score) ─────────────
+            val summaryResult = analyticsRepository.getSummary()
+            val summary = summaryResult.getOrNull()
+
+            // ── 3. Last-five interviews (most recent date) ──────
+            val lastFiveResult = analyticsRepository.getLastFive()
+            val lastFive = lastFiveResult.getOrNull() ?: emptyList()
+            val lastSessionDate = lastFive.firstOrNull()?.createdAt
+
+            // ── 4. Focus areas (categories needing most work based on lowest score) ──
+            val performanceResult = analyticsRepository.getCategoryPerformance()
+            val performance = performanceResult.getOrNull()
+            
+            val focusAreas = performance?.categoryAverages?.entries
+                ?.sortedBy { it.value } // Lowest score first
+                ?.take(3)
+                ?.map { it.key }
+                ?: emptyList()
+
+            // ── 4a. Streak & Weekly Activity ───────────────────────────────────
+            val streakResult = analyticsRepository.getInterviewStreak()
+            val streakData = streakResult.getOrNull()
+            val currentStreak = streakData?.currentStreak ?: 0
+            val weekActivity = streakData?.weekActivity ?: emptyList()
+
+            // ── 4b. Recent Activity (interviews + resume uploads) ──────────────
+            val recentActivityResult = analyticsRepository.getRecentActivity()
+            val recentActivity = recentActivityResult.getOrNull() ?: emptyList()
+
+            // ── 5. Resume active check (read from backend profile skillsJson) ──
+            val skillsJsonStr = profile?.skillsJson
+            
+            val extractedSkillsCount = withContext(Dispatchers.Default) {
+                var count = 0
+                if (!skillsJsonStr.isNullOrBlank() && skillsJsonStr != "{}" && skillsJsonStr != "[]") {
+                    try {
+                        val jsonObj = org.json.JSONObject(skillsJsonStr)
+                        val keys = jsonObj.keys()
+                        while (keys.hasNext()) {
+                            val key = keys.next()
+                            val arr = jsonObj.optJSONArray(key)
+                            if (arr != null) count += arr.length()
+                        }
+                    } catch (e: Exception) {
+                        // Ignore parse errors
+                    }
+                }
+                count
+            }
+
+            // A resume/skills configuration is only considered active if they successfully have skills
+            val isResumeActive = extractedSkillsCount > 0
+
+            // Also keep the legacy flags in sync just in case
+            val userEmail = profile?.email
+            resumePreferences.setResumeUploaded(userEmail, isResumeActive)
+            HomeStaticState.isResumeUploaded = isResumeActive
+
+            val tipEngine = HomeTipEngine()
+
+            // Flat list of resume skills for skill-based tips
+            val resumeSkillsList: List<String> = withContext(Dispatchers.Default) {
+                val skills = mutableListOf<String>()
+                if (!skillsJsonStr.isNullOrBlank() && skillsJsonStr != "{}" && skillsJsonStr != "[]") {
+                    try {
+                        val jsonObj = org.json.JSONObject(skillsJsonStr)
+                        val keys = jsonObj.keys()
+                        while (keys.hasNext()) {
+                            val key = keys.next()
+                            val arr = jsonObj.optJSONArray(key)
+                            if (arr != null) {
+                                for (i in 0 until arr.length()) {
+                                    skills.add(arr.getString(i))
+                                }
+                            }
+                        }
+                    } catch (e: Exception) { /* ignore */ }
+                }
+                skills
+            }
+
+            val analyticsData = HomeAnalyticsData(
+                avgScore         = summary?.averageScore?.toInt() ?: 0,
+                interviewCount   = summary?.totalSessions ?: lastFive.size,
+                todaySessions    = 0, // Reserved for future daily session tracking
+                weakestCategory  = performance?.weakestCategory,
+                strongestCategory = performance?.strongestCategory,
+                resumeSkills     = resumeSkillsList
+            )
+
+            val generatedTips  = tipEngine.generateTips(analyticsData)
+            val greeting       = tipEngine.greeting(userName)
+
+            HomeUiData(
+                userName              = userName,
+                greeting              = greeting,
+                resumeStatus          = if (isResumeActive) "Active" else "Action Needed",
+                interviewSessionCount = summary?.totalSessions ?: lastFive.size,
+                latestScore           = summary?.latestScore ?: 0,
+                avgScore              = summary?.averageScore?.toInt() ?: 0,
+                trendPercentage       = summary?.trendPercentage?.toDouble() ?: 0.0,
+                focusAreas            = focusAreas,
+                extractedSkills       = extractedSkillsCount,
+                isResumeActive        = isResumeActive,
+                lastSessionDate       = lastSessionDate,
+                generatedTips         = generatedTips,
+                currentStreak         = currentStreak,
+                weekActivity          = weekActivity,
+                recentActivity        = recentActivity
+            )
+        }
+    }
+}
