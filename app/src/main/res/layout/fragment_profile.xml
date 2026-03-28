@@ -126,12 +126,12 @@
 
                 <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
                     android:layout_weight="1" android:gravity="center" android:orientation="vertical">
-                    <TextView android:id="@+id/tv_stat_resumes" android:layout_width="wrap_content"
-                        android:layout_height="wrap_content" android:text="1"
+                    <TextView android:id="@+id/tv_stat_max_score" android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" android:text="--"
                         android:textColor="@color/accent_violet" android:textSize="22sp"
                         android:textStyle="bold"/>
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:text="Resumes" android:textColor="@color/text_muted"
+                        android:text="Max Score" android:textColor="@color/text_muted"
                         android:textSize="12sp" android:layout_marginTop="4dp"/>
                 </LinearLayout>
             </LinearLayout>
@@ -154,6 +154,7 @@
                     android:background="?attr/selectableItemBackground"
                     app:drawableEndCompat="@drawable/ic_arrow_right"
                     app:drawableStartCompat="@drawable/ic_bell"
+                    app:drawableTint="@color/text_secondary"
                     android:drawablePadding="16dp"/>
 
                 <View android:layout_width="match_parent" android:layout_height="1dp"
@@ -162,11 +163,12 @@
 
                 <TextView android:id="@+id/tv_preferences"
                     android:layout_width="match_parent" android:layout_height="wrap_content"
-                    android:padding="16dp" android:text="Interview Preferences"
+                    android:padding="16dp" android:text="Preferences"
                     android:textColor="@color/text_primary" android:textSize="15sp"
                     android:background="?attr/selectableItemBackground"
                     app:drawableEndCompat="@drawable/ic_arrow_right"
                     app:drawableStartCompat="@drawable/ic_settings"
+                    app:drawableTint="@color/text_secondary"
                     android:drawablePadding="16dp"/>
 
                 <View android:layout_width="match_parent" android:layout_height="1dp"
@@ -180,7 +182,7 @@
                     android:background="?attr/selectableItemBackground"
                     app:drawableEndCompat="@drawable/ic_arrow_right"
                     app:drawableStartCompat="@drawable/ic_help"
-                    app:drawableTint="@color/text_primary"
+                    app:drawableTint="@color/text_secondary"
                     android:drawablePadding="16dp"/>
 
                 <View android:layout_width="match_parent" android:layout_height="1dp"
@@ -194,6 +196,7 @@
                     android:background="?attr/selectableItemBackground"
                     app:drawableEndCompat="@drawable/ic_arrow_right"
                     app:drawableStartCompat="@drawable/ic_lock"
+                    app:drawableTint="@color/text_secondary"
                     android:drawablePadding="16dp"/>
             </LinearLayout>
         </androidx.cardview.widget.CardView>

@@ -28,49 +28,60 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <TextView
-            android:id="@+id/tv_id_badge"
-            android:layout_width="wrap_content"
+        <!-- Top row: badge + date on left, status pill on right -->
+        <LinearLayout
+            android:id="@+id/ll_top_row"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
             android:layout_marginStart="16dp"
-            android:background="@drawable/bg_accent_badge"
-            android:paddingHorizontal="10dp"
-            android:paddingVertical="4dp"
-            android:text="#1"
-            android:textColor="@color/accent_indigo"
-            android:textStyle="bold"
-            android:textSize="12sp"
             app:layout_constraintStart_toEndOf="@+id/v_accent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
 
-        <TextView
-            android:id="@+id/tv_date"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
-            android:text="1/6/2026"
-            android:textColor="@color/text_muted"
-            android:textSize="12sp"
-            app:drawableStartCompat="@drawable/ic_calendar"
-            app:drawableTint="@color/text_muted"
-            android:drawablePadding="4dp"
-            app:layout_constraintBottom_toBottomOf="@+id/tv_id_badge"
-            app:layout_constraintStart_toEndOf="@+id/tv_id_badge"
-            app:layout_constraintTop_toTopOf="@+id/tv_id_badge" />
+            <TextView
+                android:id="@+id/tv_id_badge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_accent_badge"
+                android:paddingHorizontal="10dp"
+                android:paddingVertical="4dp"
+                android:text="#1"
+                android:textColor="@color/accent_indigo"
+                android:textStyle="bold"
+                android:textSize="12sp" />
 
-        <TextView
-            android:id="@+id/tv_status"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@drawable/bg_badge_yellow"
-            android:paddingHorizontal="12dp"
-            android:paddingVertical="4dp"
-            android:text="Average"
-            android:textColor="#E65100"
-            android:textSize="12sp"
-            android:textStyle="bold"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            <TextView
+                android:id="@+id/tv_date"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="8dp"
+                android:text="1/6/2026"
+                android:textColor="@color/text_muted"
+                android:textSize="12sp"
+                android:maxLines="1"
+                android:ellipsize="end"
+                app:drawableStartCompat="@drawable/ic_calendar"
+                app:drawableTint="@color/text_muted"
+                android:drawablePadding="4dp" />
+
+            <TextView
+                android:id="@+id/tv_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:background="@drawable/bg_badge_yellow"
+                android:paddingHorizontal="10dp"
+                android:paddingVertical="4dp"
+                android:text="Average"
+                android:textColor="#E65100"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                android:maxLines="1" />
+
+        </LinearLayout>
 
         <TextView
             android:id="@+id/tv_title"
@@ -84,7 +95,7 @@
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/v_accent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_id_badge" />
+            app:layout_constraintTop_toBottomOf="@+id/ll_top_row" />
 
         <TextView
             android:id="@+id/tv_score"

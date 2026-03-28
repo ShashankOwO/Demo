@@ -97,14 +97,20 @@ class ResumeRepository @Inject constructor(
      */
     suspend fun generateQuestionsFromPreferences(
         skills: List<String>,
+        softSkills: List<String>,
+        toolsFrameworks: List<String>,
         targetRole: String?,
-        experienceYears: Int?
+        experienceYears: Int?,
+        difficulty: String? = null
     ): Result<Unit> {
         return try {
             val request = com.example.resume2interview.data.model.GenerateQuestionsRequest(
                 skills = skills,
+                softSkills = softSkills,
+                toolsFrameworks = toolsFrameworks,
                 targetRole = targetRole,
-                experienceYears = experienceYears
+                experienceYears = experienceYears,
+                difficulty = difficulty
             )
             val response = api.generateQuestions(request)
             
@@ -114,16 +120,50 @@ class ResumeRepository @Inject constructor(
                 // Update local cache
                 val currentAnalysis = _lastAnalysis.value
                 if (currentAnalysis != null) {
-                    _lastAnalysis.value = currentAnalysis.copy(generatedQuestions = newQuestions)
+                    _lastAnalysis.value = currentAnalysis.copy(
+                        generatedQuestions = newQuestions,
+                        inferredTargetRole = targetRole
+                    )
                 } else {
                     _lastAnalysis.value = ResumeAnalysisOut(
                         technicalSkills = com.example.resume2interview.data.model.TechnicalSkills(),
-                        generatedQuestions = newQuestions
+                        generatedQuestions = newQuestions,
+                        inferredTargetRole = targetRole
                     )
                 }
                 Result.success(Unit)
             } else {
                 Result.failure(Exception("Failed to generate questions: HTTP ${response.code()}"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    /**
+     * Calls the backend to generate exactly 1 replacement question.
+     */
+    suspend fun generateSingleQuestion(
+        currentQuestion: String,
+        skills: List<String>,
+        targetRole: String?,
+        experienceYears: Int?,
+        difficulty: String?
+    ): Result<com.example.resume2interview.data.model.InterviewQuestion> {
+        return try {
+            val request = mapOf(
+                "current_question" to currentQuestion,
+                "skills" to skills,
+                "target_role" to targetRole,
+                "experience_years" to experienceYears,
+                "difficulty" to difficulty
+            )
+            val response = api.generateSingleQuestion(request)
+            if (response.isSuccessful && response.body() != null) {
+                Result.success(response.body()!!)
+            } else {
+                val errorMsg = response.errorBody()?.string() ?: "Unknown error"
+                Result.failure(Exception("Failed to regenerate question: HTTP ${response.code()} - $errorMsg"))
             }
         } catch (e: Exception) {
             Result.failure(e)

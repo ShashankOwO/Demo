@@ -10,7 +10,6 @@ def update_profile():
     Saves or updates the explicit UserProfile following a resume parse confirmation.
     Expected JSON: {
         "skills": {...structured tech skills...},
-        "previous_role": "...",
         "target_role": "..."
     }
     """
@@ -20,10 +19,9 @@ def update_profile():
         
     current_user = get_current_user()
     skills = json_data.get("skills", {})
-    prev = json_data.get("previous_role")
     target = json_data.get("target_role")
     
-    profile = user_profile_service.update_user_profile(current_user.id, skills, prev, target)
+    profile = user_profile_service.update_user_profile(current_user.id, skills, target)
     return jsonify({"message": "Profile updated", "target_role": profile.target_role}), 200
 
 

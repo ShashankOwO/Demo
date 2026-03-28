@@ -248,13 +248,8 @@ class LoginFragment : BaseFragment<FragmentLoginBinding, LoginViewModel>(
 
     /** Red border + shake on invalid field */
     private fun highlightError(view: View) {
+        view.backgroundTintList = null
         view.setBackgroundResource(R.drawable.bg_input_error)
-        ValueAnimator.ofArgb(Color.TRANSPARENT, Color.parseColor("#22FF3B30"), Color.TRANSPARENT).apply {
-            duration = 700
-            addUpdateListener {
-                view.setBackgroundTintList(ColorStateList.valueOf(it.animatedValue as Int))
-            }
-        }.start()
         ObjectAnimator.ofFloat(view, "translationX", 0f, -10f, 10f, -6f, 6f, -3f, 3f, 0f)
             .apply { duration = 360 }.start()
     }
@@ -321,7 +316,13 @@ class LoginFragment : BaseFragment<FragmentLoginBinding, LoginViewModel>(
 
     override fun showContent(data: Any?) {
         if (data as? Boolean == true) {
-            findNavController().navigate(R.id.action_loginFragment_to_homeFragment)
+            if (currentState == AuthState.SIGNUP) {
+                val email = binding.etEmail.text.toString().trim()
+                val action = LoginFragmentDirections.actionLoginFragmentToVerifyRegistrationFragment(email)
+                findNavController().navigate(action)
+            } else {
+                findNavController().navigate(R.id.action_loginFragment_to_homeFragment)
+            }
         }
     }
 

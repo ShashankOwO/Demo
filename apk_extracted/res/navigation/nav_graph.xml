@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation android:id="@id/nav_graph" app:startDestination="@id/splashFragment"
+  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <fragment android:name="com.example.resume2interview.ui.auth.SplashFragment" android:id="@id/splashFragment">
+        <action android:id="@id/action_splashFragment_to_loginFragment" app:destination="@id/loginFragment" app:enterAnim="@anim/fade_in" app:exitAnim="@anim/fade_out" app:popUpTo="@id/splashFragment" app:popUpToInclusive="true" />
+        <action android:id="@id/action_splashFragment_to_homeFragment" app:destination="@id/homeFragment" app:enterAnim="@anim/fade_in" app:exitAnim="@anim/fade_out" app:popUpTo="@id/splashFragment" app:popUpToInclusive="true" />
+    </fragment>
+    <fragment android:name="com.example.resume2interview.ui.auth.LoginFragment" android:id="@id/loginFragment">
+        <action android:id="@id/action_loginFragment_to_signupFragment" app:destination="@id/signupFragment" app:enterAnim="@anim/slide_in_right" app:exitAnim="@anim/slide_out_left" app:popEnterAnim="@anim/slide_in_left" app:popExitAnim="@anim/slide_out_right" />
+        <action android:id="@id/action_loginFragment_to_forgotPasswordFragment" app:destination="@id/forgotPasswordFragment" app:enterAnim="@anim/slide_in_right" app:exitAnim="@anim/slide_out_left" app:popEnterAnim="@anim/slide_in_left" app:popExitAnim="@anim/slide_out_right" />
+        <action android:id="@id/action_loginFragment_to_homeFragment" app:destination="@id/homeFragment" app:enterAnim="@anim/fade_in" app:exitAnim="@anim/fade_out" app:popUpTo="@id/loginFragment" app:popUpToInclusive="true" />
+    </fragment>
+    <fragment android:name="com.example.resume2interview.ui.auth.SignupFragment" android:id="@id/signupFragment">
+        <action android:id="@id/action_signupFragment_to_loginFragment" app:destination="@id/loginFragment" app:enterAnim="@anim/slide_in_left" app:exitAnim="@anim/slide_out_right" app:popUpTo="@id/signupFragment" app:popUpToInclusive="true" />
+        <action android:id="@id/action_signupFragment_to_homeFragment" app:destination="@id/homeFragment" app:enterAnim="@anim/fade_in" app:exitAnim="@anim/fade_out" app:popUpTo="@id/signupFragment" app:popUpToInclusive="true" />
+    </fragment>
+    <fragment android:name="com.example.resume2interview.ui.auth.ForgotPasswordFragment" android:id="@id/forgotPasswordFragment">
+        <action android:id="@id/action_forgotPasswordFragment_to_resetPasswordFragment" app:destination="@id/resetPasswordFragment" app:enterAnim="@anim/slide_in_right" app:exitAnim="@anim/slide_out_left" app:popEnterAnim="@anim/slide_in_left" app:popExitAnim="@anim/slide_out_right" />
+    </fragment>
+    <fragment android:name="com.example.resume2interview.ui.auth.ResetPasswordFragment" android:id="@id/resetPasswordFragment">
+        <action android:id="@id/action_resetPasswordFragment_to_loginFragment" app:destination="@id/loginFragment" app:enterAnim="@anim/fade_in" app:exitAnim="@anim/fade_out" app:popUpTo="@id/nav_graph" app:popUpToInclusive="true" />
+    </fragment>
+    <fragment android:name="com.example.resume2interview.ui.home.HomeFragment" android:id="@id/homeFragment">
+        <action android:id="@id/action_homeFragment_to_uploadResumeFragment" app:destination="@id/uploadResumeFragment" app:enterAnim="@anim/slide_in_right" app:exitAnim="@anim/slide_out_left" app:popEnterAnim="@anim/slide_in_left" app:popExitAnim="@anim/slide_out_right" />
+        <action android:id="@id/action_homeFragment_to_interviewFragment" app:destination="@id/interviewFragment" app:enterAnim="@anim/slide_in_right" app:exitAnim="@anim/slide_out_left" app:popEnterAnim="@anim/slide_in_left" app:popExitAnim="@anim/slide_out_right" />
+        <action android:id="@id/action_homeFragment_to_resumeSkillsFragment" app:destination="@id/resumeSkillsFragment" app:enterAnim="@anim/slide_in_right" app:exitAnim="@anim/slide_out_left" app:popEnterAnim="@anim/slide_in_left" app:popExitAnim="@anim/slide_out_right" />
+        <action android:id="@id/action_homeFragment_to_profileFragment" app:destination="@id/profileFragment" app:enterAnim="@anim/slide_in_right" app:exitAnim="@anim/slide_out_left" app:popEnterAnim="@anim/slide_in_left" app:popExitAnim="@anim/slide_out_right" />
+        <action android:id="@id/action_homeFragment_to_interviewProgressFragment" app:destination="@id/interviewProgressFragment" app:enterAnim="@anim/slide_in_right" app:exitAnim="@anim/slide_out_left" app:popEnterAnim="@anim/slide_in_left" app:popExitAnim="@anim/slide_out_right" />
+    </fragment>
+    <fragment android:name="com.example.resume2interview.ui.resume.UploadResumeFragment" android:id="@id/uploadResumeFragment">
+        <action android:id="@id/action_uploadResumeFragment_to_resumeSkillsFragment" app:destination="@id/resumeSkillsFragment" app:enterAnim="@anim/slide_in_right" app:exitAnim="@anim/slide_out_left" app:popEnterAnim="@anim/slide_in_left" app:popExitAnim="@anim/slide_out_right" />
+    </fragment>
+    <fragment android:name="com.example.resume2interview.ui.resume.ResumeSkillsFragment" android:id="@id/resumeSkillsFragment" />
+    <fragment android:name="com.example.resume2interview.ui.interview.InterviewFragment" android:id="@id/interviewFragment" />
+    <fragment android:name="com.example.resume2interview.ui.report.ReportsFragment" android:id="@id/reportsFragment">
+        <action android:id="@id/action_reportsFragment_to_reportDetailFragment" app:destination="@id/reportDetailFragment" app:enterAnim="@anim/slide_in_right" app:exitAnim="@anim/slide_out_left" app:popEnterAnim="@anim/slide_in_left" app:popExitAnim="@anim/slide_out_right" />
+    </fragment>
+    <fragment android:name="com.example.resume2interview.ui.report.ReportDetailFragment" android:id="@id/reportDetailFragment" />
+    <fragment android:name="com.example.resume2interview.ui.profile.ProfileFragment" android:id="@id/profileFragment">
+        <action android:id="@id/action_profileFragment_to_editProfileFragment" app:destination="@id/editProfileFragment" app:enterAnim="@anim/slide_in_right" app:exitAnim="@anim/slide_out_left" app:popEnterAnim="@anim/slide_in_left" app:popExitAnim="@anim/slide_out_right" />
+        <action android:id="@id/action_profileFragment_to_loginFragment" app:destination="@id/loginFragment" app:enterAnim="@anim/fade_in" app:exitAnim="@anim/fade_out" app:popUpTo="@id/nav_graph" app:popUpToInclusive="true" />
+        <action android:id="@id/action_profileFragment_to_notificationsFragment" app:destination="@id/notificationsFragment" app:enterAnim="@anim/slide_in_right" app:exitAnim="@anim/slide_out_left" app:popEnterAnim="@anim/slide_in_left" app:popExitAnim="@anim/slide_out_right" />
+        <action android:id="@id/action_profileFragment_to_preferencesFragment" app:destination="@id/preferencesFragment" app:enterAnim="@anim/slide_in_right" app:exitAnim="@anim/slide_out_left" app:popEnterAnim="@anim/slide_in_left" app:popExitAnim="@anim/slide_out_right" />
+        <action android:id="@id/action_profileFragment_to_privacyPolicyFragment" app:destination="@id/privacyPolicyFragment" app:enterAnim="@anim/slide_in_right" app:exitAnim="@anim/slide_out_left" app:popEnterAnim="@anim/slide_in_left" app:popExitAnim="@anim/slide_out_right" />
+    </fragment>
+    <fragment android:name="com.example.resume2interview.ui.profile.EditProfileFragment" android:id="@id/editProfileFragment" />
+    <fragment android:name="com.example.resume2interview.ui.home.InterviewProgressFragment" android:id="@id/interviewProgressFragment" />
+    <fragment android:name="com.example.resume2interview.ui.profile.NotificationsFragment" android:id="@id/notificationsFragment" />
+    <fragment android:name="com.example.resume2interview.ui.profile.PreferencesFragment" android:id="@id/preferencesFragment" />
+    <fragment android:name="com.example.resume2interview.ui.profile.PrivacyPolicyFragment" android:id="@id/privacyPolicyFragment" />
+</navigation>

@@ -18,9 +18,13 @@ package com.example.resume2interview.data.network
  */
 object NetworkConfig {
 
-    // ✅ EMULATOR — Android Studio AVD
-    const val BASE_URL = "http://10.0.2.2:5000/"
+    // ✅ EMULATOR — Android Studio AVDipconfig
+
+    //const val BASE_URL = "http://10.0.2.2:5000/"
 
     // ✅ PHYSICAL PHONE — replace IP with your PC's Wi-Fi IPv4 address (run `ipconfig`)
-   // const val BASE_URL = "http://192.168.123.200:5000/"
+    const val BASE_URL = "http://192.168.98.86:5000/"
+    //http://192.168.121.200:5000/
+
+    //http://192.168.1.16:5000/
 }

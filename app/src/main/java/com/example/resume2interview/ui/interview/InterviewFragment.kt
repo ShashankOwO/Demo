@@ -10,6 +10,7 @@ import android.os.Bundle
 import android.speech.RecognitionListener
 import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
+import android.speech.tts.TextToSpeech
 import android.view.View
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -26,7 +27,7 @@ import java.util.Locale
 @AndroidEntryPoint
 class InterviewFragment : BaseFragment<FragmentInterviewBinding, InterviewViewModel>(
     FragmentInterviewBinding::inflate
-) {
+), TextToSpeech.OnInitListener {
     override val viewModel: InterviewViewModel by viewModels()
 
     private var speechRecognizer: SpeechRecognizer? = null
@@ -35,6 +36,7 @@ class InterviewFragment : BaseFragment<FragmentInterviewBinding, InterviewViewMo
     private var baseText = ""
     private var isFirstRender = true
     private var micPulseAnimator: ObjectAnimator? = null
+    private var tts: TextToSpeech? = null
 
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -48,16 +50,37 @@ class InterviewFragment : BaseFragment<FragmentInterviewBinding, InterviewViewMo
 
     override fun setupUI() {
         initSpeechRecognizer()
+        tts = TextToSpeech(requireContext(), this)
 
-        // Close button — go back
-        binding.btnClose.setOnClickListener {
-            findNavController().navigateUp()
+        // Close button & Early Exit — go back with warning
+        val exitAction = {
+            android.app.AlertDialog.Builder(requireContext())
+                .setTitle("Exit Interview")
+                .setMessage("Are you sure you want to exit? Your progress will be lost.")
+                .setPositiveButton("Exit") { _, _ -> findNavController().navigateUp() }
+                .setNegativeButton("Cancel", null)
+                .show()
         }
+        
+        binding.btnClose.setOnClickListener { exitAction() }
 
         // Begin Session (Empty State) -> Upload Resume
         binding.btnBeginSession.setOnClickListener {
             animatePressScale(binding.btnBeginSession)
             findNavController().navigate(R.id.action_interviewFragment_to_uploadResumeFragment)
+        }
+        
+        // Play Audio button
+        binding.btnPlayAudio.setOnClickListener {
+            animatePressScale(binding.btnPlayAudio)
+            val text = binding.tvQuestion.text.toString()
+            tts?.speak(text, TextToSpeech.QUEUE_FLUSH, null, null)
+        }
+
+        // Reload Question button
+        binding.btnReload.setOnClickListener {
+            animatePressScale(binding.btnReload)
+            viewModel.regenerateCurrentQuestion()
         }
 
         // Mic button — toggle recording
@@ -92,6 +115,25 @@ class InterviewFragment : BaseFragment<FragmentInterviewBinding, InterviewViewMo
                     // Guard against double-navigation if observer fires twice
                 }
             }
+        }
+
+        // Observe regenerating state for the reload button
+        viewModel.isRegenerating.observe(viewLifecycleOwner) { isGenerating ->
+            if (isGenerating) {
+                binding.btnReload.visibility = View.INVISIBLE
+                binding.pbReload.visibility = View.VISIBLE
+            } else {
+                binding.btnReload.visibility = View.VISIBLE
+                binding.pbReload.visibility = View.GONE
+            }
+        }
+    }
+
+    override fun onInit(status: Int) {
+        if (status == TextToSpeech.SUCCESS) {
+            tts?.language = Locale.US
+        } else {
+            Toast.makeText(requireContext(), "Text to Speech initialization failed", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -234,8 +276,18 @@ class InterviewFragment : BaseFragment<FragmentInterviewBinding, InterviewViewMo
         }
     }
 
+    override fun showLoading() {
+        if (isFirstRender) {
+            binding.layoutLoadingState.visibility = View.VISIBLE
+            binding.layoutEmptyState.visibility = View.GONE
+            binding.groupInterviewContent.visibility = View.GONE
+        }
+    }
+
     override fun showContent(data: Any?) {
         val uiData = data as? InterviewUiData ?: return
+        
+        binding.layoutLoadingState.visibility = View.GONE
 
         if (uiData.isEmptyState) {
             if (isFirstRender) {
@@ -313,6 +365,8 @@ class InterviewFragment : BaseFragment<FragmentInterviewBinding, InterviewViewMo
         binding.tvQuestionCounter.text =
             "Question ${uiData.currentQuestionIndex} of ${uiData.totalQuestions}"
         binding.tvQuestion.text = "\u201c ${uiData.questionText} \u201d"
+        binding.tvCategoryPill.text = uiData.category
+        binding.tvCategoryPill.visibility = if (uiData.category.isNotBlank()) View.VISIBLE else View.GONE
         binding.tvTimer.text = uiData.timerText
         binding.tvFollowUpLabel.visibility = if (uiData.isFollowUp) View.VISIBLE else View.GONE
 
@@ -320,19 +374,29 @@ class InterviewFragment : BaseFragment<FragmentInterviewBinding, InterviewViewMo
         binding.progressBar.max = uiData.totalQuestions
         binding.progressBar.progress = uiData.currentQuestionIndex
 
-        // Update Next button label on last question
-        if (uiData.currentQuestionIndex == uiData.totalQuestions) {
-            binding.btnNext.text = "Finish Interview"
+        // Update Next button label
+        if (uiData.isSubmitting) {
+            binding.btnNext.text = "Finishing... please wait"
+            binding.btnNext.isEnabled = false
+            binding.btnNext.alpha = 0.5f
+            binding.btnMic.isEnabled = false
         } else {
-            binding.btnNext.text = "Next Question"
+            if (uiData.currentQuestionIndex == uiData.totalQuestions) {
+                binding.btnNext.text = "Finish Interview"
+            } else {
+                binding.btnNext.text = "Next Question"
+            }
+            binding.btnNext.isEnabled = !viewModel.isTransitioning
+            binding.btnMic.isEnabled = true
         }
-        binding.btnNext.isEnabled = !viewModel.isTransitioning
     }
 
     override fun onDestroy() {
         super.onDestroy()
         micPulseAnimator?.cancel()
         speechRecognizer?.destroy()
+        tts?.stop()
+        tts?.shutdown()
     }
 
     private fun Float.dpToPx(): Float =

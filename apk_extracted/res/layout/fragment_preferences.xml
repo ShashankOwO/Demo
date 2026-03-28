@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:orientation="vertical" android:background="#f5f7fa" android:layout_width="match_parent" android:layout_height="match_parent"
+  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:background="#ffffff" android:layout_width="match_parent" android:layout_height="56.0dp" android:paddingStart="8.0dp" android:paddingEnd="16.0dp">
+        <ImageButton android:id="@id/btn_back" android:background="?selectableItemBackgroundBorderless" android:layout_width="40.0dp" android:layout_height="40.0dp" android:src="@drawable/ic_arrow_back" android:contentDescription="Back" app:tint="#1a1c1e" />
+        <TextView android:textSize="18.0sp" android:textStyle="bold" android:textColor="#1a1c1e" android:gravity="center" android:layout_width="0.0dp" android:layout_height="wrap_content" android:text="Preferences" android:layout_weight="1.0" />
+        <View android:layout_width="40.0dp" android:layout_height="40.0dp" />
+    </LinearLayout>
+    <LinearLayout android:orientation="vertical" android:padding="16.0dp" android:layout_width="match_parent" android:layout_height="0.0dp" android:layout_weight="1.0">
+        <androidx.cardview.widget.CardView android:layout_width="match_parent" android:layout_height="wrap_content" app:cardBackgroundColor="#ffffff" app:cardCornerRadius="16.0dp" app:cardElevation="0.0dp">
+            <LinearLayout android:orientation="vertical" android:padding="20.0dp" android:layout_width="match_parent" android:layout_height="wrap_content">
+                <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:paddingBottom="16.0dp" android:layout_width="match_parent" android:layout_height="wrap_content">
+                    <ImageView android:layout_width="22.0dp" android:layout_height="22.0dp" android:src="@drawable/ic_report" app:tint="#4285f4" />
+                    <TextView android:textSize="16.0sp" android:textStyle="bold" android:textColor="#1a1c1e" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Difficulty Level" android:layout_marginStart="8.0dp" />
+                </LinearLayout>
+                <RadioGroup android:orientation="horizontal" android:id="@id/rg_difficulty" android:background="@drawable/bg_rounded_grey" android:padding="4.0dp" android:layout_width="match_parent" android:layout_height="wrap_content">
+                    <RadioButton android:textSize="14.0sp" android:textColor="@drawable/difficulty_text_selector" android:gravity="center" android:id="@id/rb_beginner" android:background="@drawable/difficulty_segment_selector" android:padding="10.0dp" android:layout_width="0.0dp" android:layout_height="wrap_content" android:button="@null" android:text="Beginner" android:layout_weight="1.0" />
+                    <RadioButton android:textSize="14.0sp" android:textColor="@drawable/difficulty_text_selector" android:gravity="center" android:id="@id/rb_intermediate" android:background="@drawable/difficulty_segment_selector" android:padding="10.0dp" android:layout_width="0.0dp" android:layout_height="wrap_content" android:checked="true" android:button="@null" android:text="Intermediate" android:layout_weight="1.0" />
+                    <RadioButton android:textSize="14.0sp" android:textColor="@drawable/difficulty_text_selector" android:gravity="center" android:id="@id/rb_advanced" android:background="@drawable/difficulty_segment_selector" android:padding="10.0dp" android:layout_width="0.0dp" android:layout_height="wrap_content" android:button="@null" android:text="Advanced" android:layout_weight="1.0" />
+                </RadioGroup>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+        <View android:layout_width="match_parent" android:layout_height="0.0dp" android:layout_weight="1.0" />
+        <com.google.android.material.button.MaterialButton android:textSize="16.0sp" android:textStyle="bold" android:textColor="#ffffff" android:id="@id/btn_save_preferences" android:layout_width="match_parent" android:layout_height="56.0dp" android:layout_marginBottom="16.0dp" android:text="Save Preferences" android:textAllCaps="false" app:backgroundTint="#4285f4" app:cornerRadius="16.0dp" />
+    </LinearLayout>
+</LinearLayout>

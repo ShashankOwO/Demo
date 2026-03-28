@@ -43,6 +43,7 @@ class MainActivity : AppCompatActivity() {
             R.id.splashFragment,
             R.id.loginFragment,
             R.id.signupFragment,
+            R.id.verifyRegistrationFragment,
             R.id.forgotPasswordFragment,
             R.id.resetPasswordFragment,
             R.id.interviewFragment,

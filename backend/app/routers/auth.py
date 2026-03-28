@@ -26,7 +26,22 @@ def register():
         password=data['password'],
         name=data.get('name')
     )
-    return jsonify(user_schema.dump(user)), 201
+    return jsonify({"message": "OTP sent to your email. Please verify your account."}), 201
+
+@bp.route("/verify-registration", methods=["POST"])
+def verify_registration():
+    json_data = request.get_json()
+    if not json_data:
+        return jsonify({"message": "No input data provided"}), 400
+        
+    email = json_data.get('email')
+    otp = json_data.get('otp')
+    
+    if not email or not otp:
+        return jsonify({"message": "Email and OTP are required"}), 400
+        
+    token_response = auth_service.verify_registration(email=email, otp=otp)
+    return jsonify(token_response), 200
 
 @bp.route("/login", methods=["POST"])
 def login():
@@ -77,3 +92,17 @@ def reset_password():
         new_password=data['new_password']
     )
     return jsonify({"message": "Password successfully reset."}), 200
+
+@bp.route("/resend-otp", methods=["POST"])
+def resend_otp():
+    """Re-generate and re-send the registration OTP for a pending sign-up."""
+    json_data = request.get_json()
+    if not json_data:
+        return jsonify({"message": "No input data provided"}), 400
+
+    email = json_data.get('email', '').strip()
+    if not email:
+        return jsonify({"message": "Email is required"}), 400
+
+    auth_service.resend_registration_otp(email=email)
+    return jsonify({"message": "A new OTP has been sent to your email."}), 200

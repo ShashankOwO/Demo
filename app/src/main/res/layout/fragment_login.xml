@@ -5,7 +5,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/bg_page"
+    android:background="#F4F6FB"
     android:fillViewport="true">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -22,7 +22,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Resume2Interview"
-            android:textColor="@color/accent_indigo"
+            android:textColor="#6C63FF"
             android:textSize="14sp"
             android:textStyle="bold"
             android:letterSpacing="0.04"
@@ -35,7 +35,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
             android:text="Welcome back"
-            android:textColor="@color/text_primary"
+            android:textColor="#1A1D2E"
             android:textSize="30sp"
             android:textStyle="bold"
             android:letterSpacing="-0.02"
@@ -48,7 +48,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
             android:text="Sign in to continue your preparation"
-            android:textColor="@color/text_secondary"
+            android:textColor="#6B7280"
             android:textSize="15sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tv_title" />
@@ -62,7 +62,7 @@
             android:layout_width="match_parent"
             android:layout_height="52dp"
             android:layout_marginTop="32dp"
-            android:background="@drawable/bg_tab_container"
+            android:background="@drawable/bg_tab_container_light"
             android:padding="4dp"
             app:layout_constraintTop_toBottomOf="@+id/tv_subtitle">
 
@@ -84,7 +84,7 @@
                 android:text="Log In"
                 android:textSize="14sp"
                 android:textStyle="bold"
-                android:textColor="@color/text_on_accent"/>
+                android:textColor="#FFFFFF"/>
 
             <!-- Sign Up label -->
             <TextView
@@ -95,7 +95,7 @@
                 android:gravity="center"
                 android:text="Sign Up"
                 android:textSize="14sp"
-                android:textColor="@color/text_secondary"/>
+                android:textColor="#6B7280"/>
         </FrameLayout>
 
         <!-- THE SINGLE PERSISTENT CARD — never unmounted, never hidden -->
@@ -106,7 +106,7 @@
             android:layout_marginTop="20dp"
             app:cardCornerRadius="20dp"
             app:cardElevation="6dp"
-            app:cardBackgroundColor="@color/bg_white"
+            app:cardBackgroundColor="#FFFFFF"
             app:layout_constraintTop_toBottomOf="@+id/layout_tab">
 
             <!--
@@ -136,7 +136,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Full Name"
-                        android:textColor="@color/text_primary"
+                        android:textColor="#1A1D2E"
                         android:textSize="13sp"
                         android:textStyle="bold"
                         android:letterSpacing="0.02"
@@ -146,12 +146,12 @@
                         android:layout_width="match_parent"
                         android:layout_height="54dp"
                         android:layout_marginBottom="20dp"
-                        android:background="@drawable/bg_input_selector"
+                        android:background="@drawable/bg_input_selector_light"
                         android:hint="John Doe"
                         android:inputType="textPersonName"
                         android:paddingHorizontal="18dp"
-                        android:textColor="@color/text_primary"
-                        android:textColorHint="@color/text_muted"
+                        android:textColor="#1A1D2E"
+                        android:textColorHint="#9CA3AF"
                         android:textSize="15sp"/>
                 </LinearLayout>
 
@@ -160,7 +160,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Email Address"
-                    android:textColor="@color/text_primary"
+                    android:textColor="#1A1D2E"
                     android:textSize="13sp"
                     android:textStyle="bold"
                     android:letterSpacing="0.02"
@@ -169,12 +169,12 @@
                     android:id="@+id/et_email"
                     android:layout_width="match_parent"
                     android:layout_height="54dp"
-                    android:background="@drawable/bg_input_selector"
+                    android:background="@drawable/bg_input_selector_light"
                     android:hint="john@example.com"
                     android:inputType="textEmailAddress"
                     android:paddingHorizontal="18dp"
-                    android:textColor="@color/text_primary"
-                    android:textColorHint="@color/text_muted"
+                    android:textColor="#1A1D2E"
+                    android:textColorHint="#9CA3AF"
                     android:textSize="15sp"/>
 
                 <!-- PASSWORD LABEL + FIELD — always visible, shared element -->
@@ -184,7 +184,7 @@
                     android:layout_marginTop="20dp"
                     android:layout_marginBottom="10dp"
                     android:text="Password"
-                    android:textColor="@color/text_primary"
+                    android:textColor="#1A1D2E"
                     android:textSize="13sp"
                     android:textStyle="bold"
                     android:letterSpacing="0.02"/>
@@ -193,7 +193,7 @@
                     android:id="@+id/layout_password"
                     android:layout_width="match_parent"
                     android:layout_height="54dp"
-                    android:background="@drawable/bg_input_field">
+                    android:background="@drawable/bg_input_field_light">
                     <EditText
                         android:id="@+id/et_password"
                         android:layout_width="match_parent"
@@ -203,8 +203,8 @@
                         android:paddingEnd="52dp"
                         android:hint="••••••••"
                         android:inputType="textPassword"
-                        android:textColor="@color/text_primary"
-                        android:textColorHint="@color/text_muted"
+                        android:textColor="#1A1D2E"
+                        android:textColorHint="#9CA3AF"
                         android:textSize="15sp"/>
                     <ImageView
                         android:id="@+id/iv_eye"
@@ -213,7 +213,7 @@
                         android:layout_gravity="center_vertical|end"
                         android:layout_marginEnd="16dp"
                         android:src="@drawable/ic_eye"
-                        app:tint="@color/text_muted"/>
+                        app:tint="#9CA3AF"/>
                 </FrameLayout>
 
                 <!-- Forgot password — only visible in Login mode -->
@@ -239,7 +239,7 @@
                     android:background="@drawable/bg_gradient_button"
                     android:text="Sign In"
                     android:textAllCaps="false"
-                    android:textColor="@color/text_on_accent"
+                    android:textColor="#FFFFFF"
                     android:textSize="16sp"
                     android:textStyle="bold"
                     android:stateListAnimator="@animator/scale_on_press"
@@ -247,7 +247,7 @@
                     app:cornerRadius="14dp"
                     app:icon="@drawable/ic_arrow_right"
                     app:iconGravity="textEnd"
-                    app:iconTint="@color/text_on_accent"/>
+                    app:iconTint="#FFFFFF"/>
 
             </LinearLayout>
         </androidx.cardview.widget.CardView>
@@ -260,7 +260,7 @@
             android:layout_marginTop="24dp"
             android:gravity="center"
             android:text="By continuing, you agree to our Terms of Service\nand Privacy Policy"
-            android:textColor="@color/text_muted"
+            android:textColor="#9CA3AF"
             android:textSize="12sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -275,7 +275,7 @@
             android:layout_marginEnd="4dp"
             android:layout_marginBottom="8dp"
             android:text="Skip &gt;&gt;"
-            android:textColor="@color/accent_indigo"
+            android:textColor="#6C63FF"
             android:textStyle="bold"
             android:textSize="14sp"
             android:clickable="true"

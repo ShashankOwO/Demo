@@ -52,7 +52,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:visibility="gone"
-            app:constraint_referenced_ids="tv_question_counter,progress_bar,card_question,btn_mic,tv_mic_hint,tv_timer,card_answer,btn_next" />
+            app:constraint_referenced_ids="tv_question_counter,tv_category_pill,progress_bar,card_question,btn_mic,tv_mic_hint,tv_timer,card_answer,btn_next" />
 
         <!-- Empty State Layout -->
         <LinearLayout
@@ -61,7 +61,7 @@
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"
             android:orientation="vertical"
-            android:visibility="gone"
+            android:visibility="visible"
             android:paddingHorizontal="24dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -112,6 +112,45 @@
                 app:cornerRadius="12dp" />
         </LinearLayout>
 
+        <!-- Loading State Layout -->
+        <LinearLayout
+            android:id="@+id/layout_loading_state"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:visibility="gone"
+            android:paddingHorizontal="24dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent">
+
+            <ProgressBar
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:layout_marginBottom="24dp"
+                android:indeterminateTint="@color/accent_indigo" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Analyzing Profile"
+                android:textColor="#0F172A"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="12dp" />
+
+            <TextView
+                android:layout_width="280dp"
+                android:layout_height="wrap_content"
+                android:text="Generating dynamic AI questions based\non your active resume and skills..."
+                android:textColor="#64748B"
+                android:textSize="14sp"
+                android:gravity="center"
+                android:lineSpacingExtra="4dp" />
+        </LinearLayout>
+
         <!-- Question counter -->
         <TextView
             android:id="@+id/tv_question_counter"
@@ -125,12 +164,30 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tv_title" />
 
+        <!-- Category Pill Status -->
+        <TextView
+            android:id="@+id/tv_category_pill"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:background="@drawable/bg_accent_badge"
+            android:paddingHorizontal="10dp"
+            android:paddingVertical="4dp"
+            android:text="Category"
+            android:textColor="@color/accent_emerald"
+            android:textSize="11sp"
+            android:textStyle="bold"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="@+id/tv_question_counter"
+            app:layout_constraintStart_toEndOf="@+id/tv_question_counter"
+            app:layout_constraintTop_toTopOf="@+id/tv_question_counter" />
+
         <!-- Follow-Up Label -->
         <TextView
             android:id="@+id/tv_follow_up_label"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="12dp"
+            android:layout_marginStart="8dp"
             android:background="@drawable/bg_accent_badge"
             android:paddingHorizontal="10dp"
             android:paddingVertical="4dp"
@@ -140,7 +197,7 @@
             android:textStyle="bold"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="@+id/tv_question_counter"
-            app:layout_constraintStart_toEndOf="@+id/tv_question_counter"
+            app:layout_constraintStart_toEndOf="@+id/tv_category_pill"
             app:layout_constraintTop_toTopOf="@+id/tv_question_counter" />
 
         <!-- Progress bar -->
@@ -167,26 +224,83 @@
             app:cardBackgroundColor="@color/bg_white"
             app:layout_constraintTop_toBottomOf="@+id/progress_bar">
 
-            <LinearLayout
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:paddingBottom="16dp">
 
                 <!-- Indigo left accent bar -->
-                <View android:layout_width="5dp" android:layout_height="match_parent"
-                    android:background="@drawable/bg_gradient_button" />
+                <View
+                    android:id="@+id/accent_bar"
+                    android:layout_width="5dp"
+                    android:layout_height="0dp"
+                    android:background="@drawable/bg_gradient_button"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent" />
 
                 <TextView
                     android:id="@+id/tv_question"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:padding="20dp"
+                    android:paddingTop="20dp"
+                    android:paddingBottom="12dp"
+                    android:paddingStart="20dp"
+                    android:paddingEnd="20dp"
                     android:text="&quot; Tell me about a time you had to handle a difficult conflict with a coworker. How did you resolve it? &quot;"
                     android:textColor="@color/text_primary"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    android:lineSpacingMultiplier="1.5" />
-            </LinearLayout>
+                    android:lineSpacingMultiplier="1.5"
+                    app:layout_constraintStart_toEndOf="@id/accent_bar"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <!-- Play audio button -->
+                <ImageView
+                    android:id="@+id/btn_play_audio"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:layout_marginEnd="16dp"
+                    android:background="@drawable/bg_accent_badge"
+                    android:padding="8dp"
+                    android:src="@drawable/ic_volume_up"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:stateListAnimator="@animator/scale_on_press"
+                    app:tint="@color/accent_indigo"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/tv_question" />
+
+                <!-- Reload Question Button -->
+                <FrameLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    app:layout_constraintEnd_toStartOf="@id/btn_play_audio"
+                    app:layout_constraintTop_toBottomOf="@id/tv_question">
+                    
+                    <ImageView
+                        android:id="@+id/btn_reload"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:background="@drawable/bg_accent_badge"
+                        android:padding="8dp"
+                        android:src="@drawable/ic_refresh"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:stateListAnimator="@animator/scale_on_press"
+                        app:tint="@color/accent_indigo" />
+                        
+                    <ProgressBar
+                        android:id="@+id/pb_reload"
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:layout_gravity="center"
+                        android:visibility="gone"
+                        android:indeterminateTint="@color/accent_indigo" />
+                </FrameLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
         </androidx.cardview.widget.CardView>
 
         <!-- Mic button -->

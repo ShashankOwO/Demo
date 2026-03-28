@@ -32,10 +32,12 @@ def aggregate_categories(interviews: list[Interview]) -> dict[str, int]:
     return weighted_averages
 
 
-def compute_trend(current_avg: float, previous_avg: float) -> float | None:
-    if previous_avg == 0:
-        return 0.0  # Avoid division by zero
-    return ((current_avg - previous_avg) / previous_avg) * 100.0
+def compute_trend(current_score: float, previous_score: float) -> float | None:
+    if previous_score == 0:
+        if current_score > 0:
+            return 100.0
+        return 0.0
+    return ((current_score - previous_score) / previous_score) * 100.0
 
 
 def get_category_performance_data(user_id: int):
@@ -66,10 +68,10 @@ def get_category_performance_data(user_id: int):
     strongest_category = max(current_data, key=current_data.get) if current_data else None
     
     trend = None
-    if len(interviews) >= 10:
-        current_avg = sum(i.score for i in current) / len(current) if current else 0
-        previous_avg = sum(i.score for i in previous) / len(previous) if previous else 0
-        trend_val = compute_trend(current_avg, previous_avg)
+    if len(interviews) >= 2:
+        latest = interviews[0].score
+        previous_val = interviews[1].score
+        trend_val = compute_trend(latest, previous_val)
         if trend_val is not None:
             trend = round(trend_val, 2)
             

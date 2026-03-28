@@ -10,8 +10,10 @@ class UserProfileSchema(Schema):
     bio = fields.Str(allow_none=True)
     profile_photo_url = fields.Str(allow_none=True)
     skills_json = fields.Str(allow_none=True)
-    previous_role = fields.Str(allow_none=True)
     target_role = fields.Str(allow_none=True)
+    experience_years = fields.Int(allow_none=True)
+    experience_level = fields.Str(allow_none=True)
+    preferred_difficulty = fields.Str(allow_none=True)
     updated_at = fields.DateTime(dump_only=True)
 
     def get_user_email(self, obj):
@@ -24,3 +26,9 @@ class UserProfileUpdateSchema(Schema):
     location = fields.Str(allow_none=True)
     bio = fields.Str(allow_none=True)
     profile_photo_url = fields.Str(allow_none=True)
+    skills_json = fields.Str(allow_none=True)
+    target_role = fields.Str(allow_none=True)
+    previous_role = fields.Str(allow_none=True)
+    experience_years = fields.Int(allow_none=True)
+    experience_level = fields.Str(allow_none=True)
+    preferred_difficulty = fields.Str(allow_none=True)

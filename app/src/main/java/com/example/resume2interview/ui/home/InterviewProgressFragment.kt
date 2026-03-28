@@ -236,46 +236,69 @@ class InterviewProgressFragment : BaseFragment<FragmentInterviewProgressBinding,
 
     private fun bindSkillBars(skills: List<com.example.resume2interview.data.model.SkillPracticed>) {
         val chart = binding.skillsBarChart
-        
+
         // Sort dynamically descending by sessionCount and take the top 5
         val sortedSkills = skills.sortedByDescending { it.sessionCount }.take(5)
-        
+
         if (sortedSkills.isEmpty() || sortedSkills.first().sessionCount == 0) {
             chart.clear()
             return
         }
 
-        val maxSessionCount = sortedSkills.first().sessionCount.toFloat()
+        // Dynamically set height based on number of items (approx 55dp per item, min 180dp)
+        val itemCount = sortedSkills.size
+        val desiredHeightDp = java.lang.Math.max(180, itemCount * 55)
+        chart.layoutParams.height = dpToPx(desiredHeightDp)
+        chart.requestLayout()
+
+        // Colors matching web's skillColors palette
+        val barColors = listOf(
+            Color.parseColor("#818cf8"), // indigo
+            Color.parseColor("#3b82f6"), // blue
+            Color.parseColor("#10b981"), // green
+            Color.parseColor("#f59e0b"), // amber
+            Color.parseColor("#ef4444")  // red
+        )
 
         // Horizontal bar chart draws index 0 at the bottom.
-        // We want the highest session count at the top visually, so we reverse it.
+        // We want the highest session count at the top visually, so we reverse.
         val displaySkills = sortedSkills.reversed()
 
-        val entries = ArrayList<BarEntry>()
-        val labels = ArrayList<String>()
+        val entries     = ArrayList<BarEntry>()
+        val labels      = ArrayList<String>()
+        val entryColors = ArrayList<Int>()
+
+        // Use proportional values so bar widths are relative, but label = actual count
+        val maxCount = sortedSkills.first().sessionCount.toFloat().coerceAtLeast(1f)
 
         displaySkills.forEachIndexed { index, skill ->
-            val benchmarkScore = (skill.sessionCount.toFloat() / maxSessionCount) * 100f
-            entries.add(BarEntry(index.toFloat(), benchmarkScore))
-            
-            // Abbreviate long category names
-            val label = if(skill.category.length > 15) {
-                skill.category.take(13) + ".."
-            } else {
-                skill.category
-            }
-            labels.add(label)
+            val proportion = (skill.sessionCount.toFloat() / maxCount) * 100f
+            entries.add(BarEntry(index.toFloat(), proportion))
+            // colorIndex maps reversed position back to sorted rank
+            val colorIndex = (sortedSkills.size - 1 - index) % barColors.size
+            entryColors.add(barColors[colorIndex])
+            labels.add(skill.category) // full name — no manual truncation
         }
 
         val dataSet = BarDataSet(entries, "Sessions")
-        dataSet.color = Color.parseColor("#4285F4")
-        dataSet.valueTextColor = Color.parseColor("#757575")
+        dataSet.colors = entryColors
+        dataSet.valueTextColor = Color.parseColor("#B0BEC5")
         dataSet.valueTextSize = 10f
-        
-        // Ensure integers + % on bars
+
+        // Show the actual session count (not %) on each bar
+        val sessionCountByProportion: Map<Float, Int> = displaySkills
+            .mapIndexed { index, skill ->
+                val proportion = (skill.sessionCount.toFloat() / maxCount) * 100f
+                proportion to skill.sessionCount
+            }.toMap()
+
         dataSet.valueFormatter = object : com.github.mikephil.charting.formatter.ValueFormatter() {
             override fun getFormattedValue(value: Float): String {
-                return "${value.toInt()}%"
+                // Round to nearest 0.1 to handle floating-point imprecision
+                val rounded = (value * 10).toInt().toFloat() / 10
+                return sessionCountByProportion.entries
+                    .minByOrNull { kotlin.math.abs(it.key - rounded) }
+                    ?.value?.toString() ?: value.toInt().toString()
             }
         }
 
@@ -283,9 +306,10 @@ class InterviewProgressFragment : BaseFragment<FragmentInterviewProgressBinding,
         chart.legend.isEnabled = false
         chart.setDrawGridBackground(false)
         chart.setTouchEnabled(false)
+        chart.setExtraOffsets(0f, 0f, 40f, 0f)
 
         val xAxis = chart.xAxis
-        xAxis.position = XAxis.XAxisPosition.BOTTOM // This is the left side labeling
+        xAxis.position = XAxis.XAxisPosition.BOTTOM
         xAxis.setDrawGridLines(false)
         xAxis.valueFormatter = IndexAxisValueFormatter(labels)
         xAxis.granularity = 1f
@@ -294,21 +318,23 @@ class InterviewProgressFragment : BaseFragment<FragmentInterviewProgressBinding,
         xAxis.setDrawAxisLine(true)
 
         chart.axisRight.isEnabled = false
-        
-        val leftAxis = chart.axisLeft // This is the bottom number labeling
+
+        val leftAxis = chart.axisLeft
         leftAxis.textColor = Color.parseColor("#B0BEC5")
         leftAxis.axisMinimum = 0f
         leftAxis.axisMaximum = 100f
-        leftAxis.granularity = 10f // Optional step
-        leftAxis.setDrawGridLines(true)
-        leftAxis.enableGridDashedLine(10f, 10f, 0f)
+        leftAxis.granularity = 10f
+        leftAxis.setDrawGridLines(false)
+        leftAxis.setDrawLabels(false)
+        leftAxis.setDrawAxisLine(false)
 
         val data = BarData(dataSet)
         data.barWidth = 0.5f
-        
+
         chart.data = data
         chart.animateY(1000)
     }
+
 
     private fun dpToPx(dp: Int): Int {
         return TypedValue.applyDimension(

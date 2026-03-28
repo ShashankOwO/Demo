@@ -32,14 +32,17 @@ class ResumeAnalysisOutSchema(Schema):
     unknown_skills = fields.List(fields.String(), missing=list)
     detected_experience_years = fields.Integer(missing=0)
     inferred_target_role = fields.String(missing=None)
-    previous_role = fields.String(missing=None)
+    experience_level = fields.String(missing="Beginner")
     generated_questions = fields.List(fields.Nested(InterviewQuestionSchema), missing=list)
 
 class GenerateQuestionsRequestSchema(Schema):
     """Request payload for POST /resume/generate-questions."""
     skills = fields.List(fields.String(), required=True)
-    target_role = fields.String(missing=None, allow_none=True)
-    experience_years = fields.Integer(missing=None, allow_none=True)
+    soft_skills = fields.List(fields.String(), required=False)
+    tools_frameworks = fields.List(fields.String(), required=False)
+    target_role = fields.String(required=False, allow_none=True)
+    experience_years = fields.Integer(required=False, allow_none=True)
+    difficulty = fields.String(required=False, allow_none=True)
 
 class GenerateQuestionsResponseSchema(Schema):
     """Response payload for POST /resume/generate-questions."""

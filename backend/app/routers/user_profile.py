@@ -31,6 +31,10 @@ def get_my_profile():
             "skills_json": None,
             "previous_role": None,
             "target_role": None,
+            "experience_level": None,
+            "experience_years": None,
+            "preferred_difficulty": "beginner",
+            "updated_at": None,
         }), 200
 
     return jsonify(profile_schema.dump(profile)), 200
@@ -78,6 +82,16 @@ def update_my_profile():
         profile.bio = json_data['bio']
     if 'profile_photo_url' in json_data:
         profile.profile_photo_url = json_data['profile_photo_url']
+    if 'skills_json' in json_data:
+        profile.skills_json = json_data['skills_json']
+    if 'target_role' in json_data:
+        profile.target_role = json_data['target_role']
+    if 'previous_role' in json_data:
+        profile.previous_role = json_data['previous_role']
+    if 'experience_level' in json_data:
+        profile.experience_level = json_data['experience_level']
+    if 'experience_years' in json_data:
+        profile.experience_years = json_data['experience_years']
         
     db.session.commit()
     db.session.refresh(profile)

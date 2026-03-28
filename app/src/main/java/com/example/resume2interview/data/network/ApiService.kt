@@ -19,7 +19,7 @@ interface ApiService {
     @POST("auth/register")
     suspend fun register(
         @Body request: com.example.resume2interview.data.model.AuthRequest
-    ): Response<com.example.resume2interview.data.model.AuthResponse>
+    ): Response<Map<String, String>>
 
     @POST("auth/login")
     suspend fun login(
@@ -34,6 +34,16 @@ interface ApiService {
     @POST("auth/reset-password")
     suspend fun resetPassword(
         @Body request: com.example.resume2interview.data.model.PasswordResetConfirm
+    ): Response<Map<String, String>>
+
+    @POST("auth/verify-registration")
+    suspend fun verifyRegistration(
+        @Body request: com.example.resume2interview.data.model.VerifyRegistrationRequest
+    ): Response<com.example.resume2interview.data.model.AuthResponse>
+
+    @POST("auth/resend-otp")
+    suspend fun resendOtp(
+        @Body request: Map<String, String>
     ): Response<Map<String, String>>
 
     // ── Profile ───────────────────────────────────────────────────────────
@@ -70,6 +80,11 @@ interface ApiService {
         @Body request: com.example.resume2interview.data.model.GenerateQuestionsRequest
     ): Response<com.example.resume2interview.data.model.GenerateQuestionsResponse>
 
+    @POST("resume/generate-single-question")
+    suspend fun generateSingleQuestion(
+        @Body request: Map<String, @JvmSuppressWildcards Any?>
+    ): Response<com.example.resume2interview.data.model.InterviewQuestion>
+
     // ── Interviews ───────────────────────────────────────────────────────
 
     @POST("interviews/")
@@ -98,6 +113,12 @@ interface ApiService {
 
     @GET("analytics/category-performance")
     suspend fun getCategoryPerformance(): Response<com.example.resume2interview.data.model.CategoryPerformanceResponse>
+
+    @GET("analytics/interview-streak")
+    suspend fun getInterviewStreak(): Response<com.example.resume2interview.data.model.InterviewStreakResponse>
+
+    @GET("analytics/recent-activity")
+    suspend fun getRecentActivity(): Response<List<com.example.resume2interview.data.model.RecentActivityItem>>
 
     // ── Roles ──────────────────────────────────────────────────
 

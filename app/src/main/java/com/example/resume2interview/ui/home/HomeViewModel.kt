@@ -16,12 +16,16 @@ data class HomeUiData(
     val interviewSessionCount: Int,
     val latestScore: Int,
     val avgScore: Int = 0,
+    val trendPercentage: Double = 0.0,
     val focusAreas: List<String>,
     val extractedSkills: Int = 0,
     val isResumeActive: Boolean = false,
     val resumeUploadedAt: String? = null,
     val lastSessionDate: String? = null,
-    val generatedTips: List<String> = emptyList()
+    val generatedTips: List<String> = emptyList(),
+    val currentStreak: Int = 0,
+    val weekActivity: List<com.example.resume2interview.data.model.DayActivity> = emptyList(),
+    val recentActivity: List<com.example.resume2interview.data.model.RecentActivityItem> = emptyList()
 )
 
 @HiltViewModel
@@ -49,10 +53,9 @@ class HomeViewModel @Inject constructor(
             val summaryResult = analyticsRepository.getSummary()
             val summary = summaryResult.getOrNull()
 
-            // ── 3. Last-five interviews (latest score + most recent date) ──────
+            // ── 3. Last-five interviews (most recent date) ──────
             val lastFiveResult = analyticsRepository.getLastFive()
             val lastFive = lastFiveResult.getOrNull() ?: emptyList()
-            val latestScore = lastFive.firstOrNull()?.score ?: 0
             val lastSessionDate = lastFive.firstOrNull()?.createdAt
 
             // ── 4. Focus areas (categories needing most work based on lowest score) ──
@@ -63,8 +66,17 @@ class HomeViewModel @Inject constructor(
                 ?.sortedBy { it.value } // Lowest score first
                 ?.take(3)
                 ?.map { it.key }
-                ?.ifEmpty { listOf("Technical", "System Design", "Problem Solving") }
-                ?: listOf("Technical", "System Design", "Problem Solving")
+                ?: emptyList()
+
+            // ── 4a. Streak & Weekly Activity ───────────────────────────────────
+            val streakResult = analyticsRepository.getInterviewStreak()
+            val streakData = streakResult.getOrNull()
+            val currentStreak = streakData?.currentStreak ?: 0
+            val weekActivity = streakData?.weekActivity ?: emptyList()
+
+            // ── 4b. Recent Activity (interviews + resume uploads) ──────────────
+            val recentActivityResult = analyticsRepository.getRecentActivity()
+            val recentActivity = recentActivityResult.getOrNull() ?: emptyList()
 
             // ── 5. Resume active check (read from backend profile skillsJson) ──
             val skillsJsonStr = profile?.skillsJson
@@ -135,13 +147,17 @@ class HomeViewModel @Inject constructor(
                 greeting              = greeting,
                 resumeStatus          = if (isResumeActive) "Active" else "Action Needed",
                 interviewSessionCount = summary?.totalSessions ?: lastFive.size,
-                latestScore           = latestScore,
+                latestScore           = summary?.latestScore ?: 0,
                 avgScore              = summary?.averageScore?.toInt() ?: 0,
+                trendPercentage       = summary?.trendPercentage?.toDouble() ?: 0.0,
                 focusAreas            = focusAreas,
                 extractedSkills       = extractedSkillsCount,
                 isResumeActive        = isResumeActive,
                 lastSessionDate       = lastSessionDate,
-                generatedTips         = generatedTips
+                generatedTips         = generatedTips,
+                currentStreak         = currentStreak,
+                weekActivity          = weekActivity,
+                recentActivity        = recentActivity
             )
         }
     }

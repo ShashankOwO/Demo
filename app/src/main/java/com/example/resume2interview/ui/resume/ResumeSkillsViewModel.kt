@@ -14,6 +14,8 @@ data class SkillsUiData(
     val softSkills: List<String>,       // Soft skills from backend
     val tools: List<String>,            // Tools & frameworks (web, devops, testing)
     val experienceYears: Int = 0,
+    val targetRole: String? = null,
+    val experienceLevel: String? = null,
     val generatedQuestions: List<String> = emptyList()  // Question text only
 )
 
@@ -35,6 +37,8 @@ class ResumeSkillsViewModel @Inject constructor(
                     softSkills         = analysis.softSkills,
                     tools              = analysis.toolsFrameworks,
                     experienceYears    = analysis.detectedExperienceYears,
+                    targetRole         = analysis.inferredTargetRole,
+                    experienceLevel    = analysis.experienceLevel,
                     generatedQuestions = analysis.generatedQuestions.map { it.question }
                 )
             )
@@ -43,6 +47,7 @@ class ResumeSkillsViewModel @Inject constructor(
 
     /**
      * Loads the saved skills from the UserProfile when the user visits the Resume screen.
+     * Also restores experience years, experience level, and target role.
      */
     fun loadSavedSkills() {
         launchDataLoad {
@@ -50,22 +55,30 @@ class ResumeSkillsViewModel @Inject constructor(
             if (response.isSuccess) {
                 val profile = response.getOrNull()
                 val skillsJson = profile?.skillsJson
+                var tech = emptyList<String>()
+                var soft = emptyList<String>()
+                var tool = emptyList<String>()
                 if (!skillsJson.isNullOrBlank()) {
                     try {
                         val type = object : com.google.gson.reflect.TypeToken<Map<String, List<String>>>() {}.type
                         val skillsMap: Map<String, List<String>> = com.google.gson.Gson().fromJson(skillsJson, type)
-                        
-                        val allTechSkills = skillsMap.values.flatten().distinct()
-                        
-                        return@launchDataLoad SkillsUiData(
-                            techSkills = allTechSkills,
-                            softSkills = emptyList(),
-                            tools = emptyList()
-                        )
+                        soft = skillsMap["soft_skills"] ?: emptyList()
+                        tool = skillsMap["tools_frameworks"] ?: emptyList()
+                        tech = skillsMap.filterKeys { it != "soft_skills" && it != "tools_frameworks" }
+                            .values.flatten().distinct()
                     } catch (e: Exception) {
                         e.printStackTrace()
                     }
                 }
+
+                return@launchDataLoad SkillsUiData(
+                    techSkills = tech,
+                    softSkills = soft,
+                    tools = tool,
+                    experienceYears = profile?.experienceYears ?: 0,
+                    experienceLevel = profile?.experienceLevel,
+                    targetRole = profile?.targetRole
+                )
             }
             
             // Fallback to empty if fetch fails or user has no saved skills
@@ -82,16 +95,22 @@ class ResumeSkillsViewModel @Inject constructor(
      */
     fun savePreferencesAndGenerate(
         skills: List<String>,
+        softSkills: List<String>,
+        tools: List<String>,
         targetRole: String?,
-        experienceYears: Int?
+        experienceYears: Int?,
+        difficulty: String? = null
     ) {
         val currentState = uiState.value
         
         launchDataLoad {
             val result = resumeRepository.generateQuestionsFromPreferences(
                 skills = skills,
+                softSkills = softSkills,
+                toolsFrameworks = tools,
                 targetRole = targetRole,
-                experienceYears = experienceYears
+                experienceYears = experienceYears,
+                difficulty = difficulty
             )
             
             if (result.isFailure) {

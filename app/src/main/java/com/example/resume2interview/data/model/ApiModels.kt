@@ -36,6 +36,17 @@ data class InterviewQuestion(
 )
 
 /**
+ * Holds the skills that the AI Layer-7 fallback classified from unknown candidates.
+ * Nullable and fully optional — old backends that don't return this field will
+ * deserialise it as null, which the ViewModel treats as an empty object.
+ */
+data class AiClassifiedSkills(
+    @SerializedName("technical_skills") val technicalSkills: List<String> = emptyList(),
+    @SerializedName("tools_frameworks") val toolsFrameworks: List<String> = emptyList(),
+    @SerializedName("soft_skills")      val softSkills:      List<String> = emptyList(),
+)
+
+/**
  * Full response from POST /resume/upload.
  */
 data class ResumeAnalysisOut(
@@ -43,17 +54,28 @@ data class ResumeAnalysisOut(
     @SerializedName("tools_frameworks")          val toolsFrameworks:         List<String>          = emptyList(),
     @SerializedName("soft_skills")               val softSkills:              List<String>          = emptyList(),
     @SerializedName("detected_experience_years") val detectedExperienceYears: Int                   = 0,
+    @SerializedName("experience_level")          val experienceLevel:         String?               = null,
+    @SerializedName("inferred_target_role")      val inferredTargetRole:      String?               = null,
     @SerializedName("generated_questions")       val generatedQuestions:      List<InterviewQuestion> = emptyList(),
+    @SerializedName("ai_classified_skills")      val aiClassifiedSkills:      AiClassifiedSkills?   = null,
 )
 
 data class GenerateQuestionsRequest(
     @SerializedName("skills")           val skills:          List<String>,
+    @SerializedName("soft_skills")      val softSkills:      List<String> = emptyList(),
+    @SerializedName("tools_frameworks") val toolsFrameworks: List<String> = emptyList(),
     @SerializedName("target_role")      val targetRole:      String?,
-    @SerializedName("experience_years") val experienceYears: Int?
+    @SerializedName("experience_years") val experienceYears: Int?,
+    @SerializedName("difficulty")       val difficulty:      String? = null
 )
 
 data class GenerateQuestionsResponse(
     @SerializedName("generated_questions") val generatedQuestions: List<InterviewQuestion>
+)
+
+data class VerifyRegistrationRequest(
+    @SerializedName("email") val email: String,
+    @SerializedName("otp")   val otp: String
 )
 
 // ── Interview ─────────────────────────────────────────────────────────────────
@@ -107,15 +129,28 @@ data class InterviewOut(
 //          GET /analytics/skills-practiced → List<SkillPracticed>
 
 data class LastFiveEntry(
-    @SerializedName("id")         val id:        Int,
-    @SerializedName("score")      val score:     Int,
-    @SerializedName("created_at") val createdAt: String,
+    @SerializedName("id")               val id:            Int,
+    @SerializedName("score")            val score:         Int,
+    @SerializedName("created_at")       val createdAt:     String,
+    @SerializedName("role_applied_for") val roleAppliedFor: String? = null,
+)
+
+// ── Recent Activity ──────────────────────────────────────────────────────────
+// Matches: GET /analytics/recent-activity → List<RecentActivityItem>
+
+data class RecentActivityItem(
+    @SerializedName("type")             val type:          String,   // "interview" | "resume"
+    @SerializedName("date")             val date:          String?,
+    @SerializedName("score")            val score:         Int?      = null,
+    @SerializedName("role_applied_for") val roleAppliedFor: String?  = null,
+    @SerializedName("interview_id")     val interviewId:   Int?      = null,
 )
 
 data class AnalyticsSummary(
     @SerializedName("average_score")     val averageScore:      Float,
     @SerializedName("highest_score")     val highestScore:      Int,
     @SerializedName("lowest_score")      val lowestScore:       Int,
+    @SerializedName("latest_score")      val latestScore:       Int,
     @SerializedName("trend_percentage")  val trendPercentage:   Float,
     @SerializedName("total_sessions")    val totalSessions:     Int    = 0,
 )
@@ -142,4 +177,14 @@ data class SuggestedRoleEntry(
 
 data class SuggestedRolesResponse(
     @SerializedName("suggested_roles") val suggestedRoles: List<SuggestedRoleEntry> = emptyList(),
+)
+
+data class InterviewStreakResponse(
+    @SerializedName("current_streak") val currentStreak: Int,
+    @SerializedName("week_activity") val weekActivity: List<DayActivity> = emptyList()
+)
+
+data class DayActivity(
+    @SerializedName("day") val day: String,
+    @SerializedName("completed") val completed: Boolean
 )

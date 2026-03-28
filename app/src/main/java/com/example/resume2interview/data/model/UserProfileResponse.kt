@@ -11,6 +11,8 @@ data class UserProfileResponse(
     @SerializedName("profile_photo_url") val profilePhotoUrl: String?  = null,
     // Additional fields returned by GET /profile/me
     @SerializedName("skills_json")       val skillsJson: String?        = null,
-    @SerializedName("previous_role")     val previousRole: String?      = null,
+    @SerializedName("experience_level")  val experienceLevel: String?   = null,
     @SerializedName("target_role")       val targetRole: String?        = null,
+    @SerializedName("experience_years")      val experienceYears: Int?        = null,
+    @SerializedName("preferred_difficulty")   val preferredDifficulty: String? = null,
 )

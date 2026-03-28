@@ -1,35 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Premium light splash screen -->
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/bg_page">
+    android:background="@color/ic_launcher_background">
 
-    <!-- Logo background bubble -->
-    <View
-        android:id="@+id/v_logo_bg"
-        android:layout_width="130dp"
-        android:layout_height="130dp"
-        android:background="@drawable/bg_gradient_button"
-        android:alpha="0.12"
-        app:layout_constraintBottom_toTopOf="@+id/iv_logo"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.42"
-        app:layout_constraintVertical_chainStyle="packed" />
-
+    <!-- Full R2I Logo — hidden at start, reveals after arrow lands -->
     <ImageView
         android:id="@+id/iv_logo"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:background="@drawable/bg_card_glass"
-        android:padding="24dp"
-        android:src="@drawable/ic_mic_blue"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:adjustViewBounds="true"
+        android:src="@drawable/ic_splash_logo"
+        android:scaleType="fitCenter"
         android:elevation="4dp"
-        app:tint="@color/accent_indigo"
+        android:alpha="0"
+        app:layout_constraintWidth_percent="0.6"
         app:layout_constraintBottom_toTopOf="@+id/tv_app_name"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -37,21 +24,39 @@
         app:layout_constraintVertical_bias="0.42"
         app:layout_constraintVertical_chainStyle="packed" />
 
+    <!-- Arrow — rises from bottom to logo position, then crossfades into logo -->
+    <ImageView
+        android:id="@+id/iv_arrow"
+        android:layout_width="72dp"
+        android:layout_height="72dp"
+        android:src="@drawable/ic_arrow_orange"
+        android:elevation="8dp"
+        android:alpha="0"
+        app:layout_constraintBottom_toTopOf="@+id/tv_app_name"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.42"
+        app:layout_constraintVertical_chainStyle="packed" />
+
+    <!-- App name -->
     <TextView
         android:id="@+id/tv_app_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="28dp"
         android:text="Resume2Interview"
-        android:textColor="@color/text_primary"
+        android:textColor="#FFFFFF"
         android:textSize="30sp"
         android:textStyle="bold"
+        android:alpha="0"
         android:letterSpacing="-0.02"
         app:layout_constraintBottom_toTopOf="@+id/tv_tagline"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/iv_logo" />
 
+    <!-- Tagline -->
     <TextView
         android:id="@+id/tv_tagline"
         android:layout_width="wrap_content"
@@ -59,9 +64,10 @@
         android:layout_marginTop="10dp"
         android:letterSpacing="0.12"
         android:text="ACE YOUR NEXT INTERVIEW"
-        android:textColor="@color/accent_indigo"
+        android:textColor="#C5CAE9"
         android:textSize="11sp"
         android:textStyle="bold"
+        android:alpha="0"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -77,10 +83,8 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
-        <!-- Active pill -->
         <View android:layout_width="28dp" android:layout_height="7dp"
             android:layout_marginEnd="6dp" android:background="@drawable/bg_gradient_button" />
-        <!-- Inactive dots -->
         <View android:layout_width="7dp" android:layout_height="7dp"
             android:layout_marginEnd="6dp" android:background="@drawable/circle_white_dot" />
         <View android:layout_width="7dp" android:layout_height="7dp"

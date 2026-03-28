@@ -40,12 +40,12 @@ class ResumeSkillsFragment : BaseFragment<FragmentResumeSkillsBinding, ResumeSki
         // Remove the hardcoded popBackStack click listener. We handle it via handleExit now.
         binding.btnBack.setOnClickListener { handleExit() }
 
-        val expLevels = arrayOf("Fresher", "Junior", "Mid-Level", "Senior")
-        val expAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, expLevels)
+        val expLevels = arrayOf("Beginner", "Intermediate", "Expert")
+        val expAdapter = ArrayAdapter(requireContext(), R.layout.item_dropdown, expLevels)
         binding.dropdownExperienceLevel.setAdapter(expAdapter)
 
         val roles = arrayOf("Backend Developer", "Frontend Developer", "Full Stack Developer", "Data Analyst", "Android Developer", "Custom")
-        val roleAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, roles)
+        val roleAdapter = ArrayAdapter(requireContext(), R.layout.item_dropdown, roles)
         binding.dropdownTargetRole.setAdapter(roleAdapter)
 
         binding.dropdownTargetRole.setOnItemClickListener { _, _, position, _ ->
@@ -123,6 +123,18 @@ class ResumeSkillsFragment : BaseFragment<FragmentResumeSkillsBinding, ResumeSki
                 chip?.text?.toString()?.let { selectedSkills.add(it) }
             }
 
+            val selectedSoftSkills = mutableListOf<String>()
+            for (i in 0 until binding.chipGroupSoft.childCount) {
+                val chip = binding.chipGroupSoft.getChildAt(i) as? Chip
+                chip?.text?.toString()?.let { selectedSoftSkills.add(it) }
+            }
+
+            val selectedTools = mutableListOf<String>()
+            for (i in 0 until binding.chipGroupTools.childCount) {
+                val chip = binding.chipGroupTools.getChildAt(i) as? Chip
+                chip?.text?.toString()?.let { selectedTools.add(it) }
+            }
+
             // Extract from Role & Exp
             val role = if (binding.dropdownTargetRole.text.toString() == "Custom") {
                 binding.etCustomRole.text.toString()
@@ -136,8 +148,12 @@ class ResumeSkillsFragment : BaseFragment<FragmentResumeSkillsBinding, ResumeSki
                 return@setOnClickListener
             }
 
+            // Retrieve selected difficulty from Preferences
+            val prefs = requireContext().getSharedPreferences("preferences_prefs", android.content.Context.MODE_PRIVATE)
+            val difficulty = prefs.getString("difficulty", "intermediate")
+
             // Trigger Generation
-            viewModel.savePreferencesAndGenerate(selectedSkills, role, exp)
+            viewModel.savePreferencesAndGenerate(selectedSkills, selectedSoftSkills, selectedTools, role, exp, difficulty)
         }
         
         // Handle Back Press explicitly via OnBackPressedDispatcher
@@ -185,6 +201,16 @@ class ResumeSkillsFragment : BaseFragment<FragmentResumeSkillsBinding, ResumeSki
         binding.btnSavePreferences.isEnabled = true
         
         val uiData = data as? SkillsUiData ?: return
+
+        uiData.experienceLevel?.let {
+            binding.dropdownExperienceLevel.setText(it, false)
+        }
+        
+        // Populate Target Role and Experience Years
+        binding.etExperienceYears.setText(uiData.experienceYears.toString())
+        uiData.targetRole?.let {
+            binding.dropdownTargetRole.setText(it, false)
+        }
 
         // Technical Skills — all extracted_skills from backend
         binding.chipGroupTech.removeAllViews()

@@ -51,4 +51,24 @@ class AnalyticsRepository @Inject constructor(
             error("Category performance failed: ${response.code()}")
         }
     }
+
+    /** GET /analytics/interview-streak → practice streak and weekly array */
+    suspend fun getInterviewStreak(): Result<com.example.resume2interview.data.model.InterviewStreakResponse> = runCatching {
+        val response = api.getInterviewStreak()
+        if (response.isSuccessful && response.body() != null) {
+            response.body()!!
+        } else {
+            error("Interview streak failed: ${response.code()}")
+        }
+    }
+
+    /** GET /analytics/recent-activity → merged list of interview + resume events */
+    suspend fun getRecentActivity(): Result<List<com.example.resume2interview.data.model.RecentActivityItem>> = runCatching {
+        val response = api.getRecentActivity()
+        if (response.isSuccessful && response.body() != null) {
+            response.body()!!
+        } else {
+            error("Recent activity failed: ${response.code()}")
+        }
+    }
 }

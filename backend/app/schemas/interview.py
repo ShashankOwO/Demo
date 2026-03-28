@@ -35,5 +35,5 @@ class InterviewSchema(Schema):
     summary = fields.String(dump_only=True)
     created_at = fields.DateTime(dump_only=True)
     role_applied_for = fields.String(dump_only=True)
-    responses = fields.List(fields.Nested(QuestionAnswerSchema), dump_only=True)
+    responses = fields.List(fields.Nested(QuestionAnswerSchema), dump_only=True, data_key="question_answers")
     skills = fields.List(fields.Nested(SkillSchema), dump_only=True)

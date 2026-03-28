@@ -27,7 +27,7 @@ def create_app():
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
     # CORS
-    CORS(app, resources={r"/*": {"origins": settings.origins_list}}, supports_credentials=True)
+    CORS(app, supports_credentials=True, origins=settings.origins_list)
 
     # Rate Limiting (200 requests per minute by default globally)
     # Exclude static files if needed, but for an API this is solid protection.
@@ -70,4 +70,5 @@ def create_app():
 
 if __name__ == "__main__":
     app = create_app()
-    app.run(debug=settings.debug, host="0.0.0.0", port=5000)
+    app.run(debug=settings.debug, host="0.0.0.0", port=5000, use_reloader=False)
+

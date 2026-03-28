@@ -33,7 +33,7 @@ class InterviewProgressViewModel @Inject constructor(
                 val skillsDeferred = async { analyticsRepository.getSkillsPracticed() }
 
                 val summary = summaryDeferred.await().getOrElse { 
-                    AnalyticsSummary(0f, 0, 0, 0f, 0)
+                    AnalyticsSummary(0f, 0, 0, 0, 0f, 0)
                 }
                 
                 val lastFive = lastFiveDeferred.await().getOrElse { emptyList() }

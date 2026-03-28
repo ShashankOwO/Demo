@@ -30,7 +30,7 @@ class ProfileFragment : BaseFragment<FragmentProfileBinding, ProfileViewModel>(
 
         binding.tvNotifications.setOnClickListener {
             findNavController().navigate(R.id.action_profileFragment_to_notificationsFragment)
-        }
+          }
 
         binding.tvPreferences.setOnClickListener {
             findNavController().navigate(R.id.action_profileFragment_to_preferencesFragment)
@@ -57,12 +57,12 @@ class ProfileFragment : BaseFragment<FragmentProfileBinding, ProfileViewModel>(
                 summary?.let {
                     binding.tvStatInterviews.text = it.totalSessions.toString()
                     binding.tvStatScore.text      = it.averageScore.toInt().toString()
+                    binding.tvStatMaxScore.text   = it.highestScore.toString()
                 }
             }
         }
 
-        // Check the shared globally static resume state
-        binding.tvStatResumes.text = if (com.example.resume2interview.ui.home.HomeStaticState.isResumeUploaded) "1" else "0"
+        // Max score is bound via the summary observer above.
     }
 
     override fun showContent(data: Any?) {

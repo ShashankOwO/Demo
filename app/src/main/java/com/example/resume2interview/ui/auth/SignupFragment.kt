@@ -9,6 +9,7 @@ import android.view.View
 import android.view.animation.AccelerateInterpolator
 import android.view.animation.DecelerateInterpolator
 import android.view.animation.OvershootInterpolator
+import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.example.resume2interview.R
@@ -23,8 +24,7 @@ class SignupFragment : BaseFragment<FragmentSignupBinding, SignupViewModel>(
     override val viewModel: SignupViewModel by viewModels()
 
     override fun setupUI() {
-
-        // ── Slide-in entrance animation when arriving from Login tab ─────────────
+        // ── Entrance animation ────────────────────────────────────────────────────
         binding.cardForm.apply {
             translationY = 40f
             alpha = 0f
@@ -37,29 +37,25 @@ class SignupFragment : BaseFragment<FragmentSignupBinding, SignupViewModel>(
                 .start()
         }
 
-        // ── Password focus → animated border glow ────────────────────────────────
+        // ── Password focus glow ────────────────────────────────────────────────────
         binding.etPassword.setOnFocusChangeListener { _, hasFocus ->
             binding.layoutPassword.setBackgroundResource(
-                if (hasFocus) R.drawable.bg_input_focused
-                else R.drawable.bg_input_field
+                if (hasFocus) R.drawable.bg_input_focused else R.drawable.bg_input_field
             )
             if (hasFocus) glowPulse(binding.layoutPassword)
         }
 
-        // ── Log In tab: slide card down + navigate ────────────────────────────────
+        // ── Log In tab ─────────────────────────────────────────────────────────────
         binding.tvLogin.setOnClickListener {
             binding.cardForm.animate()
-                .translationY(24f)
-                .alpha(0f)
+                .translationY(24f).alpha(0f)
                 .setDuration(200)
                 .setInterpolator(AccelerateInterpolator(1.5f))
-                .withEndAction {
-                    findNavController().navigate(R.id.action_signupFragment_to_loginFragment)
-                }
+                .withEndAction { findNavController().navigate(R.id.action_signupFragment_to_loginFragment) }
                 .start()
         }
 
-        // ── Create Account ────────────────────────────────────────────────────────
+        // ── Create Account button ──────────────────────────────────────────────────
         binding.btnCreateAccount.setOnClickListener {
             val name  = binding.etFullName.text.toString().trim()
             val email = binding.etEmail.text.toString().trim()
@@ -68,33 +64,21 @@ class SignupFragment : BaseFragment<FragmentSignupBinding, SignupViewModel>(
             var valid = true
             var firstInvalid: View? = null
 
-            if (name.isEmpty()) {
-                highlightError(binding.etFullName)
-                valid = false
-                if (firstInvalid == null) firstInvalid = binding.etFullName
-            } else clearError(binding.etFullName)
+            if (name.isEmpty()) { highlightError(binding.etFullName); valid = false; if (firstInvalid == null) firstInvalid = binding.etFullName }
+            else clearError(binding.etFullName)
 
-            if (email.isEmpty()) {
-                highlightError(binding.etEmail)
-                valid = false
-                if (firstInvalid == null) firstInvalid = binding.etEmail
-            } else clearError(binding.etEmail)
+            if (email.isEmpty()) { highlightError(binding.etEmail); valid = false; if (firstInvalid == null) firstInvalid = binding.etEmail }
+            else clearError(binding.etEmail)
 
-            if (pass.isEmpty()) {
+            if (pass.isEmpty() || pass.length < 6) {
                 highlightError(binding.layoutPassword)
-                valid = false
-            } else if (pass.length < 6) {
-                highlightError(binding.layoutPassword)
-                binding.etPassword.error = "At least 6 characters required"
+                if (pass.length in 1..5) binding.etPassword.error = "At least 6 characters required"
                 valid = false
             } else clearError(binding.layoutPassword)
 
-            if (!valid) {
-                firstInvalid?.requestFocus()
-                return@setOnClickListener
-            }
+            if (!valid) { firstInvalid?.requestFocus(); return@setOnClickListener }
 
-            // Haptic-style press animation
+            // Haptic press animation
             val scaleX = ObjectAnimator.ofFloat(binding.btnCreateAccount, "scaleX", 1f, 0.96f, 1f).apply { duration = 300 }
             val scaleY = ObjectAnimator.ofFloat(binding.btnCreateAccount, "scaleY", 1f, 0.96f, 1f).apply { duration = 300 }
             val fade   = ObjectAnimator.ofFloat(binding.btnCreateAccount, "alpha", 1f, 0.6f, 1f).apply { duration = 300 }
@@ -104,34 +88,39 @@ class SignupFragment : BaseFragment<FragmentSignupBinding, SignupViewModel>(
         }
     }
 
+    override fun showLoading() {
+        binding.btnCreateAccount.text = "Sending email…"
+        binding.btnCreateAccount.icon = null
+        binding.btnCreateAccount.isEnabled = false
+    }
+
     override fun showContent(data: Any?) {
-        if (data as? Boolean == true) {
-            findNavController().navigate(R.id.action_signupFragment_to_homeFragment)
+        binding.btnCreateAccount.isEnabled = true
+        binding.btnCreateAccount.text = "Create Account"
+        val success = data as? Boolean ?: false
+        if (success) {
+            val email = binding.etEmail.text.toString().trim()
+            val action = SignupFragmentDirections.actionSignupFragmentToVerifyRegistrationFragment(email)
+            findNavController().navigate(action)
         }
     }
 
     override fun showError(message: String) {
+        binding.btnCreateAccount.isEnabled = true
+        binding.btnCreateAccount.text = "Create Account"
         super.showError(message)
         if (message.contains("Email", ignoreCase = true) || message.contains("User", ignoreCase = true)) {
-            highlightError(binding.etEmail)
-            binding.etEmail.error = message
+            highlightError(binding.etEmail); binding.etEmail.error = message
         } else if (message.contains("Password", ignoreCase = true)) {
-            highlightError(binding.layoutPassword)
-            binding.etPassword.error = message
+            highlightError(binding.layoutPassword); binding.etPassword.error = message
         }
     }
 
     // ── Helpers ──────────────────────────────────────────────────────────────────
 
-    /** Flash a red border + shake on invalid field */
     private fun highlightError(view: View) {
+        view.backgroundTintList = null
         view.setBackgroundResource(R.drawable.bg_input_error)
-        val colorFrom = Color.TRANSPARENT
-        val colorTo   = Color.parseColor("#1AFF3B30")
-        ValueAnimator.ofArgb(colorFrom, colorTo, colorFrom).apply {
-            duration  = 600
-            addUpdateListener { view.setBackgroundTintList(ColorStateList.valueOf(it.animatedValue as Int)) }
-        }.start()
         shakeView(view)
     }
 
@@ -144,9 +133,7 @@ class SignupFragment : BaseFragment<FragmentSignupBinding, SignupViewModel>(
     }
 
     private fun shakeView(view: View) {
-        ObjectAnimator.ofFloat(view, "translationX",
-            0f, -12f, 12f, -8f, 8f, -4f, 4f, 0f
-        ).apply { duration = 350 }.start()
+        ObjectAnimator.ofFloat(view, "translationX", 0f, -12f, 12f, -8f, 8f, -4f, 4f, 0f).apply { duration = 350 }.start()
     }
 
     private fun glowPulse(view: View) {

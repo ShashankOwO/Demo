@@ -31,7 +31,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Interview History"
-            android:textColor="#1A1C1E"
+            android:textColor="@color/text_primary"
             android:textSize="20sp"
             android:textStyle="bold"
             android:fontFamily="sans-serif-medium" />
@@ -99,7 +99,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="78%"
-                    android:textColor="#1A1C1E"
+                    android:textColor="@color/text_primary"
                     android:textSize="28sp"
                     android:textStyle="bold" />
             </LinearLayout>
@@ -149,7 +149,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="4.5h"
-                    android:textColor="#1A1C1E"
+                    android:textColor="@color/text_primary"
                     android:textSize="28sp"
                     android:textStyle="bold" />
             </LinearLayout>
@@ -161,7 +161,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Skills Practiced"
-        android:textColor="#1A1C1E"
+        android:textColor="@color/text_primary"
         android:textSize="16sp"
         android:textStyle="bold"
         android:layout_marginBottom="16dp" />
@@ -177,7 +177,7 @@
         <!-- Communication -->
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginBottom="14dp">
             <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="6dp">
-                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Communication" android:textColor="#1A1C1E" android:textSize="14sp" />
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Communication" android:textColor="@color/text_primary" android:textSize="14sp" />
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="6 sessions" android:textColor="#9E9E9E" android:textSize="12sp" />
             </LinearLayout>
             <ProgressBar android:id="@+id/pb_communication" style="@style/Widget.AppCompat.ProgressBar.Horizontal" android:layout_width="match_parent" android:layout_height="6dp" android:max="10" android:progress="6" android:progressTint="#4285F4" android:progressBackgroundTint="#E0E0E0" />
@@ -186,7 +186,7 @@
         <!-- Problem Solving -->
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginBottom="14dp">
             <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="6dp">
-                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Problem Solving" android:textColor="#1A1C1E" android:textSize="14sp" />
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Problem Solving" android:textColor="@color/text_primary" android:textSize="14sp" />
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="5 sessions" android:textColor="#9E9E9E" android:textSize="12sp" />
             </LinearLayout>
             <ProgressBar android:id="@+id/pb_problem_solving" style="@style/Widget.AppCompat.ProgressBar.Horizontal" android:layout_width="match_parent" android:layout_height="6dp" android:max="10" android:progress="5" android:progressTint="#4285F4" android:progressBackgroundTint="#E0E0E0" />
@@ -195,7 +195,7 @@
         <!-- System Design -->
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginBottom="14dp">
             <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="6dp">
-                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="System Design" android:textColor="#1A1C1E" android:textSize="14sp" />
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="System Design" android:textColor="@color/text_primary" android:textSize="14sp" />
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="4 sessions" android:textColor="#9E9E9E" android:textSize="12sp" />
             </LinearLayout>
             <ProgressBar android:id="@+id/pb_system_design" style="@style/Widget.AppCompat.ProgressBar.Horizontal" android:layout_width="match_parent" android:layout_height="6dp" android:max="10" android:progress="4" android:progressTint="#4285F4" android:progressBackgroundTint="#E0E0E0" />
@@ -204,7 +204,7 @@
         <!-- Technical Depth -->
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginBottom="14dp">
             <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="6dp">
-                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Technical Depth" android:textColor="#1A1C1E" android:textSize="14sp" />
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Technical Depth" android:textColor="@color/text_primary" android:textSize="14sp" />
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="3 sessions" android:textColor="#9E9E9E" android:textSize="12sp" />
             </LinearLayout>
             <ProgressBar android:id="@+id/pb_technical" style="@style/Widget.AppCompat.ProgressBar.Horizontal" android:layout_width="match_parent" android:layout_height="6dp" android:max="10" android:progress="3" android:progressTint="#4285F4" android:progressBackgroundTint="#E0E0E0" />
@@ -213,7 +213,7 @@
         <!-- Behavioral -->
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
             <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="6dp">
-                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Behavioral" android:textColor="#1A1C1E" android:textSize="14sp" />
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Behavioral" android:textColor="@color/text_primary" android:textSize="14sp" />
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="2 sessions" android:textColor="#9E9E9E" android:textSize="12sp" />
             </LinearLayout>
             <ProgressBar android:id="@+id/pb_behavioral" style="@style/Widget.AppCompat.ProgressBar.Horizontal" android:layout_width="match_parent" android:layout_height="6dp" android:max="10" android:progress="2" android:progressTint="#4285F4" android:progressBackgroundTint="#E0E0E0" />
@@ -230,13 +230,13 @@
         android:textAllCaps="false"
         android:textSize="15sp"
         android:textStyle="bold"
-        android:textColor="#1A1C1E"
+        android:textColor="@color/text_primary"
         app:icon="@drawable/ic_document"
         app:iconTint="#1A1C1E"
         app:iconGravity="textStart"
         app:iconPadding="8dp"
         app:cornerRadius="16dp"
-        android:backgroundTint="#F5F7FA"
+        android:backgroundTint="@color/bg_page"
         app:strokeColor="#E0E0E0"
         app:strokeWidth="1dp" />
 

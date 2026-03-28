@@ -4,7 +4,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:animateLayoutChanges="true"
-        android:background="#F5F7FA"
+        android:background="@color/bg_page"
         android:padding="24dp">
 
     <!-- Top bar: Back + Title + Save -->
@@ -26,7 +26,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="Edit Profile"
-        android:textColor="#1A1C1E"
+        android:textColor="@color/text_primary"
         android:textSize="18sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="@+id/btn_back"
@@ -113,7 +113,7 @@
                 android:minHeight="52dp"
                 android:paddingHorizontal="16dp"
                 android:paddingVertical="12dp"
-                android:textColor="#1A1C1E"
+                android:textColor="@color/text_primary"
                 android:textColorHint="#9E9E9E"
                 android:textSize="15sp"/>
 
@@ -138,7 +138,7 @@
                 android:minHeight="52dp"
                 android:paddingHorizontal="16dp"
                 android:paddingVertical="12dp"
-                android:textColor="#1A1C1E"
+                android:textColor="@color/text_primary"
                 android:textColorHint="#9E9E9E"
                 android:textSize="15sp"/>
 
@@ -163,7 +163,7 @@
                 android:minHeight="52dp"
                 android:paddingHorizontal="16dp"
                 android:paddingVertical="12dp"
-                android:textColor="#1A1C1E"
+                android:textColor="@color/text_primary"
                 android:textColorHint="#9E9E9E"
                 android:textSize="15sp"/>
 
@@ -188,7 +188,7 @@
                 android:minHeight="52dp"
                 android:paddingHorizontal="16dp"
                 android:paddingVertical="12dp"
-                android:textColor="#1A1C1E"
+                android:textColor="@color/text_primary"
                 android:textColorHint="#9E9E9E"
                 android:textSize="15sp"/>
 
@@ -215,7 +215,7 @@
                 android:minHeight="100dp"
                 android:paddingHorizontal="16dp"
                 android:paddingVertical="12dp"
-                android:textColor="#1A1C1E"
+                android:textColor="@color/text_primary"
                 android:textColorHint="#9E9E9E"
                 android:textSize="15sp"/>
 

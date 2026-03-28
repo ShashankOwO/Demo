@@ -17,6 +17,11 @@ class User(db.Model):
         default=lambda: datetime.now(timezone.utc),
         nullable=False,
     )
+    # Registration Verification
+    is_verified: Mapped[bool] = mapped_column(db.Boolean, default=False, nullable=False)
+    registration_otp: Mapped[str] = mapped_column(String(6), nullable=True)
+    registration_otp_expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=True)
+
     # Password Reset
     reset_code: Mapped[str] = mapped_column(String(6), nullable=True)
     reset_code_expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=True)
